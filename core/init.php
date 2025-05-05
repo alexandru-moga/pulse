@@ -1,22 +1,18 @@
 <?php
-
-define('CORE_PATH', __DIR__ . '/../core');
+// Load configuration FIRST
 require_once __DIR__ . '/config.php';
 
-// Start session
+// Initialize session with defined name
 session_name(SESSION_NAME);
 session_start();
-
-// Include configuration
-require_once 'config.php';
 
 // Error handling
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Load core classes
+// Autoloader for classes
 spl_autoload_register(function($class) {
-    $file = __DIR__ . '/classes/' . $class . '.php';
+    $file = CORE_PATH . '/classes/' . $class . '.php';
     if (file_exists($file)) {
         require_once $file;
     }
@@ -25,7 +21,7 @@ spl_autoload_register(function($class) {
 // Initialize database connection
 $db = new Database(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-// Check if user is logged in
+// Check logged-in user
 $currentUser = null;
 if (isset($_SESSION['user_id'])) {
     $currentUser = User::getById($_SESSION['user_id']);
