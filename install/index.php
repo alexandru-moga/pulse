@@ -1,4 +1,13 @@
 <?php
+
+define('IN_NEIGHBORHOOD_CMS', true);
+require_once __DIR__ . '/../core/init.php';
+
+echo 'Including: ' . __DIR__ . '/../core/init.php' . PHP_EOL;
+require_once __DIR__ . '/../core/init.php';
+echo 'Class User exists: ' . (class_exists('User') ? 'YES' : 'NO') . PHP_EOL;
+exit;
+
 $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
 $error = '';
 $success = '';
@@ -23,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $conn->exec("CREATE DATABASE IF NOT EXISTS `$dbName`");
                 $conn->exec("USE `$dbName`");
                 
-                $schema = file_get_contents($schemaFile);
+                $schema = file_get_contents(__DIR__ . '/schema.sql');
                 $conn->exec($schema);
                 
                 $config = file_get_contents($configTemplate);
