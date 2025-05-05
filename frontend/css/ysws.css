@@ -1,0 +1,31 @@
+/* Additional styles for the projects page */
+.content h1 {
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  
+  .content p {
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+  
+  .sidebar-link.active {
+    background-color: rgba(236, 55, 80, 0.1);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .filter {
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: var(--elevated);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+  }
+  

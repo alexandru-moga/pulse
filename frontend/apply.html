@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply - Neighborhood HQ</title>
+  <!-- Hack Club CSS -->
+  <link rel="stylesheet" href="https://css.hackclub.com/theme.css">
+  <link rel="stylesheet" href="https://css.hackclub.com/fonts.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/apply.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container">
+      <a href="/" class="nav-logo">
+        <img src="images/hackclub-logo.svg" alt="Hack Club" class="nav-logo-img">
+        <span class="nav-title">Neighborhood</span>
+      </a>
+      <div class="nav-links">
+        <a href="/apply.html" class="active">Apply</a>
+        <a href="/dashboard.html">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container main-container">
+    <main class="content centered">
+      <div class="apply-card">
+        <h1>Join Our Club</h1>
+        <p>We're excited to have you join our Hack Club community! Fill out the form below to get started.</p>
+        
+        <form id="application-form" class="apply-form">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="reason">Why do you want to join?</label>
+            <textarea id="reason" rows="4" required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="experience">Programming Experience</label>
+            <select id="experience" required>
+              <option value="">Select your experience level</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="button primary">Submit Application</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/apply.js"></script>
+</body>
+</html>
