@@ -1,6 +1,7 @@
 /* public/css/main.css */
 @import url('https://fonts.hackclub.com/api/css?family=Phantom+Sans');
 @import url('https://css.hackclub.com/theme.css');
+@import 'footer.css';
 
 :root {
   --primary: #ec3750;
@@ -235,3 +236,15 @@ body {
   .nav-links a:hover {
     opacity: 0.8;
   }
+  
+  /* Dark theme support */
+  [data-theme="dark"] .css-2hv6dq {
+    background: var(--background, #1a1a1a);
+    color: var(--text, #ffffff);
+  }
+  
+  [data-theme="dark"] .css-1rw9ufr a:hover,
+  [data-theme="dark"] .css-1rw9ufr a:focus {
+    color: var(--snow, #f5f5f5);
+  }
+
