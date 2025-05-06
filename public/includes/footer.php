@@ -9,4 +9,11 @@
       <a href="/contact" style="color: var(--accent); text-decoration: none; margin: 0 10px;">Contact</a>
     </nav>
   </div>
+  <div class="theme-switch-wrapper">
+      <label class="switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
 </footer>

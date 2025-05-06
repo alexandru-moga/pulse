@@ -1,10 +1,10 @@
-<header class="header">
-    <nav class="nav-container">
-        <a href="/" class="logo"><?= SITE_TITLE ?></a>
-        <div class="nav-links">
-            <a href="/club-website/public" class="<?= basename($_SERVER['PHP_SELF']) === 'members.php' ? 'active' : '' ?>">Members</a>
-            <a href="/club-website/public" class="<?= basename($_SERVER['PHP_SELF']) === 'apply.php' ? 'active' : '' ?>">Apply</a>
-            <a href="/club-website/public" class="<?= basename($_SERVER['PHP_SELF']) === 'contact.php' ? 'active' : '' ?>">Contact</a>
-        </div>
+<header class="site-header translucent">
+  <div class="header-container">
+    <a href="/" class="site-title"><?= SITE_TITLE ?></a>
+    <nav class="nav-links">
+      <a href="/members">Members</a>
+      <a href="/apply">Apply</a>
+      <a href="/contact">Contact</a>
     </nav>
+  </div>
 </header>

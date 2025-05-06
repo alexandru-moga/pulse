@@ -1,86 +1,237 @@
 /* public/css/main.css */
+@import url('https://fonts.hackclub.com/api/css?family=Phantom+Sans');
+@import url('https://css.hackclub.com/theme.css');
+
 :root {
-    --primary: #ec3750;
-    --secondary: #ff8c37;
-    --accent: #33d6a6;
-    --dark: #1a1a1a;
-    --light: #ffffff;
+  --primary: #ec3750;
+  --secondary: #ff8c37;
+  --accent: #33d6a6;
+  --text: #1a1a1a;
+  --background: #ffffff;
+  --elevated: #f8f9fa;
+  --sheet: #f1f3f5;
+  --sunken: #e9ecef;
+  --border: #dee2e6;
+}
+
+[data-theme="dark"] {
+  --text: #ffffff;
+  --background: #1a1a1a;
+  --elevated: #2d2d2d;
+  --sheet: #404040;
+  --sunken: #595959;
+  --border: #6b6b6b;
+}
+
+/* Add Hack Club flag */
+.hackclub-flag {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 256px;
+  z-index: 999;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.hackclub-flag:hover {
+  transform: translateY(6px);
+}
+
+/* Improved hero section */
+.hero {
+  position: relative;
+  padding: 8rem 1rem;
+  background: var(--primary);
+  color: white;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 18.5L8 26V9l8-8 8 8v17z' fill='%23fff' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Project grid enhancements */
+.ysws-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  padding: 2rem 0;
+}
+
+.project-card {
+  background: var(--elevated);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  border: 1px solid var(--border);
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+}
+
+.project-card img {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Value cards */
+.grid-three {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.value-card {
+  padding: 2rem;
+  background: var(--elevated);
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+/* Light theme */
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.switch {
+  width: 60px;
+  height: 34px;
+}
+
+h1, h2, h3 {
+  font-family: 'Phantom Sans', sans-serif;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2.25rem;
 }
 
 body {
-    font-family: 'Phantom Sans', system-ui;
-    margin: 0;
-    line-height: 1.6;
-    background: var(--light);
-    color: var(--dark);
+  font-family: 'Phantom Sans', system-ui;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.6;
 }
 
-.header {
-    background: var(--primary);
-    padding: 1rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+/*Header*/
+@import url('https://css.hackclub.com/theme.css');
+@import url('https://fonts.hackclub.com/api/css?family=Phantom+Sans');
+
+/* Glassy, translucent header */
+.site-header.translucent {
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  z-index: 1000;
+  background: rgba(20, 20, 20, 0.75);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  backdrop-filter: saturate(180%) blur(24px);
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
+  border-bottom: 1.5px solid var(--border, #222);
+  transition: background 0.3s;
 }
 
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 2rem;
+}
+
+.header-flag img {
+  height: 48px;
+  width: auto;
+  display: block;
+  margin-right: 1.5rem;
+}
+
+.site-title {
+  font-family: 'Phantom Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--red, #ec3750);
+  text-decoration: none;
+  letter-spacing: -1px;
+  margin: 0 2rem 0 0;
+  transition: color 0.2s;
+}
+
+.site-title:hover {
+  color: var(--accent, #33d6a6);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-family: 'Phantom Sans', system-ui, sans-serif;
+  font-size: 1.1rem;
+  color: var(--snow, #fff);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  padding: 0.4em 0.8em;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+  background: var(--red, #ec3750);
+  color: #fff;
+}
+
+
+  
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.logo {
+  }
+  
+  .logo {
     color: white;
     text-decoration: none;
     font-weight: 700;
     font-size: 1.5rem;
-}
-
-.nav-links {
+  }
+  
+  .nav-links {
     display: flex;
     gap: 2rem;
-}
-
-.nav-links a {
+  }
+  
+  .nav-links a {
     color: white;
     text-decoration: none;
     transition: opacity 0.3s ease;
-}
-
-.nav-links a:hover {
-    opacity: 0.8;
-}
-
-.ysws-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 2rem 0;
-}
-
-.project-card {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-5px);
-}
-
-.footer-links a {
-    color: var(--accent);
-    text-decoration: none;
-    margin: 0 10px;
-    font-weight: 500;
-    transition: color 0.3s;
-  }
-  .footer-links a:hover {
-    color: var(--primary);
-  }
-  footer p {
-    margin-bottom: 0;
   }
   
+  .nav-links a:hover {
+    opacity: 0.8;
+  }
