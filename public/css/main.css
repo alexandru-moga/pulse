@@ -69,3 +69,18 @@ body {
 .project-card:hover {
     transform: translateY(-5px);
 }
+
+.footer-links a {
+    color: var(--accent);
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover {
+    color: var(--primary);
+  }
+  footer p {
+    margin-bottom: 0;
+  }
+  
