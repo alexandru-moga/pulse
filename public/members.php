@@ -1,31 +1,37 @@
 <?php
-require_once '../core/init.php';
+require_once '../core/init.php'; // Make sure this loads the User class
+
+// Ensure User::getAll() is defined as a static method in the User class
 $members = User::getAll();
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= SITE_TITLE ?></title>
-    <link rel="stylesheet" href="https://fonts.hackclub.com/api/css?family=Phantom+Sans">
-    <link rel="stylesheet" href="css/main.css">
+    <title>Club Members</title>
+    <style>
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1em;
+        }
+        .member-card {
+            border: 1px solid #ccc;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 2px 2px 8px #eee;
+        }
+    </style>
 </head>
 <body>
-    <?php include 'includes/header.php'; ?>
-    
-    <main class="container">
-        <h2>Club Members</h2>
-        <div class="members-grid">
-            <?php foreach ($members as $member): ?>
+    <h1>Club Members</h1>
+    <div class="members-grid">
+        <?php foreach ($members as $member): ?>
             <div class="member-card">
-                <h3><?= $member->username ?></h3>
-                <p>Joined: <?= date('M Y', strtotime($member->created_at)) ?></p>
+                <strong><?= htmlspecialchars($member->username) ?></strong><br>
+                Joined: <?= date('M Y', strtotime($member->created_at)) ?>
             </div>
-            <?php endforeach; ?>
-        </div>
-    </main>
-
-    <?php include 'includes/footer.php'; ?>
+        <?php endforeach; ?>
+    </div>
 </body>
 </html>
