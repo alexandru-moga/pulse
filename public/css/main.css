@@ -1,7 +1,9 @@
 /* public/css/main.css */
 @import url('https://fonts.hackclub.com/api/css?family=Phantom+Sans');
 @import url('https://css.hackclub.com/theme.css');
+@import 'header.css';
 @import 'footer.css';
+@import 'index.css';
 
 :root {
   --primary: #ec3750;
@@ -13,6 +15,7 @@
   --sheet: #f1f3f5;
   --sunken: #e9ecef;
   --border: #dee2e6;
+  --website-gradient: linear-gradient(90deg, var(--primary), var(--secondary));
 }
 
 [data-theme="dark"] {
@@ -22,93 +25,6 @@
   --sheet: #404040;
   --sunken: #595959;
   --border: #6b6b6b;
-}
-
-/* Add Hack Club flag */
-.hackclub-flag {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 256px;
-  z-index: 999;
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-}
-
-.hackclub-flag:hover {
-  transform: translateY(6px);
-}
-
-/* Improved hero section */
-.hero {
-  position: relative;
-  padding: 8rem 1rem;
-  background: var(--primary);
-  color: white;
-  overflow: hidden;
-}
-
-.hero::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 18.5L8 26V9l8-8 8 8v17z' fill='%23fff' fill-opacity='0.05'/%3E%3C/svg%3E");
-}
-
-/* Project grid enhancements */
-.ysws-grid {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  padding: 2rem 0;
-}
-
-.project-card {
-  background: var(--elevated);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s ease;
-  border: 1px solid var(--border);
-}
-
-.project-card:hover {
-  transform: translateY(-4px);
-}
-
-.project-card img {
-  height: 200px;
-  object-fit: cover;
-  width: 100%;
-}
-
-/* Value cards */
-.grid-three {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.value-card {
-  padding: 2rem;
-  background: var(--elevated);
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid var(--border);
-}
-
-/* Light theme */
-.theme-switch-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.switch {
-  width: 60px;
-  height: 34px;
 }
 
 h1, h2, h3 {
@@ -132,119 +48,26 @@ body {
   line-height: 1.6;
 }
 
-
-/*Header*/
-@import url('https://css.hackclub.com/theme.css');
-@import url('https://fonts.hackclub.com/api/css?family=Phantom+Sans');
-
-/* Glassy, translucent header */
-.site-header.translucent {
-  position: sticky;
-  top: 0;
-  width: 100vw;
-  z-index: 1000;
-  background: rgba(20, 20, 20, 0.75);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
-  border-bottom: 1.5px solid var(--border, #222);
-  transition: background 0.3s;
+/* Page Title */
+.page-title {
+  padding: 6rem 0 3rem;
+  text-align: center;
 }
 
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.page-title h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: var(--website-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Container */
+.container {
+  width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.5rem 2rem;
+  padding: 0 1.5rem;
+  margin-bottom: 3rem;
 }
-
-.header-flag img {
-  height: 48px;
-  width: auto;
-  display: block;
-  margin-right: 1.5rem;
-}
-
-.site-title {
-  font-family: 'Phantom Sans', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 2rem;
-  color: var(--red, #ec3750);
-  text-decoration: none;
-  letter-spacing: -1px;
-  margin: 0 2rem 0 0;
-  transition: color 0.2s;
-}
-
-.site-title:hover {
-  color: var(--accent, #33d6a6);
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-links a {
-  font-family: 'Phantom Sans', system-ui, sans-serif;
-  font-size: 1.1rem;
-  color: var(--snow, #fff);
-  text-decoration: none;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  padding: 0.4em 0.8em;
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
-}
-
-.nav-links a:hover,
-.nav-links a:focus {
-  background: var(--red, #ec3750);
-  color: #fff;
-}
-
-
-  
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .logo {
-    color: white;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.5rem;
-  }
-  
-  .nav-links {
-    display: flex;
-    gap: 2rem;
-  }
-  
-  .nav-links a {
-    color: white;
-    text-decoration: none;
-    transition: opacity 0.3s ease;
-  }
-  
-  .nav-links a:hover {
-    opacity: 0.8;
-  }
-  
-  /* Dark theme support */
-  [data-theme="dark"] .css-2hv6dq {
-    background: var(--background, #1a1a1a);
-    color: var(--text, #ffffff);
-  }
-  
-  [data-theme="dark"] .css-1rw9ufr a:hover,
-  [data-theme="dark"] .css-1rw9ufr a:focus {
-    color: var(--snow, #f5f5f5);
-  }
-

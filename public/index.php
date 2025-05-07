@@ -35,66 +35,62 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php include 'includes/header.php'; ?>
     
     <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <h1>Welcome to <?= SITE_TITLE ?></h1>
-                <p class="hero-subtitle">Join a vibrant community of students passionate about technology and innovation</p>
-                <div class="cta-buttons">
-                    <a href="/join" class="button ysws">Join Now</a>
-                    <a href="#projects" class="button secondary">View Projects</a>
-                </div>
-            </div>
+        <!-- Page Title -->
+        <section class="page-title">
+          <div class="container">
+            <h1><?= SITE_WELCOME_TITLE ?></h1>
+            <p class="subtitle"><?= SITE_WELCOME_DESCRIPTION ?></p>
+          </div>
+        </section>
+        <!-- About -->
+        <section class="about">
+          <div class="container">
+            <h2><?= INDEX_ABOUT_TITLE ?></h2> 
+            <p><?= INDEX_ABOUT_DESCRIPTION ?></p>
+          </div>
         </section>
 
-        <!-- Core Values -->
-        <section class="values">
-            <div class="container grid-three">
-                <div class="value-card">
-                    <hc-icon name="users" size="40"></hc-icon>
-                    <h3>Community</h3>
-                    <p>Collaborative environment where students learn and grow together</p>
-                </div>
-                <div class="value-card">
-                    <hc-icon name="lightning" size="40"></hc-icon>
-                    <h3>Innovation</h3>
-                    <p>Build impactful projects using cutting-edge technologies</p>
-                </div>
-                <div class="value-card">
-                    <hc-icon name="growth" size="40"></hc-icon>
-                    <h3>Growth</h3>
-                    <p>Develop both technical and leadership skills through hands-on experience</p>
-                </div>
+        <!-- Stats Section -->
+        <section class="container" style="margin-bottom: 3rem;">
+          <div class="stats-row">
+            <div class="stats-card">
+              <div class="stats-number"><?= INDEX_ACTIVE_STUDENTS?>+</div>
+              <div class="stats-label">Active Members</div>
             </div>
+            <div class="stats-card">
+              <div class="stats-number"><?= INDEX_ACTIVE_PROJECTS?>+</div>
+              <div class="stats-label">Projects Active</div>
+            </div>
+            <div class="stats-card">
+              <div class="stats-number"><?= INDEX_COMPLETED_PROJECTS?>+</div>
+              <div class="stats-label">Projects Completed</div>
+            </div>
+          </div>
         </section>
 
-        <!-- Projects Grid -->
-        <section id="projects" class="projects">
-            <div class="container">
-                <h2>Featured Projects</h2>
-                <div class="ysws-grid">
-                    <?php foreach ($projects as $project): ?>
-                    <div class="project-card">
-                        <img src="<?= $project->image ?>" alt="<?= $project->name ?>">
-                        <div class="project-content">
-                            <h3><?= $project->name ?></h3>
-                            <p><?= $project->description ?></p>
-                            <a href="/ysws/<?= $project->id ?>" class="button view-project">View Details</a>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
+
+        <!-- Our Mission -->
+        <section class="mission">
+          <div class="container">
+            <h2><?= INDEX_MISSION_TITLE ?></h2> 
+            <p><?= INDEX_MISSION_DESCRIPTION ?></p>
+          </div>
         </section>
 
-        <!-- Join Section -->
-        <section class="join-cta">
-            <div class="container">
-                <h2>Ready to Start Building?</h2>
-                <p>Join our community of makers and innovators</p>
-                <a href="/join" class="button ysws">Get Started</a>
+        <!-- Upcoming Events Preview -->
+        <section class="container events-section">
+          <h2 class="events-title">Upcoming Events</h2>
+          <div class="events-row">
+            <div class="event-card">
+              <h3 class="event-card-title">Intro to Github & Web Development</h3>
+              <p class="event-card-date">April 12, 2025 | 14:00 - 17:00</p>
+              <p class="event-card-desc">Learn the fundamentals of web development and share your site to get $5 for boba!</p>
+              <a class="event-card-link" href="/events">Register Now &rarr;</a>
             </div>
+          </div>
         </section>
+
+
     </main>
 
     <?php include 'includes/footer.php'; ?>

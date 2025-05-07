@@ -14,6 +14,12 @@ define('SITE_TITLE', ' Hack Club');
 define('SITE_URL', 'http://localhost/club-website/public');
 define('ADMIN_EMAIL', 'admin@example.com');
 
+// Index Configuration
+define('SITE_WELCOME_TITLE', '');
+define('SITE_WELCOME_DESCRIPTION', '');
+define('INDEX_BOX_1_TITLE', '');
+define('INDEX_BOX_1_DESCRIPTION', '');
+
 // File Paths
 define('ROOT_PATH', dirname(__DIR__));
 define('CORE_PATH', ROOT_PATH . '/core');
