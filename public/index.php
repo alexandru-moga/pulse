@@ -1,6 +1,5 @@
 <?php
 require_once '../core/init.php';
-$projects = Projects::getAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,32 +7,21 @@ $projects = Projects::getAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= SITE_TITLE ?></title>
-    <link rel="stylesheet" href="https://fonts.hackclub.com/api/css?family=Phantom+Sans">
-    <link rel="stylesheet" href="https://icons.hackclub.com/api/icons/0xEC3750/">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/images/favicon.ico">
     <script src="https://icons.hackclub.com/api/icons.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script type="text/babel" src="js/GradientBackground.jsx"></script>
 </head>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const toggleSwitch = document.querySelector('#themeToggle');
-  const currentTheme = localStorage.getItem('theme') || 'dark';
-
-  // Set initial theme
-  document.documentElement.setAttribute('data-theme', currentTheme);
-  toggleSwitch.checked = currentTheme === 'dark';
-
-  // Toggle handler
-  toggleSwitch.addEventListener('change', function(e) {
-    const theme = e.target.checked ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  });
-});
-</script>
 
 <body>
+<script type="text/babel">
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<GradientBackground />);
+    </script>
     <?php include 'includes/header.php'; ?>
-    
     <main>
         <!-- Page Title -->
         <section class="page-title">

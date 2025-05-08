@@ -1,37 +1,32 @@
 <?php
-require_once '../core/init.php'; // Make sure this loads the User class
-
-// Ensure User::getAll() is defined as a static method in the User class
-$members = User::getAll();
+require_once '../core/init.php';
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Club Members</title>
-    <style>
-        .members-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1em;
-        }
-        .member-card {
-            border: 1px solid #ccc;
-            padding: 1em;
-            border-radius: 8px;
-            box-shadow: 2px 2px 8px #eee;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= SITE_TITLE ?></title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/images/favicon.ico">
+    <script src="https://icons.hackclub.com/api/icons.js"></script>
 </head>
+
 <body>
-    <h1>Club Members</h1>
-    <div class="members-grid">
-        <?php foreach ($members as $member): ?>
-            <div class="member-card">
-                <strong><?= htmlspecialchars($member->username) ?></strong><br>
-                Joined: <?= date('M Y', strtotime($member->created_at)) ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
+    <?php include 'includes/header.php'; ?>
+    
+    <main>
+        <!-- Page Title -->
+        <section class="page-title">
+          <div class="container">
+            <h1><?= MEMBERS_TITLE ?></h1>
+            <p class="subtitle"><?= MEMBERS_DESCRIPTION ?></p>
+          </div>
+        </section>
+
+
+    </main>
+
+    <?php include 'includes/footer.php'; ?>
 </body>
 </html>

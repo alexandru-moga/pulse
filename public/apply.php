@@ -1,6 +1,6 @@
 <?php
 require_once '../core/init.php';
-$projects = Project::getAll();
+$projects = Projects::getAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@ $projects = Project::getAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= SITE_TITLE ?></title>
-    <link rel="stylesheet" href="https://fonts.hackclub.com/api/css?family=Phantom+Sans">
+    <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/images/favicon.ico">
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
