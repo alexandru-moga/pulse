@@ -1,5 +1,0 @@
-Version history
-v0.0.1 -html
-v1.0.0 -php
-v1.1.0 -react
-v1.2.0 -react from scratch

@@ -1,0 +1,8 @@
+body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+.card { background: #f8f9fa; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.form-group { margin-bottom: 1rem; }
+label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+button { background: #ec3750; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; }
+.error { color: #dc3545; margin-bottom: 1rem; }
+.success { color: #28a745; margin-bottom: 1rem; }

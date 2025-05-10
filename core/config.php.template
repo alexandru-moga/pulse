@@ -1,0 +1,33 @@
+<?php
+// Database Configuration
+define('DB_HOST', '{{DB_HOST}}');
+define('DB_NAME', '{{DB_NAME}}');
+define('DB_USER', '{{DB_USER}}');
+define('DB_PASS', '{{DB_PASS}}');
+
+// Session Configuration
+define('SESSION_NAME', 'hackclub_session');
+define('SESSION_LIFETIME', 86400);
+
+// Site Configuration
+define('SITE_TITLE', '');
+define('SITE_URL', 'http://127.0.0.1');
+define('ADMIN_EMAIL', 'admin@example.com');
+
+// Index Configuration
+define('SITE_WELCOME_TITLE', '');
+define('SITE_WELCOME_DESCRIPTION', '');
+define('INDEX_BOX_1_TITLE', '');
+define('INDEX_BOX_1_DESCRIPTION', '');
+
+
+// File Paths
+define('ROOT_PATH', dirname(__DIR__));
+define('CORE_PATH', ROOT_PATH . '/core');
+define('CUSTOM_PATH', ROOT_PATH . '/custom');
+define('MODULES_PATH', ROOT_PATH . '/modules');
+define('PUBLIC_PATH', ROOT_PATH . '/public');
+define('INSTALL_PATH', ROOT_PATH . '/install');
+
+// YSWS API Configuration
+define('YSWS_API_URL', 'https://api.hackclub.com/v1/ysws');
