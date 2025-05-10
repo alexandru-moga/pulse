@@ -21,6 +21,32 @@ spl_autoload_register(function($class) {
 // Initialize database connection
 $db = new Database(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
+// Initialize page manager and navigation
+$pageManager = new PageManager($db);
+$navigation = new Navigation($db);
+
+// Get current page information
+$currentPage = basename($_SERVER['PHP_SELF'], '.php');
+$pageData = $pageManager->getPageData($currentPage);
+
+// Get page blocks
+$pageBlocks = $pageManager->getPageBlocks($currentPage);
+
+// Set default page title and description
+if ($pageData) {
+    $pageTitle = $pageData['title'] ?? SITE_WELCOME_TITLE;
+    $pageDescription = $pageData['description'] ?? SITE_WELCOME_DESCRIPTION;
+    $menuEnabled = $pageData['menu_enabled'];
+} else {
+    // Fallback to constants if defined
+    $constantTitle = strtoupper($currentPage . '_TITLE');
+    $constantDesc = strtoupper($currentPage . '_DESCRIPTION');
+    
+    $pageTitle = defined($constantTitle) ? constant($constantTitle) : SITE_WELCOME_TITLE;
+    $pageDescription = defined($constantDesc) ? constant($constantDesc) : SITE_WELCOME_DESCRIPTION;
+    $menuEnabled = true;
+}
+
 // Check logged-in user
 $currentUser = null;
 if (isset($_SESSION['user_id'])) {

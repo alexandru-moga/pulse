@@ -19,6 +19,15 @@ define('SITE_WELCOME_TITLE', '');
 define('SITE_WELCOME_DESCRIPTION', '');
 define('INDEX_BOX_1_TITLE', '');
 define('INDEX_BOX_1_DESCRIPTION', '');
+define('INDEX_ABOUT_TITLE', '');
+define('INDEX_ABOUT_DESCRIPTION', '');
+define('INDEX_ACTIVE_STUDENTS', '');
+define('INDEX_ACTIVE_PROJECTS', '');
+define('INDEX_COMPLETED_PROJECTS', '');
+define('INDEX_MISSION_TITLE', '');
+define('INDEX_MISSION_DESCRIPTION', '');
+define('MEMBERS_TITLE', '');
+define('MEMBERS_DESCRIPTION', '');
 
 
 // File Paths
