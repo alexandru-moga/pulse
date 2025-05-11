@@ -6,11 +6,14 @@
 }
 
 .stats-card {
-    background: var(--sheet);
+    background: rgba(20, 20, 20, 0.75);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
     border-radius: 12px;
     padding: 2rem 1.5rem;
     min-width: 180px;
     text-align: center;
+    transition: transform 0.3s ease, backdrop-filter 0.3s ease;
 }
 
 .stats-number {
@@ -20,4 +23,5 @@
 
 .stats-card:hover {
     transform: translateY(-10px);
+    backdrop-filter: saturate(200%) blur(28px);
 }

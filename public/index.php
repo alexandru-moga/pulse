@@ -11,6 +11,7 @@ require_once '../core/init.php';
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
+    <?php include 'components/effects/mouse.php'; ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

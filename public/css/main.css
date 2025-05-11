@@ -7,8 +7,8 @@
 @import url('components/mission.css');
 @import url('components/events.css');
 @import url('components/box.css');
+@import url('components/mouse.css');
 
-/* Global overrides */
 :root {
   --primary: #ec3750;
   --secondary: #ff8c37;

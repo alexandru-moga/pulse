@@ -1,22 +1,14 @@
-.events-section {
-    margin: 3rem auto;
-}
-
-.events-row {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
-
 .event-card {
-    background: var(--elevated);
+    background: rgba(20, 20, 20, 0.75);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
     border-radius: 10px;
     padding: 1.5rem;
     min-width: 250px;
+    transition: transform 0.3s ease, backdrop-filter 0.3s ease;
 }
 
-.event-card-link {
-    color: var(--accent);
-    font-weight: bold;
+.event-card:hover {
+    transform: translateY(-10px);
+    backdrop-filter: saturate(200%) blur(28px);
 }

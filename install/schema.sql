@@ -144,7 +144,18 @@ CREATE TABLE footer (
 );
 
 INSERT INTO footer (section_type, content, order_num) VALUES
-('logo', '{"logo":"path/to/logo.png","alt":"PULSE Logo"}', 1),
-('links', '{"links":[{"text":"Privacy Policy","url":"/privacy"},{"text":"Terms of Service","url":"/terms"}]}', 2),
-('cta', '{"text":"Join Us Today!","button_text":"Sign Up","button_link":"/signup"}', 3),
-('credits', '{"text":"© 2025 PULSE. All rights reserved."}', 4);
+('logo', '{"path": "images/logo.png", "alt": "PULSE Logo"}', 1),
+('links', '{
+    "title": "Explore",
+    "items": [
+        {"text": "Members", "url": "/members.php"},
+        {"text": "Projects", "url": "/projects.php"},
+        {"text": "Contact", "url": "/contact.php"}
+    ]
+}', 2),
+('cta', '{
+    "title": "Join Our Community",
+    "text": "Get Started Today",
+    "url": "/apply.php"
+}', 3),
+('credits', '{"show_attribution": true}', 4);
