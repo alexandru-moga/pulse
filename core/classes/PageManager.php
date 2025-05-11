@@ -72,6 +72,7 @@ class PageManager {
 
         // Render the component template if it exists
         if (file_exists($filePath)) {
+            extract(['content' => $content]);
             ob_start();
             include $filePath;
             return ob_get_clean();
