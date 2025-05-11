@@ -1,0 +1,22 @@
+.events-section {
+    margin: 3rem auto;
+}
+
+.events-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.event-card {
+    background: var(--elevated);
+    border-radius: 10px;
+    padding: 1.5rem;
+    min-width: 250px;
+}
+
+.event-card-link {
+    color: var(--accent);
+    font-weight: bold;
+}

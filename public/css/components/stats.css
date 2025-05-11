@@ -1,0 +1,19 @@
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.stats-card {
+    background: var(--sheet);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    min-width: 180px;
+    text-align: center;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    color: var(--primary);
+}

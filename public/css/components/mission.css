@@ -1,0 +1,14 @@
+.mission {
+    background-color: var(--elevated);
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    transition: transform 0.3s ease;
+}
+
+.mission:hover {
+    transform: translateY(-10px);
+}
+
+.mission h2 {
+    color: var(--primary);
+}

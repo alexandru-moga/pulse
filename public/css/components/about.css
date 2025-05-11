@@ -1,0 +1,14 @@
+.about {
+    background-color: var(--elevated);
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    transition: transform 0.3s ease;
+}
+
+.about:hover {
+    transform: translateY(-10px);
+}
+
+.about h2 {
+    color: var(--primary);
+}

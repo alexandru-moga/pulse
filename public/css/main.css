@@ -1,8 +1,13 @@
-@import 'hackclub.css';
-@import 'header.css';
-@import 'footer.css';
-@import 'index.css';
+@import url('theme/hackclub.css');
+@import url('components/header.css');
+@import url('components/footer.css');
+@import url('components/page-title.css');
+@import url('components/about.css');
+@import url('components/stats.css');
+@import url('components/mission.css');
+@import url('components/events.css');
 
+/* Global overrides */
 :root {
   --primary: #ec3750;
   --secondary: #ff8c37;
@@ -11,23 +16,6 @@
   --background: #1a1a1a;
   --elevated: #2d2d2d;
   --sheet: #404040;
-  --sunken: #595959;
-  --border: #6b6b6b;
-  --website-gradient: linear-gradient(90deg, var(--primary), var(--secondary));
-}
-
-h1, h2, h3 {
-  font-family: 'Phantom Sans', sans-serif;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-h1 {
-  font-size: 3rem;
-}
-
-h2 {
-  font-size: 2.25rem;
 }
 
 body {
@@ -37,26 +25,8 @@ body {
   line-height: 1.6;
 }
 
-/* Page Title */
-.page-title {
-  padding: 6rem 0 3rem;
-  text-align: center;
-}
-
-.page-title h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  background: var(--website-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Container */
 .container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
-  margin-bottom: 3rem;
 }

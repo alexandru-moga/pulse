@@ -37,12 +37,12 @@ CREATE TABLE pages (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO pages (name, title, description, table_name) VALUES
-('index', 'Home', 'Welcome to PULSE - Programming University Learning & Software Engineering', 'page_index'),
-('members', 'Members', 'Our PULSE community members', 'page_members'),
-('apply', 'Apply', 'Apply for a PULSE project', 'page_apply'),
-('contact', 'Contact', 'Get in touch with PULSE', 'page_contact'),
-('dashboard', 'Dashboard', 'Member dashboard', 'page_dashboard');
+INSERT INTO pages (name, title, description, table_name, menu_enabled) VALUES
+('index', 'Home', 'Welcome to PULSE - Programming University Learning & Software Engineering', 'page_index', 1),
+('members', 'Members', 'Our PULSE community members', 'page_members', 1),
+('apply', 'Apply', 'Apply for a PULSE project', 'page_apply', 1),
+('contact', 'Contact', 'Get in touch with PULSE', 'page_contact', 1),
+('dashboard', 'Dashboard', 'Member dashboard', 'page_dashboard', 1);
 
 CREATE TABLE menus (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -133,3 +133,18 @@ INSERT INTO page_dashboard (block_name, block_type, content, order_num) VALUES
 ('my_projects', 'dynamic', 'SELECT p.id, p.name, p.status FROM projects p JOIN applications a ON p.id = a.project_id WHERE a.user_id = {user_id} AND a.status = "approved"', 3),
 ('my_applications', 'dynamic', 'SELECT a.id, p.name, a.status, a.applied_at FROM applications a JOIN projects p ON a.project_id = p.id WHERE a.user_id = {user_id}', 4),
 ('admin_panel', 'conditional', '{"condition":"isAdmin()","content":"Admin Panel"}', 5);
+
+CREATE TABLE footer (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    section_type ENUM('logo', 'links', 'cta', 'credits') NOT NULL,
+    content JSON NOT NULL,
+    order_num INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO footer (section_type, content, order_num) VALUES
+('logo', '{"logo":"path/to/logo.png","alt":"PULSE Logo"}', 1),
+('links', '{"links":[{"text":"Privacy Policy","url":"/privacy"},{"text":"Terms of Service","url":"/terms"}]}', 2),
+('cta', '{"text":"Join Us Today!","button_text":"Sign Up","button_link":"/signup"}', 3),
+('credits', '{"text":"© 2025 PULSE. All rights reserved."}', 4);

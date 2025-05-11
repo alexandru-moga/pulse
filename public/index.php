@@ -1,29 +1,16 @@
 <?php
 require_once '../core/init.php';
-include 'includes/header.php';
-include 'includes/page-title.php';
 ?>
+<?php include 'components/layout/header.php'; ?>
 
 <head>
-      <link rel="stylesheet" href="css/main.css">
-
+    <link rel="stylesheet" href="css/main.css">
 </head>
 
-  <main>
-    <section class="page-title">
-      <div class="container">
-        <h1><?= SITE_WELCOME_TITLE ?></h1>
-        <p class="subtitle"><?= SITE_WELCOME_DESCRIPTION ?></p>
-      </div>
-    </section>
+<main>
+    <?php foreach ($pageStructure['components'] as $component): ?>
+        <?= $pageManager->renderComponent($component) ?>
+    <?php endforeach; ?>
+</main>
 
-    <?php 
-    include 'includes/about-section.php';
-    include 'includes/stats-section.php';
-    include 'includes/mission-section.php';
-    include 'includes/upcoming-events-section.php';
-    ?>
-    
-  </main>
-
-<?php include 'includes/footer.php'; ?>
+<?php include 'components/layout/footer.php'; ?>
