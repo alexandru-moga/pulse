@@ -1,12 +1,11 @@
-/* In header.css */
 .site-header.translucent {
     position: sticky;
     top: 0;
     width: 100vw;
     z-index: 1000;
     background: rgba(20, 20, 20, 0.75);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(80%) blur(12px);
+    backdrop-filter: saturate(80%) blur(12px);
     box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
     transition: background 0.3s;
 }

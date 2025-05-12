@@ -16,7 +16,6 @@ require_once '../core/init.php';
     <?php include 'includes/header.php'; ?>
     
     <main>
-        <!-- Page Title -->
         <section class="page-title">
           <div class="container">
             <h1><?= MEMBERS_TITLE ?></h1>

@@ -5,7 +5,6 @@ $footerContent = $footer->getFooterContent();
 <footer class="club-footer">
     <div class="footer-container">
         <div class="footer-columns">
-            <!-- Logo Section -->
             <div class="footer-brand">
                 <?php if (!empty($footerContent['logo']['path'])): ?>
                     <img src="<?= SITE_URL . '/' . htmlspecialchars($footerContent['logo']['path']) ?>" 
@@ -15,8 +14,6 @@ $footerContent = $footer->getFooterContent();
                     <h2 class="club-name"><?= htmlspecialchars(SITE_TITLE) ?></h2>
                 <?php endif; ?>
             </div>
-
-            <!-- Navigation Links -->
             <div class="footer-nav-column">
                 <h3 class="footer-heading"><?= htmlspecialchars($footerContent['links']['title'] ?? 'Explore') ?></h3>
                 <nav class="footer-nav">
@@ -28,8 +25,6 @@ $footerContent = $footer->getFooterContent();
                     <?php endforeach; ?>
                 </nav>
             </div>
-
-            <!-- Call to Action -->
             <div class="footer-cta">
                 <h3 class="footer-heading"><?= htmlspecialchars($footerContent['cta']['title'] ?? 'Get Involved') ?></h3>
                 <a href="<?= SITE_URL . htmlspecialchars($footerContent['cta']['url'] ?? '/join') ?>" 
@@ -43,8 +38,6 @@ $footerContent = $footer->getFooterContent();
                 </a>
             </div>
         </div>
-
-        <!-- Credits -->
         <div class="footer-credits">
             <p class="credit-text">
                 © <?= date('Y') ?> <?= htmlspecialchars(SITE_TITLE) ?> • 
