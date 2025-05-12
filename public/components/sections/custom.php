@@ -1,5 +1,4 @@
 <?php
-// For the events section
 if ($block_name == 'events_section' && is_array($block_content)): 
   $title = $block_content['title'] ?? 'Upcoming Events';
   $events = $block_content['events'] ?? [];

@@ -68,7 +68,11 @@ INSERT INTO page_index (block_name, block_type, content, order_num) VALUES
 ('welcome_description', 'text', 'Programming University Learning & Software Engineering', 2),
 ('about_title', 'heading', 'About Us', 3),
 ('about_description', 'text', 'PULSE is a student-led programming community...', 4),
-('active_members', 'counter', '50', 5),
+('stats', 'stats', ''[
+  { "value": "150", "label": "Active Members" },
+  { "value": "25", "label": "Projects Active" },
+  { "value": "50", "label": "Projects Completed" }
+]'', 5),
 ('active_projects', 'counter', '12', 6),
 ('completed_projects', 'counter', '35', 7),
 ('mission_title', 'heading', 'Our Mission', 8),

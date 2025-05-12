@@ -1,13 +1,14 @@
-/* In header.css */
+/* header.css */
 .site-header.translucent {
     position: sticky;
     top: 0;
     width: 100vw;
     z-index: 1000;
-    background: rgba(20, 20, 20, 0.75);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    backdrop-filter: saturate(180%) blur(24px);
-    box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.08);
+    background: rgba(20, 20, 20, 0.1);
+    /* More transparent background */
+    -webkit-backdrop-filter: saturate(120%) blur(8px);
+    /* Softer blur */
+    backdrop-filter: saturate(20%) blur(8px);
     transition: background 0.3s;
 }
 
@@ -34,13 +35,13 @@
     letter-spacing: 0.01em;
     padding: 0.4em 0.8em;
     border-radius: 6px;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .nav-links a:hover,
 .nav-links a:focus {
-    background: var(--red, #ec3750);
-    color: #fff;
+    background: rgba(236, 55, 80, 0.2);
+    transform: translateY(-2px);
 }
 
 .site-title {
@@ -48,4 +49,20 @@
     font-weight: 700;
     color: white;
     text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.site-title:hover {
+    transform: scale(0.95);
+}
+
+/* Mobile menu styles */
+@media (max-width: 640px) {
+    .nav-links {
+        display: none;
+    }
+
+    .header-container {
+        padding: 0.5rem 1rem;
+    }
 }

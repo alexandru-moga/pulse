@@ -8,13 +8,15 @@
 @import url('components/events.css');
 @import url('components/box.css');
 @import url('components/mouse.css');
+@import url('components/core_values.css');
+@import url('components/title-2.css');
 
 :root {
   --primary: #ec3750;
   --secondary: #ff8c37;
   --accent: #33d6a6;
   --text: #ffffff;
-  --background: #1a1a1a;
+  --background: #080808;
   --elevated: #2d2d2d;
   --sheet: #404040;
   --website-gradient: linear-gradient(90deg, var(--primary), var(--secondary));

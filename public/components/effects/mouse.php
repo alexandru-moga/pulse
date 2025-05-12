@@ -1,5 +1,5 @@
 <?php
-// components/effects/mouse.php
+
 ?>
 <div class="mouse-gradient-effect"></div>
 
@@ -8,11 +8,11 @@
     pointer-events: none;
     position: fixed;
     inset: 0;
-    z-index: -1; /* Behind all elements */
+    z-index: -1;
     background: radial-gradient(
-        300px at var(--mouse-x) var(--mouse-y), /* 2 times smaller than before */
-        var(--primary, rgba(236, 55, 80, 0.15)),
-        transparent 80%
+        10px at var(--mouse-x) var(--mouse-y),
+        var(--primary, rgba(75, 21, 28, 0.15)),
+        transparent 1000%
     );
     transition: background 0.3s ease-out;
 }

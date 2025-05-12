@@ -1,0 +1,27 @@
+.title-2-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 2.5rem 0 1.5rem 0;
+}
+
+.title-2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background: none;
+    line-height: 1.1;
+}
+
+.title-2-grey {
+    color: #b7bac7;
+}
+
+.title-2-red {
+    color: var(--primary, #ec3750);
+}
