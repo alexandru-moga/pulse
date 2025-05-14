@@ -1,5 +1,5 @@
 <?php // components/effects/background.php ?>
-<div id="vanta-bg" style="position:fixed; inset:0; z-index:-2;"></div>
+<div id="vanta-bg" style="position:absolute; inset:0; z-index:-2;height:100vh;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
 <script>

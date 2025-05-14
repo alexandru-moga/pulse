@@ -1,0 +1,11 @@
+.grid-bg {
+    position: absolute;
+    inset: 0;
+    height: 200vh;
+    z-index: -20;
+    pointer-events: none;
+    background-image:
+        linear-gradient(to right, rgba(var(--primary-rgb), 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(var(--primary-rgb), 0.2) 1px, transparent 1px);
+    background-size: 60px 60px;
+}

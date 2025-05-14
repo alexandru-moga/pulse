@@ -2,13 +2,6 @@
 
 ?>
 <section class="container mx-auto py-16">
-  <div class="text-center mb-12">
-    <h2 class="text-3xl font-bold mb-4 gradient-text"><?= htmlspecialchars($block_content['title'] ?? 'Our Core Values') ?></h2>
-    <?php if (!empty($block_content['subtitle'])): ?>
-    <p class="text-xl opacity-80 max-w-3xl mx-auto"><?= htmlspecialchars($block_content['subtitle']) ?></p>
-    <?php endif; ?>
-  </div>
-  
   <div class="values-grid">
     <?php if (isset($block_content['values']) && is_array($block_content['values'])): ?>
       <?php foreach ($block_content['values'] as $index => $value): ?>

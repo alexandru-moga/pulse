@@ -1,18 +1,21 @@
 @import url('theme/hackclub.css');
-@import url('components/header.css');
-@import url('components/footer.css');
-@import url('components/title.css');
-@import url('components/about.css');
-@import url('components/stats.css');
-@import url('components/mission.css');
-@import url('components/events.css');
-@import url('components/box.css');
-@import url('components/mouse.css');
-@import url('components/core_values.css');
-@import url('components/title-2.css');
+@import url('components/layout/header.css');
+@import url('components/layout/footer.css');
+@import url('components/effects/mouse.css');
+@import url('components/effects/grid.css');
+@import url('components/sections/about.css');
+@import url('components/sections/box.css');
+@import url('components/sections/core_values.css');
+@import url('components/sections/events.css');
+@import url('components/sections/mission.css');
+@import url('components/sections/stats.css');
+@import url('components/sections/title-2.css');
+@import url('components/sections/title.css');
+@import url('components/sections/welcome.css');
 
 :root {
   --primary: #ec3750;
+  --primary-rgb: 236, 55, 80;
   --secondary: #ff8c37;
   --accent: #33d6a6;
   --text: #ffffff;

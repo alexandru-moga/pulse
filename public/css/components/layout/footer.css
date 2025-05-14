@@ -1,0 +1,164 @@
+/* Modern Glassmorphic Footer */
+
+.club-footer {
+    position: relative;
+    width: 100vw;
+    background: rgba(20, 20, 20, 0.13);
+    /* translucent, matches header */
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    backdrop-filter: blur(12px) saturate(120%);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+    border-top: 1.5px solid rgba(255, 255, 255, 0.08);
+    /* subtle glass border */
+    padding: 3rem 1.5rem 2rem 1.5rem;
+    margin-top: 3rem;
+    z-index: 100;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2rem;
+}
+
+.footer-columns {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-logo {
+    height: 80px;
+    width: auto;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.1));
+}
+
+.footer-nav-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-heading {
+    color: var(--primary);
+    font-family: 'Phantom Sans', sans-serif;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.footer-link {
+    color: var(--text, #fff);
+    text-decoration: none;
+    font-weight: 500;
+    opacity: 0.85;
+    transition: color 0.2s, opacity 0.2s;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.footer-link:hover {
+    color: var(--primary);
+    opacity: 1;
+    background: rgba(236, 55, 80, 0.08);
+}
+
+.footer-cta {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 2px 16px rgba(236, 55, 80, 0.1);
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+    outline: none;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px) scale(1.03);
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+.footer-credits {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text, #fff);
+    font-size: 0.96rem;
+    opacity: 0.8;
+}
+
+.credit-text {
+    margin: 0.5rem 0;
+}
+
+.credit-link {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 500;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.credit-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.attribution {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .footer-columns {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .club-footer {
+        padding: 2rem 0.5rem 1rem 0.5rem;
+    }
+
+    .footer-logo {
+        height: 60px;
+    }
+}

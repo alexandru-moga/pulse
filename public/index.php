@@ -12,7 +12,8 @@ require_once '../core/init.php';
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
     <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/background.php'; ?>
+    <?php include 'components/effects/globe.php'; ?>
+    <?php include 'components/effects/grid.php'; ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>
