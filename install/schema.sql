@@ -64,20 +64,50 @@ CREATE TABLE page_index (
 );
 
 INSERT INTO page_index (block_name, block_type, content, order_num) VALUES
-('welcome_title', 'heading', 'Welcome to PULSE', 1),
-('welcome_description', 'text', 'Programming University Learning & Software Engineering', 2),
-('about_title', 'heading', 'About Us', 3),
-('about_description', 'text', 'PULSE is a student-led programming community...', 4),
-('stats', 'stats', ''[
-  { "value": "150", "label": "Active Members" },
-  { "value": "25", "label": "Projects Active" },
-  { "value": "50", "label": "Projects Completed" }
-]'', 5),
-('active_projects', 'counter', '12', 6),
-('completed_projects', 'counter', '35', 7),
-('mission_title', 'heading', 'Our Mission', 8),
-('mission_description', 'text', 'Empowering students through real-world programming experience...', 9),
-('events_section', 'custom', '{"title":"Upcoming Events","events":[{"name":"Intro to Github & Web Development","date":"April 12, 2025","time":"14:00 - 17:00","description":"Learn the fundamentals of web development and share your site to get $5 for boba!","button_text":"Register Now","button_link":"/apply"}]}', 10);
+('welcome', 'welcome', '{
+  "title": "Welcome to <span class=\"text-red-500\">PULSE</span>",
+  "subtitle": "STUDENT-LED TECH COMMUNITY",
+  "description": "Join a vibrant community of students passionate about technology and innovation. We build, learn, and grow together through hackathons, workshops, and collaborative projects.",
+  "primaryButton": {
+    "text": "Get Involved",
+    "url": "/apply.php"
+  },
+  "secondaryButton": {
+    "text": "Our team",
+    "url": "/team.php"
+  }
+}', 1),
+('title-2', 'title-2', '{
+  "first": "OUR",
+  "second": "ACTIVITY"
+}', 2),
+('active_members', 'stats', '{
+  "first": "OUR",
+  "second": "IMPACT"
+}', 3),
+('title-2', 'title-2', '{
+  "first": "OUR",
+  "second": "IMPACT"
+}', 4),
+('core_values', 'core_values', '{
+    "values": [
+      {
+        "title": "Excellence",
+        "description": "We strive for excellence in everything we do, pushing boundaries and challenging the status quo.",
+        "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z\"/></svg>"
+      },
+      {
+        "title": "Innovation",
+        "description": "We embrace innovation, encouraging creative thinking and novel approaches to problem-solving.",
+        "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.5 5h3v7.5h-3v-7.5zm1.5 12.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z\"/></svg>"
+      },
+      {
+        "title": "Integrity",
+        "description": "We act with integrity in all our dealings, maintaining the highest ethical standards and transparency.",
+        "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.31 7.526c-.099-.807.528-1.526 1.348-1.526.771 0 1.377.676 1.28 1.451l-.757 6.053c-.035.283-.276.496-.561.496s-.526-.213-.562-.496l-.748-5.978zm1.31 10.724c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z\"/></svg>"
+      }
+    ]
+  }', 5),
 
 CREATE TABLE page_members (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -102,11 +132,46 @@ CREATE TABLE page_apply (
   is_active TINYINT(1) DEFAULT 1
 );
 
-INSERT INTO page_apply (block_name, block_type, content, order_num) VALUES
-('apply_title', 'heading', 'Apply for a Project', 1),
-('apply_description', 'text', 'Join one of our exciting projects and gain real-world experience', 2),
-('project_list', 'dynamic', 'SELECT id, name, description FROM projects WHERE status = "active"', 3),
-('application_form', 'form', '{"fields":[{"name":"project_id","type":"select","label":"Select Project","source":"projects"},{"name":"message","type":"textarea","label":"Why are you interested in this project?"}]}', 4);
+INSERT INTO page_apply 
+(block_name, block_type, content, order_num, is_active) 
+VALUES 
+('apply_title', 'title-3', '{"text": "Join Suceava Hacks"}', 1, 1),
+('apply_subtitle', 'heading-3', '{"text": "Ready to start your coding journey? Fill out... developers in Suceava."}', 2, 1),
+('apply_form', 'apply-form', '{
+  "sections": [
+    {
+      "title": "Personal Information",
+      "fields": [
+        {
+          "name": "first_name",
+          "label": "First Name",
+          "type": "text",
+          "placeholder": "Your first name",
+          "required": true
+        },
+        {
+          "name": "last_name",
+          "label": "Last Name",
+          "type": "text",
+          "placeholder": "Your last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "title": "Academic Information",
+      "fields": [
+        {
+          "name": "school",
+          "label": "School",
+          "type": "text",
+          "placeholder": "Your school name",
+          "required": true
+        }
+      ]
+    }
+  ]
+}', 3, 1);
 
 CREATE TABLE page_contact (
   id INT AUTO_INCREMENT PRIMARY KEY,

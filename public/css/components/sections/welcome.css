@@ -102,6 +102,7 @@
   pointer-events: none;
 }
 
+
 .bounce {
   animation: bounce 2s infinite ease-in-out;
 }
