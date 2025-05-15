@@ -1,45 +1,44 @@
 <?php
 class Database {
-    private $conn;
-    public function __construct($host, $user, $pass, $db) {
+    private $pdo;
+    private $host = DB_HOST;
+    private $user = DB_USER;
+    private $pass = DB_PASS;
+    private $dbname = DB_NAME;
+
+    public function __construct() {
+        $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
         try {
-            $this->conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo = new PDO($dsn, $this->user, $this->pass);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
-            die("Connection failed: " . $e->getMessage());
+            die("Database connection failed: " . $e->getMessage());
         }
     }
-    public function query($sql, $params = []) {
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+
+    public function prepare($sql) {
+        return $this->pdo->prepare($sql);
     }
-    public function select($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+
     public function insert($table, $data) {
         $columns = implode(', ', array_keys($data));
-        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        $placeholders = ':' . implode(', :', array_keys($data));
         
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-        $this->query($sql, array_values($data));
+        $stmt = $this->pdo->prepare($sql);
         
-        return $this->conn->lastInsertId();
-    }
-    public function update($table, $data, $where, $whereParams = []) {
-        $set = [];
-        foreach ($data as $column => $value) {
-            $set[] = "$column = ?";
+        foreach($data as $key => $value) {
+            $stmt->bindValue(":$key", $value);
         }
         
-        $sql = "UPDATE $table SET " . implode(', ', $set) . " WHERE $where";
-        $params = array_merge(array_values($data), $whereParams);
-        
-        $this->query($sql, $params);
+        $stmt->execute();
+        return $this->pdo->lastInsertId();
     }
-    public function delete($table, $where, $params = []) {
-        $sql = "DELETE FROM $table WHERE $where";
-        $this->query($sql, $params);
+
+    public function query($sql, $params = []) {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
     }
 }

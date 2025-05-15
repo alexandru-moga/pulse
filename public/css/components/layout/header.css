@@ -1,13 +1,10 @@
-/* header.css */
 .site-header.translucent {
     position: sticky;
     top: 0;
     width: 100vw;
     z-index: 1000;
     background: rgba(20, 20, 20, 0.1);
-    /* More transparent background */
     -webkit-backdrop-filter: saturate(120%) blur(8px);
-    /* Softer blur */
     backdrop-filter: saturate(20%) blur(8px);
     transition: background 0.3s;
 }
@@ -56,7 +53,6 @@
     transform: scale(0.95);
 }
 
-/* Mobile menu styles */
 @media (max-width: 640px) {
     .nav-links {
         display: none;

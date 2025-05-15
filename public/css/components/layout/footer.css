@@ -1,15 +1,11 @@
-/* Modern Glassmorphic Footer */
-
 .club-footer {
     position: relative;
     width: 100vw;
     background: rgba(20, 20, 20, 0.13);
-    /* translucent, matches header */
     -webkit-backdrop-filter: blur(12px) saturate(120%);
     backdrop-filter: blur(12px) saturate(120%);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
     border-top: 1.5px solid rgba(255, 255, 255, 0.08);
-    /* subtle glass border */
     padding: 3rem 1.5rem 2rem 1.5rem;
     margin-top: 3rem;
     z-index: 100;
@@ -144,7 +140,6 @@
     opacity: 0.7;
 }
 
-/* Responsive adjustments */
 @media (max-width: 900px) {
     .footer-columns {
         grid-template-columns: 1fr;

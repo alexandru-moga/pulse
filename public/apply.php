@@ -1,42 +1,43 @@
 <?php
 require_once '../core/init.php';
-$projects = Projects::getAll();
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $applyForm = new ApplyForm($db);
+    $result = $applyForm->processSubmission($_POST);
+    
+    if($result) {
+        $_SESSION['form_success'] = "Application submitted successfully!";
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit();
+    } else {
+        $_SESSION['form_errors'] = $applyForm->getErrors();
+        $_SESSION['form_data'] = $_POST;
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit();
+    }
+}
+
+include 'components/layout/header.php'; 
 ?>
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= SITE_TITLE ?></title>
-    <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/images/favicon.ico">
     <link rel="stylesheet" href="css/main.css">
 </head>
-<body>
-    <?php include 'includes/header.php'; ?>
-    
-    <main class="container">
-        <form class="application-form" action="/modules/YSWS/apply.php" method="POST">
-            <h2>Join Our Club</h2>
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="name" required>
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>Select Project</label>
-                <select name="project_id" required>
-                    <?php foreach ($projects as $project): ?>
-                    <option value="<?= $project->id ?>"><?= $project->name ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <button type="submit" class="button">Submit Application</button>
-        </form>
-    </main>
 
-    <?php include 'includes/footer.php'; ?>
-</body>
-</html>
+<main>
+    <?php if(isset($_SESSION['form_success'])): ?>
+        <div class="form-success">
+            <?= $_SESSION['form_success'] ?>
+            <?php unset($_SESSION['form_success']); ?>
+        </div>
+    <?php endif; ?>
+
+    <?php foreach ($pageStructure['components'] as $component): ?>
+        <?= $pageManager->renderComponent($component) ?>
+    <?php endforeach; ?>
+    
+    <?php include 'components/effects/mouse.php'; ?>
+    <?php include 'components/effects/net.php'; ?>
+    <?php include 'components/effects/grid.php'; ?>
+</main>
+
+<?php include 'components/layout/footer.php'; ?>
