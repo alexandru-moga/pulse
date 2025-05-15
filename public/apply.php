@@ -1,18 +1,37 @@
 <?php
-require_once '../core/init.php';
+require_once __DIR__.'/../core/init.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $submitApp = new SubmitApp($db);
+        $applicationId = $submitApp->handleSubmission($_POST);
+        
+        header('Location: /apply-success.php');
+        exit();
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        header('Location: /apply.php?error='.urlencode($e->getMessage()));
+        exit();
+    }
+}
+
+try {
+    $pageStructure = $pageManager->getPageStructure('apply');
+    $components = $pageStructure['components'];
+} catch (Exception $e) {
+    die("Error loading page: " . $e->getMessage());
+}
 ?>
-<?php include 'components/layout/header.php'; ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="css/main.css">
+    <meta charset="UTF-8">
+    <title><?= $pageStructure['meta']['title'] ?></title>
+    <link rel="stylesheet" href="/css/main.css">
 </head>
-
-<main>
-    <?php foreach ($pageStructure['components'] as $component): ?>
+<body>
+    <?php foreach ($components as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
-</main>
-
-<?php include 'components/layout/footer.php'; ?>
+</body>
+</html>

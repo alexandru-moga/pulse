@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
@@ -7,7 +7,7 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE projects (
+CREATE TABLE IF NOT EXISTS projects (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
@@ -16,17 +16,22 @@ CREATE TABLE projects (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE applications (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  project_id INT,
-  status VARCHAR(20) DEFAULT 'pending',
-  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+CREATE TABLE IF NOT EXISTS applications (
+      id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      email VARCHAR(255) NOT NULL,
+      first_name VARCHAR(100) NOT NULL,
+      last_name VARCHAR(100) NOT NULL,
+      school VARCHAR(255) NOT NULL,
+      class VARCHAR(20) NOT NULL,
+      birthdate DATE NOT NULL,
+      phone VARCHAR(20) NOT NULL,
+      superpowers TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      student_id VARCHAR(255) DEFAULT NULL,
+      discord_username VARCHAR(255) DEFAULT NULL
 );
 
-CREATE TABLE pages (
+CREATE TABLE IF NOT EXISTS pages (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) UNIQUE NOT NULL,
   title VARCHAR(255) NOT NULL,
@@ -44,7 +49,7 @@ INSERT INTO pages (name, title, description, table_name, menu_enabled) VALUES
 ('contact', 'Contact', 'Get in touch with PULSE', 'page_contact', 1),
 ('dashboard', 'Dashboard', 'Member dashboard', 'page_dashboard', 1);
 
-CREATE TABLE menus (
+CREATE TABLE IF NOT EXISTS menus (
   id INT AUTO_INCREMENT PRIMARY KEY,
   page_id INT NOT NULL,
   parent_id INT DEFAULT NULL,
@@ -54,7 +59,7 @@ CREATE TABLE menus (
   FOREIGN KEY (parent_id) REFERENCES menus(id)
 );
 
-CREATE TABLE page_index (
+CREATE TABLE IF NOT EXISTS page_index (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,
   block_type VARCHAR(50) NOT NULL,
@@ -109,7 +114,7 @@ INSERT INTO page_index (block_name, block_type, content, order_num) VALUES
     ]
   }', 5),
 
-CREATE TABLE page_members (
+CREATE TABLE IF NOT EXISTS page_members (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,
   block_type VARCHAR(50) NOT NULL,
@@ -123,7 +128,7 @@ INSERT INTO page_members (block_name, block_type, content, order_num) VALUES
 ('members_description', 'text', 'Meet the talented programmers who make up PULSE', 2),
 ('members_list', 'dynamic', 'SELECT id, username, email FROM users', 3);
 
-CREATE TABLE page_apply (
+CREATE TABLE IF NOT EXISTS page_apply (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,
   block_type VARCHAR(50) NOT NULL,
@@ -173,7 +178,7 @@ VALUES
   ]
 }', 3, 1);
 
-CREATE TABLE page_contact (
+CREATE TABLE IF NOT EXISTS page_contact (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,
   block_type VARCHAR(50) NOT NULL,
@@ -187,7 +192,7 @@ INSERT INTO page_contact (block_name, block_type, content, order_num) VALUES
 ('contact_description', 'text', 'Get in touch with our team', 2),
 ('contact_form', 'form', '{"fields":[{"name":"name","type":"text","label":"Name"},{"name":"email","type":"email","label":"Email"},{"name":"message","type":"textarea","label":"Message"}]}', 3);
 
-CREATE TABLE page_dashboard (
+CREATE TABLE IF NOT EXISTS page_dashboard (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,
   block_type VARCHAR(50) NOT NULL,
@@ -203,7 +208,7 @@ INSERT INTO page_dashboard (block_name, block_type, content, order_num) VALUES
 ('my_applications', 'dynamic', 'SELECT a.id, p.name, a.status, a.applied_at FROM applications a JOIN projects p ON a.project_id = p.id WHERE a.user_id = {user_id}', 4),
 ('admin_panel', 'conditional', '{"condition":"isAdmin()","content":"Admin Panel"}', 5);
 
-CREATE TABLE footer (
+CREATE TABLE IF NOT EXISTS footer (
     id INT AUTO_INCREMENT PRIMARY KEY,
     section_type ENUM('logo', 'links', 'cta', 'credits') NOT NULL,
     content JSON NOT NULL,
