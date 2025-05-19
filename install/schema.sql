@@ -178,6 +178,30 @@ VALUES
   ]
 }', 3, 1);
 
+CREATE TABLE IF NOT EXISTS page_applied (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  block_name VARCHAR(100) NOT NULL,
+  block_type VARCHAR(50) NOT NULL,
+  content TEXT,
+  order_num INT DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1
+);
+
+INSERT INTO page_applied (block_name, block_type, content, order_num) VALUES
+('success_message', 'applied', '{
+    "title": "Application Received!",
+    "message": "Your application has been successfully submitted. Our team will review your submission and contact you shortly.",
+    "next_steps": [
+      "We will review your application within 3-5 business days",
+      "Check your email regularly for updates",
+      "Join our Discord community for real-time updates"
+    ],
+    "cta": {
+      "text": "Return to Homepage",
+      "url": "/"
+    }
+  }', 1),
+
 CREATE TABLE IF NOT EXISTS page_contact (
   id INT AUTO_INCREMENT PRIMARY KEY,
   block_name VARCHAR(100) NOT NULL,

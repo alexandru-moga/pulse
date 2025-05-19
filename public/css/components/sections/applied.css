@@ -1,0 +1,102 @@
+.applied {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 3rem 1rem;
+}
+
+.applied-container {
+    background: linear-gradient(145deg, rgba(26, 26, 26, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 2.5rem 2rem;
+    border: 1.5px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+    max-width: 430px;
+    width: 100%;
+    text-align: center;
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.applied-container:hover {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.19);
+    transform: translateY(-6px) scale(1.02);
+}
+
+.applied-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--primary, #00c6ff), var(--secondary, #0072ff));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.applied-message {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1.13rem;
+    margin-bottom: 1.8rem;
+    line-height: 1.6;
+}
+
+.applied-next-steps {
+    text-align: left;
+    margin-bottom: 1.6rem;
+}
+
+.applied-next-steps h2 {
+    font-size: 1.09rem;
+    font-weight: 600;
+    margin-bottom: .7rem;
+    color: #fff;
+    letter-spacing: 0.02em;
+}
+
+.applied-next-steps ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.applied-next-steps li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.7rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1rem;
+    padding-left: 1.5em;
+    position: relative;
+}
+
+.applied-next-steps li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--primary, #00c6ff);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.applied-home-btn {
+    display: inline-block;
+    margin-top: 1.1rem;
+    padding: 0.8em 2em;
+    background: linear-gradient(45deg, var(--primary, #00c6ff), var(--secondary, #0072ff));
+    color: #fff;
+    border-radius: 7px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.06rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 12px rgba(0, 198, 255, 0.13);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.applied-home-btn:hover,
+.applied-home-btn:focus {
+    background: linear-gradient(45deg, var(--secondary, #0072ff), var(--primary, #00c6ff));
+    box-shadow: 0 4px 20px rgba(0, 198, 255, 0.22);
+    color: #fff;
+}

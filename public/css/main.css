@@ -15,7 +15,7 @@
 @import url('components/sections/title-3.css');
 @import url('components/sections/heading-3.css');
 @import url('components/sections/apply-form.css');
-
+@import url('components/sections/applied.css');
 
 :root {
   --primary: #ec3750;
