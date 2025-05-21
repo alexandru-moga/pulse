@@ -27,7 +27,7 @@ class ContactForm {
             }
         }
 
-        if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if(!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $this->errors['email'] = "Invalid email format";
         }
     }

@@ -4,7 +4,7 @@ require_once '../core/init.php';
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contactForm = new ContactForm($db);
     
-    if($contactId = $contactForm->processSubmission($_POST)) {
+    if($contactForm->processSubmission($_POST)) {
         $_SESSION['form_success'] = "Message sent successfully!";
         header("Location: " . BASE_URL . "contact.php");
         exit();
@@ -16,6 +16,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$pageStructure = $pageManager->getPageStructure('contact');
 include 'components/layout/header.php';
 ?>
 
@@ -35,9 +36,7 @@ include 'components/layout/header.php';
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
     
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/net.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php include 'components/effects/birds.php'; ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>
