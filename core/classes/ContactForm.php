@@ -1,58 +1,45 @@
 <?php
-require_once __DIR__.'/../init.php';
 
-class ContactForm {
-    private $db;
-    private $errors = [];
+?>
 
-    public function __construct($db) {
-        $this->db = $db;
-    }
+<section class="contact-form-section">
+    <?php if(isset($_SESSION['form_errors'])): ?>
+        <div class="form-errors">
+            <?php foreach($_SESSION['form_errors'] as $field => $error): ?>
+                <p class="error"><?= htmlspecialchars($error) ?></p>
+            <?php endforeach; ?>
+            <?php unset($_SESSION['form_errors']); ?>
+        </div>
+    <?php endif; ?>
 
-    public function processSubmission($postData) {
-        $this->validate($postData);
+    <form class="contact-form" method="POST" action="<?= BASE_URL ?>contact.php">
+        <div class="form-group">
+            <label for="name">Name <span class="required">*</span></label>
+            <input type="text" id="name" name="name" 
+                   value="<?= htmlspecialchars($_SESSION['form_data']['name'] ?? '') ?>" 
+                   placeholder="Your full name"
+                   required>
+        </div>
         
-        if(empty($this->errors)) {
-            return $this->insertContact($postData);
-        }
-        return false;
-    }
-
-    private function validate($data) {
-        $requiredFields = ['name', 'email', 'message'];
+        <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" 
+                   value="<?= htmlspecialchars($_SESSION['form_data']['email'] ?? '') ?>" 
+                   placeholder="your@email.com"
+                   required>
+        </div>
         
-        foreach($requiredFields as $field) {
-            if(empty($data[$field])) {
-                $this->errors[$field] = "This field is required";
-            }
-        }
+        <div class="form-group">
+            <label for="message">Message <span class="required">*</span></label>
+            <textarea id="message" name="message" rows="6" 
+                      placeholder="Write your message here..."
+                      required><?= htmlspecialchars($_SESSION['form_data']['message'] ?? '') ?></textarea>
+        </div>
+        
+        <button type="submit" class="cta-button">Send Message</button>
+    </form>
 
-        if(!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $this->errors['email'] = "Invalid email format";
-        }
-    }
-
-    private function insertContact($data) {
-        try {
-            $sql = "INSERT INTO contacts (name, email, message) 
-                    VALUES (:name, :email, :message)";
-                    
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                ':name' => $data['name'],
-                ':email' => $data['email'],
-                ':message' => $data['message']
-            ]);
-            
-            return $this->db->lastInsertId();
-        } catch(PDOException $e) {
-            $this->errors['database'] = "Submission error: " . $e->getMessage();
-            error_log("Contact Form Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getErrors() {
-        return $this->errors;
-    }
-}
+    <?php if(isset($_SESSION['form_data'])): ?>
+        <?php unset($_SESSION['form_data']); ?>
+    <?php endif; ?>
+</section>
