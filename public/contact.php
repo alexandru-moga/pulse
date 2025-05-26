@@ -1,6 +1,5 @@
 <?php
 require_once '../core/init.php';
-require_once __DIR__ . '/../core/classes/ContactForm.php';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contactForm = new ContactForm($db);
