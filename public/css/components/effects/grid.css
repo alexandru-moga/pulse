@@ -1,7 +1,9 @@
 .grid-bg {
     position: absolute;
-    inset: 0;
-    height: 200vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
     z-index: -20;
     pointer-events: none;
     background-image:
