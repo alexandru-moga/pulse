@@ -1,11 +1,23 @@
 CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(100) NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) DEFAULT NULL,
+  last_name VARCHAR(100) DEFAULT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  role VARCHAR(20) DEFAULT 'member',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+  discord_id VARCHAR(255) DEFAULT NULL,
+  slack_id TEXT DEFAULT NULL,
+  github_username TEXT DEFAULT NULL,
+  school VARCHAR(255) DEFAULT NULL,
+  ysws_projects TEXT DEFAULT NULL,
+  hcb_member VARCHAR(255) DEFAULT NULL,
+  birthdate DATE DEFAULT NULL,
+  class VARCHAR(20) DEFAULT NULL,
+  phone VARCHAR(20) DEFAULT NULL,
+  role VARCHAR(50) DEFAULT NULL,
+  join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  description TEXT DEFAULT NULL,
+  active_member BOOLEAN DEFAULT FALSE
+  );
 
 CREATE TABLE IF NOT EXISTS projects (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -17,26 +29,26 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 CREATE TABLE IF NOT EXISTS applications (
-      id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      email VARCHAR(255) NOT NULL,
-      first_name VARCHAR(100) NOT NULL,
-      last_name VARCHAR(100) NOT NULL,
-      school VARCHAR(255) NOT NULL,
-      class VARCHAR(20) NOT NULL,
-      birthdate DATE NOT NULL,
-      phone VARCHAR(20) NOT NULL,
-      superpowers TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      student_id VARCHAR(255) DEFAULT NULL,
-      discord_username VARCHAR(255) DEFAULT NULL
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  school VARCHAR(255) NOT NULL,
+  class VARCHAR(20) NOT NULL,
+  birthdate DATE NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  superpowers TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  student_id VARCHAR(255) DEFAULT NULL,
+  discord_username VARCHAR(255) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS contacts (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -223,7 +235,18 @@ CREATE TABLE IF NOT EXISTS page_contact (
 INSERT INTO page_contact (block_name, block_type, content, order_num) VALUES
 ('contact_title', 'heading', 'Contact Us', 1),
 ('contact_description', 'text', 'Get in touch with our team', 2),
-('contact_form', 'form', '{"fields":[{"name":"name","type":"text","label":"Name"},{"name":"email","type":"email","label":"Email"},{"name":"message","type":"textarea","label":"Message"}]}', 3);
+('contact_form', 'form', '{
+    "title": "Get in Touch",
+    "subtitle": "We'll respond within 24 hours",
+    "description": "Have a question or want to join our team? Fill out the form below and we'll get back to you.",
+    "fields": [
+      {"name": "name", "label": "Full Name", "required": true, "placeholder": "Your name"},
+      {"name": "email", "label": "Email Address", "required": true, "placeholder": "your.email@example.com"},
+      {"name": "message", "label": "Message", "type": "textarea", "required": true, "placeholder": "Write your message here..."}
+    ],
+    "button_text": "Send Message"
+}
+', 3);
 
 CREATE TABLE IF NOT EXISTS page_dashboard (
   id INT AUTO_INCREMENT PRIMARY KEY,

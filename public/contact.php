@@ -35,7 +35,8 @@ include 'components/layout/header.php';
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
-    
+    <?php include 'components/effects/mouse.php'; ?>
+    <?php include 'components/effects/grid.php'; ?>
     <?php include 'components/effects/birds.php'; ?>
 </main>
 
