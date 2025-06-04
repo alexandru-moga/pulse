@@ -31,9 +31,9 @@ global $db, $currentUser;
             )->fetchAll();
 
             foreach ($menus as $menu) {
-                $url = ($menu['page_name'] === 'index')
-                    ? SITE_URL . '/'
-                    : SITE_URL . '/' . htmlspecialchars($menu['page_name']) . '.php';
+            $url = ($menu['page_name'] === 'index')
+                ? SITE_URL . '/'
+                : SITE_URL . '/' . htmlspecialchars($menu['page_name']) . '.php';
                 echo '<a href="' . $url . '">' . htmlspecialchars($menu['title']) . '</a>';
             }
 

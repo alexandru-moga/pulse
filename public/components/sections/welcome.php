@@ -26,7 +26,7 @@
       <?php if (isset($block_content['secondaryButton'])): ?>
       <a href="<?= htmlspecialchars($block_content['secondaryButton']['url'] ?? '#') ?>" 
          class="secondary-button">
-        <?= htmlspecialchars($block_content['secondaryButton']['text'] ?? 'Learn More') ?>
+        <?= htmlspecialchars($block_content['secondaryButton']['text'] ?? 'Contact us') ?>
       </a>
       <?php endif; ?>
     </div>
