@@ -1,4 +1,4 @@
-<form class="apply-form" method="POST" action="/pulse/public/apply.php">
+<form class="apply-form" method="POST" action="/apply.php">
   <fieldset>
     <legend>Personal Information</legend>
     

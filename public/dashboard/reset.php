@@ -36,7 +36,7 @@ include '../components/effects/mouse.php';
     <link rel="stylesheet" href="../css/main.css">
 </head>
 <main>
-    <section class="reset-password-section">
+    <section class="contact-form-section">
         <h2>Set a New Password</h2>
         <?php if ($error): ?>
             <div class="form-errors"><div class="error"><?= htmlspecialchars($error) ?></div></div>

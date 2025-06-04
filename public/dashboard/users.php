@@ -5,14 +5,12 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser;
 
-// PHPMailer includes and namespace
 require_once __DIR__ . '/../../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../../lib/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../lib/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Handle user creation
 $createSuccess = $createError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $fields = [
@@ -25,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
     $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // Check for duplicate email
     $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
     $exists->execute([$data['email']]);
     if ($exists->fetch()) {
@@ -40,20 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
             $data['hcb_member'], $data['birthdate'], $data['class'],
             $data['phone'], $data['role'], $data['description'], $data['active_member']
         ]);
-        // Redirect to users.php after successful creation to avoid resubmission
         header("Location: users.php?created=1");
         exit();
     }
 }
 
-// Handle user deletion
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $db->prepare("DELETE FROM users WHERE id=?")->execute([$_GET['delete']]);
     header("Location: users.php?deleted=1");
     exit();
 }
 
-// Handle user update
 $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $id = intval($_POST['user_id']);
@@ -66,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
-    // If password field is filled, update it
     $updatePassword = !empty($_POST['password']);
     if ($updatePassword) {
         $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -86,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $editSuccess = "User updated successfully!";
 }
 
-// Handle direct active_member toggle from table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     $id = intval($_POST['user_id']);
     $active = isset($_POST['active_member']) ? 1 : 0;
@@ -94,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     exit();
 }
 
-// Handle password reset email
 $resetSuccess = $resetError = null;
 if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
     $userId = $_GET['reset'];
@@ -131,7 +122,6 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
     }
 }
 
-// Fetch all users
 $users = $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
 
 $pageTitle = "Manage Users";
@@ -151,7 +141,6 @@ include '../components/effects/grid.php';
     <?php if ($resetError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($resetError) ?></div></div><?php endif; ?>
 
     <?php
-    // Add User Mode
     if (isset($_GET['add'])): ?>
         <a href="users.php" class="cta-button" style="margin-bottom:1.5rem;display:inline-block;">&larr; Back to all users</a>
         <form method="post" class="manage-user-form">
@@ -187,7 +176,6 @@ include '../components/effects/grid.php';
             <button type="submit" name="create_user" class="cta-button">Create User</button>
         </form>
     <?php
-    // Edit User Mode
     elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
         $editId = intval($_GET['edit']);
         $editUser = null;
@@ -237,7 +225,6 @@ include '../components/effects/grid.php';
             <a href="users.php" class="cta-button">&larr; Back to all users</a>
         <?php endif; ?>
     <?php
-    // Default: Show all users and add button
     else: ?>
         <h3>All Users</h3>
         <table>

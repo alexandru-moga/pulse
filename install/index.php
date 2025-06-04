@@ -1,38 +1,32 @@
 <?php
 session_start();
 
-// Define paths
 $configFile = __DIR__ . '/../core/config.php';
 $configTemplate = __DIR__ . '/../core/config.php.template';
 $schemaFile = __DIR__ . '/schema.sql';
 
-// Handle step progression
 $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
 $error = '';
 $success = '';
 
-// Process form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         switch ($step) {
-            case 1: // Database setup
+            case 1: 
                 $dbHost = $_POST['db_host'] ?? '';
                 $dbName = $_POST['db_name'] ?? '';
                 $dbUser = $_POST['db_user'] ?? '';
                 $dbPass = $_POST['db_pass'] ?? '';
 
-                // Test and create database
                 $conn = new PDO("mysql:host=$dbHost", $dbUser, $dbPass);
                 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $conn->exec("DROP DATABASE IF EXISTS `$dbName`");
                 $conn->exec("CREATE DATABASE `$dbName`");
                 $conn->exec("USE `$dbName`");
                 
-                // Import schema
                 $schema = file_get_contents($schemaFile);
                 $conn->exec($schema);
 
-                // Create/overwrite config
                 $configContent = str_replace(
                     ['{{DB_HOST}}', '{{DB_NAME}}', '{{DB_USER}}', '{{DB_PASS}}'],
                     [$dbHost, $dbName, $dbUser, $dbPass],
@@ -43,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ?step=2');
                 exit;
 
-            case 2: // Admin account
+            case 2:
                 require_once __DIR__ . '/../core/init.php';
                 
                 $username = $_POST['username'] ?? '';
@@ -54,19 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('All fields are required');
                 }
 
-                // Create admin user
                 User::create($username, $email, $password, 'admin');
                 header('Location: ?step=3');
                 exit;
 
-            case 3: // Site configuration
+            case 3: 
                 require_once __DIR__ . '/../core/init.php';
                 
                 $siteTitle = $_POST['site_title'] ?? '';
                 $siteUrl = $_POST['site_url'] ?? '';
                 $adminEmail = $_POST['admin_email'] ?? '';
 
-                // Update config
                 $configContent = file_get_contents($configFile);
                 $configContent = preg_replace([
                     "/define\('SITE_TITLE', '.*?'\)/",

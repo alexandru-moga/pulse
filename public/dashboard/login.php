@@ -39,7 +39,7 @@ include '../components/effects/mouse.php';
 </head>
 
 <main>
-    <section class="login-section">
+    <section class="contact-form-section">
         <h2>Login to PULSE</h2>
         <?php if ($error): ?>
             <div class="form-errors">
