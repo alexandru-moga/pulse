@@ -18,11 +18,9 @@ global $db, $currentUser;
         <a href="<?= SITE_URL ?>/" class="site-title"><?= htmlspecialchars(SITE_TITLE) ?></a>
         <nav class="nav-links">
             <?php
-            // Determine current role
             $isLoggedIn = isset($currentUser) && $currentUser;
             $role = $isLoggedIn ? $currentUser->role : 'guest';
 
-            // Fetch top-level menu items (excluding dashboard)
             $menus = $db->query(
                 "SELECT m.id, m.title, p.name AS page_name
                  FROM menus m
@@ -39,7 +37,6 @@ global $db, $currentUser;
                 echo '<a href="' . $url . '">' . htmlspecialchars($menu['title']) . '</a>';
             }
 
-            // Dashboard dropdown
             $dashboardParent = $db->prepare(
                 "SELECT id FROM menus WHERE title='Dashboard' AND parent_id IS NULL AND page_id = (SELECT id FROM pages WHERE name='dashboard') LIMIT 1"
             );
@@ -47,7 +44,6 @@ global $db, $currentUser;
             $dashboardParentId = $dashboardParent->fetchColumn();
 
             if ($dashboardParentId) {
-                // Fetch dashboard children for current role using only visibility
                 $childrenStmt = $db->prepare(
                     "SELECT m.title, p.name AS page_name
                      FROM menus m
