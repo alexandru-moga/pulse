@@ -66,8 +66,9 @@ include '../components/layout/header.php';
 include '../components/effects/mouse.php';
 ?>
 <head>
-    <link rel="stylesheet" href="../css/main.css">
+        <link rel="stylesheet" href="../css/main.css">
 </head>
+
 <main>
     <section class="contact-form-section">
         <h2>Reset Password</h2>

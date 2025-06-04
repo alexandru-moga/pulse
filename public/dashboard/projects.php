@@ -82,6 +82,10 @@ select, select option {
 }
 </style>
 
+<head>
+        <link rel="stylesheet" href="../css/main.css">
+</head>
+
 <main class="contact-form-section">
     <h2>My Projects</h2>
     <?php if (!empty($userProjects)): ?>

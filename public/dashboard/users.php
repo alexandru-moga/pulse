@@ -125,10 +125,13 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
 $users = $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
 
 $pageTitle = "Manage Users";
-$extraCss = '<link rel="stylesheet" href="' . SITE_URL . '/css/dashboard.css">';
 include '../components/layout/header.php';
 include '../components/effects/grid.php';
 ?>
+
+<head>
+        <link rel="stylesheet" href="../css/main.css">
+</head>
 
 <main class="contact-form-section">
     <h2>Manage Users</h2>

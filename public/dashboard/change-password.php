@@ -38,6 +38,10 @@ include '../components/effects/mouse.php';
 include '../components/effects/grid.php';
 ?>
 
+<head>
+        <link rel="stylesheet" href="../css/main.css">
+</head>
+
 <main class="contact-form-section">
     <h2>Change Password</h2>
     <?php if ($success): ?>
