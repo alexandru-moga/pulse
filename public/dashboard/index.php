@@ -8,14 +8,13 @@ if (!isLoggedIn()) {
 
 $pageStructure = $pageManager->getPageStructure('dashboard');
 include '../components/layout/header.php';
-include 'sidebar.php';
 ?>
 
 <head>
     <link rel="stylesheet" href="../css/main.css">
 </head>
 
-<main>
+<main class="index-page">
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
@@ -25,4 +24,5 @@ include 'sidebar.php';
 <?php 
 include '../components/effects/grid.php';
 include '../components/layout/footer.php';
+include '../components/effects/mouse.php';
 ?>

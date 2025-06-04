@@ -5,7 +5,7 @@ $members = $db->query(
     "SELECT id, first_name, last_name, role, description, github_username, discord_id
      FROM users
      WHERE active_member = 1
-     ORDER BY FIELD(role, 'leader', 'coleader', 'member'), join_date DESC"
+     ORDER BY FIELD(role, 'Leader', 'Co-leader', 'Member'), join_date DESC"
 )->fetchAll();
 
 function getMemberImage($id) {

@@ -40,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
             $data['hcb_member'], $data['birthdate'], $data['class'],
             $data['phone'], $data['role'], $data['description'], $data['active_member']
         ]);
-        $createSuccess = "User created successfully!";
+        // Redirect to users.php after successful creation to avoid resubmission
+        header("Location: users.php?created=1");
+        exit();
     }
 }
 
@@ -89,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     $id = intval($_POST['user_id']);
     $active = isset($_POST['active_member']) ? 1 : 0;
     $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$active, $id]);
-    exit(); // For AJAX, no HTML output
+    exit();
 }
 
 // Handle password reset email
@@ -136,9 +138,9 @@ $pageTitle = "Manage Users";
 $extraCss = '<link rel="stylesheet" href="' . SITE_URL . '/css/dashboard.css">';
 include '../components/layout/header.php';
 include '../components/effects/grid.php';
-include 'sidebar.php';?>
+?>
 
-<main class="dashboard-main">
+<main class="contact-form-section">
     <h2>Manage Users</h2>
     <?php if ($createSuccess): ?><div class="form-success"><?= htmlspecialchars($createSuccess) ?></div><?php endif; ?>
     <?php if ($createError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($createError) ?></div></div><?php endif; ?>
@@ -148,115 +150,132 @@ include 'sidebar.php';?>
     <?php if ($resetSuccess): ?><div class="form-success"><?= htmlspecialchars($resetSuccess) ?></div><?php endif; ?>
     <?php if ($resetError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($resetError) ?></div></div><?php endif; ?>
 
-    <h3>All Users</h3>
-    <table>
-        <tr>
-            <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
-            <th colspan="1" style="text-align:center;">Active</th>
-            <th>Actions</th>
-        </tr>
-        <?php foreach ($users as $u): ?>
-            <tr>
-                <td><?= $u['id'] ?></td>
-                <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
-                <td><?= htmlspecialchars($u['email']) ?></td>
-                <td><?= htmlspecialchars($u['role']) ?></td>
-                <td>
-                    <div class="toggles-row">
-                        <form method="post" class="inline-form" onsubmit="return false;">
-                            <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                            <label class="switch">
-                                <input type="checkbox" name="active_member" value="1"
-                                    <?= $u['active_member'] ? 'checked' : '' ?>
-                                    onchange="toggleActive(this, <?= $u['id'] ?>)">
-                                <span class="slider"></span>
-                            </label>
-                        </form>
+    <?php
+    // Add User Mode
+    if (isset($_GET['add'])): ?>
+        <a href="users.php" class="cta-button" style="margin-bottom:1.5rem;display:inline-block;">&larr; Back to all users</a>
+        <form method="post" class="manage-user-form">
+            <div class="form-group"><label>First Name</label><input type="text" name="first_name"></div>
+            <div class="form-group"><label>Last Name</label><input type="text" name="last_name"></div>
+            <div class="form-group"><label>Email</label><input type="email" name="email"></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password"></div>
+            <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id"></div>
+            <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id"></div>
+            <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username"></div>
+            <div class="form-group"><label>School</label><input type="text" name="school"></div>
+            <div class="toggles-row" style="gap:2rem;">
+                <div>
+                    <span class="switch-label">Hcb Member</span>
+                    <label class="switch">
+                        <input type="checkbox" name="hcb_member" value="1">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div>
+                    <span class="switch-label">Active Member</span>
+                    <label class="switch">
+                        <input type="checkbox" name="active_member" value="1">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate"></div>
+            <div class="form-group"><label>Class</label><input type="text" name="class"></div>
+            <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
+            <div class="form-group"><label>Role</label><input type="text" name="role"></div>
+            <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
+            <button type="submit" name="create_user" class="cta-button">Create User</button>
+        </form>
+    <?php
+    // Edit User Mode
+    elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
+        $editId = intval($_GET['edit']);
+        $editUser = null;
+        foreach ($users as $u) {
+            if ($u['id'] == $editId) {
+                $editUser = $u;
+                break;
+            }
+        }
+        if ($editUser): ?>
+            <a href="users.php" class="cta-button" style="margin-bottom:1.5rem;display:inline-block;">&larr; Back to all users</a>
+            <form method="post" class="manage-user-form">
+                <input type="hidden" name="user_id" value="<?= $editUser['id'] ?>">
+                <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="<?= htmlspecialchars($editUser['first_name']) ?>"></div>
+                <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="<?= htmlspecialchars($editUser['last_name']) ?>"></div>
+                <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($editUser['email']) ?>"></div>
+                <div class="form-group"><label>Password <span style="font-weight:400;color:#bfc9d1">(leave blank to keep unchanged)</span></label><input type="password" name="password"></div>
+                <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id" value="<?= htmlspecialchars($editUser['discord_id']) ?>"></div>
+                <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id" value="<?= htmlspecialchars($editUser['slack_id']) ?>"></div>
+                <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username" value="<?= htmlspecialchars($editUser['github_username']) ?>"></div>
+                <div class="form-group"><label>School</label><input type="text" name="school" value="<?= htmlspecialchars($editUser['school']) ?>"></div>
+                <div class="toggles-row" style="gap:2rem;">
+                    <div>
+                        <span class="switch-label">Hcb Member</span>
+                        <label class="switch">
+                            <input type="checkbox" name="hcb_member" value="1" <?= $editUser['hcb_member']?'checked':'' ?>>
+                            <span class="slider"></span>
+                        </label>
                     </div>
-                </td>
-                <td>
-                    <a href="?edit=<?= $u['id'] ?>">Edit</a>
-                    <a href="?delete=<?= $u['id'] ?>" onclick="return confirm('Delete user?')">Delete</a>
-                    <a href="?reset=<?= $u['id'] ?>" onclick="return confirm('Send password reset email?')">Send Reset</a>
-                </td>
-            </tr>
-            <?php if (isset($_GET['edit']) && $_GET['edit'] == $u['id']): ?>
+                    <div>
+                        <span class="switch-label">Active Member</span>
+                        <label class="switch">
+                            <input type="checkbox" name="active_member" value="1" <?= $editUser['active_member']?'checked':'' ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate" value="<?= htmlspecialchars($editUser['birthdate']) ?>"></div>
+                <div class="form-group"><label>Class</label><input type="text" name="class" value="<?= htmlspecialchars($editUser['class']) ?>"></div>
+                <div class="form-group"><label>Phone</label><input type="text" name="phone" value="<?= htmlspecialchars($editUser['phone']) ?>"></div>
+                <div class="form-group"><label>Role</label><input type="text" name="role" value="<?= htmlspecialchars($editUser['role']) ?>"></div>
+                <div class="form-group"><label>Description</label><textarea name="description"><?= htmlspecialchars($editUser['description']) ?></textarea></div>
+                <button type="submit" name="edit_user" class="cta-button">Save Changes</button>
+            </form>
+        <?php else: ?>
+            <div class="form-errors"><div class="error">User not found.</div></div>
+            <a href="users.php" class="cta-button">&larr; Back to all users</a>
+        <?php endif; ?>
+    <?php
+    // Default: Show all users and add button
+    else: ?>
+        <h3>All Users</h3>
+        <table>
             <tr>
-                <td colspan="7">
-                    <form method="post" class="manage-user-form">
-                        <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                        <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="<?= htmlspecialchars($u['first_name']) ?>"></div>
-                        <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="<?= htmlspecialchars($u['last_name']) ?>"></div>
-                        <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($u['email']) ?>"></div>
-                        <div class="form-group"><label>Password <span style="font-weight:400;color:#bfc9d1">(leave blank to keep unchanged)</span></label><input type="password" name="password"></div>
-                        <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id" value="<?= htmlspecialchars($u['discord_id']) ?>"></div>
-                        <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id" value="<?= htmlspecialchars($u['slack_id']) ?>"></div>
-                        <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username" value="<?= htmlspecialchars($u['github_username']) ?>"></div>
-                        <div class="form-group"><label>School</label><input type="text" name="school" value="<?= htmlspecialchars($u['school']) ?>"></div>
-                        <div class="toggles-row" style="gap:2rem;">
-                            <div>
-                                <span class="switch-label">Hcb Member</span>
-                                <label class="switch">
-                                    <input type="checkbox" name="hcb_member" value="1" <?= $u['hcb_member']?'checked':'' ?>>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div>
-                                <span class="switch-label">Active Member</span>
-                                <label class="switch">
-                                    <input type="checkbox" name="active_member" value="1" <?= $u['active_member']?'checked':'' ?>>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate" value="<?= htmlspecialchars($u['birthdate']) ?>"></div>
-                        <div class="form-group"><label>Class</label><input type="text" name="class" value="<?= htmlspecialchars($u['class']) ?>"></div>
-                        <div class="form-group"><label>Phone</label><input type="text" name="phone" value="<?= htmlspecialchars($u['phone']) ?>"></div>
-                        <div class="form-group"><label>Role</label><input type="text" name="role" value="<?= htmlspecialchars($u['role']) ?>"></div>
-                        <div class="form-group"><label>Description</label><textarea name="description"><?= htmlspecialchars($u['description']) ?></textarea></div>
-                        <button type="submit" name="edit_user" class="cta-button">Save Changes</button>
-                    </form>
-                </td>
+                <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
+                <th colspan="1" style="text-align:center;">Active</th>
+                <th>Actions</th>
             </tr>
-            <?php endif; ?>
-        <?php endforeach; ?>
-    </table>
+            <?php foreach ($users as $u): ?>
+                <tr>
+                    <td><?= $u['id'] ?></td>
+                    <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
+                    <td><?= htmlspecialchars($u['email']) ?></td>
+                    <td><?= htmlspecialchars($u['role']) ?></td>
+                    <td>
+                        <div class="toggles-row">
+                            <form method="post" class="inline-form" onsubmit="return false;">
+                                <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                                <label class="switch">
+                                    <input type="checkbox" name="active_member" value="1"
+                                        <?= $u['active_member'] ? 'checked' : '' ?>
+                                        onchange="toggleActive(this, <?= $u['id'] ?>)">
+                                    <span class="slider"></span>
+                                </label>
+                            </form>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="?edit=<?= $u['id'] ?>">Edit</a>
+                        <a href="?delete=<?= $u['id'] ?>" onclick="return confirm('Delete user?')">Delete</a>
+                        <a href="?reset=<?= $u['id'] ?>" onclick="return confirm('Send password reset email?')">Send Reset</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
 
-    <button class="add-user-btn" onclick="document.getElementById('create-user-form').style.display='flex'; this.style.display='none';">
-        Add User
-    </button>
-
-    <form method="post" class="manage-user-form" id="create-user-form" style="display:none;">
-        <div class="form-group"><label>First Name</label><input type="text" name="first_name"></div>
-        <div class="form-group"><label>Last Name</label><input type="text" name="last_name"></div>
-        <div class="form-group"><label>Email</label><input type="email" name="email"></div>
-        <div class="form-group"><label>Password</label><input type="password" name="password"></div>
-        <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id"></div>
-        <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id"></div>
-        <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username"></div>
-        <div class="form-group"><label>School</label><input type="text" name="school"></div>
-        <div class="toggles-row" style="gap:2rem;">
-            <div>
-                <span class="switch-label">Hcb Member</span>
-                <label class="switch">
-                    <input type="checkbox" name="hcb_member" value="1">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div>
-                <label class="switch">
-                    <input type="checkbox" name="active_member" value="1">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-        <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate"></div>
-        <div class="form-group"><label>Class</label><input type="text" name="class"></div>
-        <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
-        <div class="form-group"><label>Role</label><input type="text" name="role"></div>
-        <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
-        <button type="submit" name="create_user" class="cta-button">Create User</button>
-    </form>
+        <a href="users.php?add=1" class="add-user-btn cta-button">Add User</a>
+    <?php endif; ?>
 </main>
 
 <script>
@@ -269,4 +288,7 @@ function toggleActive(checkbox, userId) {
 }
 </script>
 
-<?php include '../components/layout/footer.php'; ?>
+<?php
+include '../components/layout/footer.php';
+include '../components/effects/mouse.php';
+?>

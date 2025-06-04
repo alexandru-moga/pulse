@@ -1,0 +1,108 @@
+body.index-page {
+    min-height: 100vh;
+    background: linear-gradient(120deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.index-center-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+    width: 100%;
+}
+
+.index-hero {
+    background: var(--header-bg);
+    color: var(--text);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+    padding: 3rem 2rem 2.5rem 2rem;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+    width: 100%;
+}
+
+.index-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.index-hero p {
+    font-size: 1.15rem;
+    color: #e6e6e6;
+    margin-bottom: 2.2rem;
+}
+
+.index-cta {
+    display: inline-block;
+    background: #fff;
+    color: var(--primary-dark);
+    padding: 0.9rem 2.2rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
+    transition: background 0.2s, color 0.2s;
+}
+
+.index-cta:hover {
+    background: var(--primary-dark);
+    color: #fff;
+}
+
+/* Features Section */
+.index-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin: 2rem auto 0 auto;
+    max-width: 1000px;
+    justify-content: center;
+}
+
+.index-feature {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    flex: 1 1 260px;
+    min-width: 220px;
+    max-width: 340px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.index-feature h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.index-feature p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+    .index-features {
+        flex-direction: column;
+        gap: 1.2rem;
+        align-items: center;
+    }
+
+    .index-hero {
+        padding: 2.2rem 1rem;
+    }
+}

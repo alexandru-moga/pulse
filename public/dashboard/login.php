@@ -2,7 +2,7 @@
 require_once '../../core/init.php';
 
 if (isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: index.php');
     exit();
 }
 
@@ -15,14 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === '' || $password === '') {
         $error = "Please enter both email and password.";
     } else {
-        // Fetch user by email
         $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            header('Location: dashboard.php');
+            header('Location: index.php');
             exit();
         } else {
             $error = "Invalid email or password.";
@@ -31,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 include '../components/layout/header.php';
+include '../components/effects/mouse.php';
 ?>
 
 <head>

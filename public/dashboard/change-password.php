@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
 
-    // Fetch current hashed password from DB
     $stmt = $db->prepare("SELECT password FROM users WHERE id = ?");
     $stmt->execute([$currentUser->id]);
     $user = $stmt->fetch();
@@ -27,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($oldPassword === $newPassword) {
         $error = "New password cannot be the same as the old password.";
     } else {
-        // Update password
         $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
         $db->prepare("UPDATE users SET password = ? WHERE id = ?")
            ->execute([$hashed, $currentUser->id]);
@@ -36,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 include '../components/layout/header.php';
+include '../components/effects/mouse.php';
 include '../components/effects/grid.php';
-include 'sidebar.php';
 ?>
 
-<main class="dashboard-main">
+<main class="contact-form-section">
     <h2>Change Password</h2>
     <?php if ($success): ?>
         <div class="form-success"><?= htmlspecialchars($success) ?></div>

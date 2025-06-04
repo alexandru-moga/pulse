@@ -19,18 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user) {
-            // Generate a secure token and expiry (1 hour)
             $token = bin2hex(random_bytes(32));
             $expires = date('Y-m-d H:i:s', time() + 3600);
 
-            // Store token in DB
             $db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
                 ->execute([$user['id'], $token, $expires]);
 
-            // Prepare reset link
-            $resetLink = BASE_URL . "dashboard/reset.php?token=$token";
+            $resetLink = BASE_URL . "https://phoenixclub.ro/dashboard/reset.php?token=$token";
 
-            // Load SMTP settings from DB
             $smtp = [];
             $settings = $db->query("SELECT * FROM settings")->fetchAll();
             foreach ($settings as $row) $smtp[$row['name']] = $row['value'];
@@ -67,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 include '../components/layout/header.php';
+include '../components/effects/mouse.php';
 ?>
 <head>
     <link rel="stylesheet" href="../css/main.css">

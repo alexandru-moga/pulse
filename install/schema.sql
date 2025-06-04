@@ -19,15 +19,6 @@ CREATE TABLE IF NOT EXISTS users (
   active_member BOOLEAN DEFAULT FALSE
   );
 
-CREATE TABLE IF NOT EXISTS projects (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  description TEXT,
-  image VARCHAR(255),
-  status VARCHAR(20) DEFAULT 'active',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS applications (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
@@ -79,6 +70,9 @@ CREATE TABLE IF NOT EXISTS menus (
   FOREIGN KEY (page_id) REFERENCES pages(id),
   FOREIGN KEY (parent_id) REFERENCES menus(id)
 );
+
+ALTER TABLE menus ADD COLUMN visibility VARCHAR(50) DEFAULT NULL;
+ALTER TABLE menus ADD COLUMN roles VARCHAR(255) DEFAULT NULL;
 
 CREATE TABLE IF NOT EXISTS page_index (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -289,3 +283,46 @@ INSERT INTO footer (section_type, content, order_num) VALUES
     "url": "/apply.php"
 }', 3),
 ('credits', '{"show_attribution": true}', 4);
+
+CREATE TABLE IF NOT EXISTS settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    value TEXT NOT NULL
+);
+
+INSERT INTO settings (name, value) VALUES
+('smtp_host', 'smtp.gmail.com'),
+('smtp_port', '587'),
+('smtp_user', 'your_gmail@gmail.com'),
+('smtp_pass', 'your_app_password'),
+('smtp_from', 'your_gmail@gmail.com'),
+('smtp_from_name', 'PULSE Team');
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (user_id),
+    INDEX (token)
+);
+
+CREATE TABLE projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status ENUM('active', 'completed') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_projects (
+    user_id INT,
+    project_id INT,
+    assigned_by INT,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, project_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
+

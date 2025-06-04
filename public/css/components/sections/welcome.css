@@ -107,7 +107,6 @@
   animation: bounce 2s infinite ease-in-out;
 }
 
-/* Animations */
 .animate-fade-in {
   opacity: 0;
   animation: fadeIn 0.8s forwards;

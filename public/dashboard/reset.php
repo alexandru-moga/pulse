@@ -4,7 +4,6 @@ require_once '../../core/init.php';
 $token = $_GET['token'] ?? '';
 $error = $success = null;
 
-// Check token validity
 if ($token) {
     $stmt = $db->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()");
     $stmt->execute([$token]);
@@ -31,6 +30,7 @@ if ($token) {
 }
 
 include '../components/layout/header.php';
+include '../components/effects/mouse.php';
 ?>
 <head>
     <link rel="stylesheet" href="../css/main.css">

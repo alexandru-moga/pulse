@@ -6,7 +6,6 @@ global $currentUser, $db;
 
 $canAssign = $currentUser && in_array($currentUser->role, ['Leader', 'Co-leader']);
 
-// Handle project creation
 $createProjectSuccess = $createProjectError = null;
 if ($canAssign && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_project'])) {
     $projectTitle = trim($_POST['project_title'] ?? '');
@@ -20,24 +19,20 @@ if ($canAssign && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_
     }
 }
 
-// Handle project deletion
 $deleteProjectSuccess = $deleteProjectError = null;
 if ($canAssign && isset($_GET['delete_project'])) {
     $projectId = intval($_GET['delete_project']);
-    // Optionally: check if project exists
     $db->prepare("DELETE FROM projects WHERE id = ?")->execute([$projectId]);
     $db->prepare("DELETE FROM user_projects WHERE project_id = ?")->execute([$projectId]);
     $deleteProjectSuccess = "Project deleted successfully!";
 }
 
-// Fetch all projects and users for assignment (if leader/coleader)
 $allProjects = $allUsers = [];
 if ($canAssign) {
     $allProjects = $db->query("SELECT * FROM projects")->fetchAll();
     $allUsers = $db->query("SELECT id, first_name, last_name FROM users")->fetchAll();
 }
 
-// Handle project assignment
 $assignSuccess = $assignError = null;
 if ($canAssign && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_project'])) {
     $projectId = intval($_POST['project_id']);
@@ -53,7 +48,6 @@ if ($canAssign && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['assign_
     }
 }
 
-// Fetch projects assigned to the current user
 $userProjects = [];
 $stmt = $db->prepare(
     "SELECT p.* 
@@ -65,8 +59,8 @@ $stmt->execute([$currentUser->id]);
 $userProjects = $stmt->fetchAll();
 
 include '../components/layout/header.php';
+include '../components/effects/mouse.php';
 include '../components/effects/grid.php';
-include 'sidebar.php';
 ?>
 
 <style>
@@ -88,7 +82,7 @@ select, select option {
 }
 </style>
 
-<main class="dashboard-main">
+<main class="contact-form-section">
     <h2>My Projects</h2>
     <?php if (!empty($userProjects)): ?>
         <ul>
