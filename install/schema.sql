@@ -291,6 +291,7 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 
 INSERT INTO settings (name, value) VALUES
+('base_url', 'https://example.com'),
 ('smtp_host', 'smtp.gmail.com'),
 ('smtp_port', '587'),
 ('smtp_user', 'your_gmail@gmail.com'),

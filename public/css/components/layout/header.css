@@ -1,12 +1,14 @@
 .site-header.translucent {
     position: sticky;
     top: 0;
-    width: 100vw;
     z-index: 1000;
     background: rgba(20, 20, 20, 0.1);
     -webkit-backdrop-filter: saturate(120%) blur(8px);
     backdrop-filter: saturate(20%) blur(8px);
     transition: background 0.3s;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .header-container {
@@ -63,7 +65,6 @@
     }
 }
 
-/* Example dropdown styles */
 .dropdown {
     position: relative;
     display: inline-block;

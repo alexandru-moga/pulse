@@ -32,8 +32,8 @@ global $db, $currentUser;
 
             foreach ($menus as $menu) {
             $url = ($menu['page_name'] === 'index')
-            ? 'https://phoenixclub.ro/'
-            : 'https://phoenixclub.ro/' . htmlspecialchars($menu['page_name']) . '.php';
+            ? SITE_URL . '/'
+            : SITE_URL . '/' . htmlspecialchars($menu['page_name']) . '.php';
 
                 echo '<a href="' . $url . '">' . htmlspecialchars($menu['title']) . '</a>';
             }
@@ -60,7 +60,7 @@ global $db, $currentUser;
                     echo '<button class="dropbtn">Dashboard</button>';
                     echo '<div class="dropdown-content">';
                     foreach ($dashboardLinks as $item) {
-                        $url = "https://phoenixclub.ro" . '/' . htmlspecialchars($item['page_name']) . '.php';
+                        $url = "SITE_URL" . '/' . htmlspecialchars($item['page_name']) . '.php';
                         echo '<a href="' . $url . '">' . htmlspecialchars($item['title']) . '</a>';
                     }
                     echo '</div></div>';
