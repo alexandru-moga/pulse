@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
                 ->execute([$user['id'], $token, $expires]);
 
-            $resetLink = SITE_URL . "BASE_URL/dashboard/reset.php?token=$token";
+            $resetLink = SITE_URL . "/dashboard/reset.php?token=$token";
 
             $smtp = [];
             $settings = $db->query("SELECT * FROM settings")->fetchAll();
