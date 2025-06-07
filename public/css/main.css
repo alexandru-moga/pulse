@@ -43,3 +43,20 @@ body {
   max-width: 1200px;
   margin: 0 auto;
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
