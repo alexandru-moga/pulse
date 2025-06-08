@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 
-define('BASE_URL', '/pulse/public'); 
+define('BASE_URL', '/'); 
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
