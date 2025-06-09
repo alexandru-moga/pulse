@@ -16,7 +16,6 @@ include '../components/layout/header.php';
 include '../components/effects/grid.php';
 $success = $error = null;
 
-// Handle status update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status_update_id'])) {
     $id = intval($_POST['status_update_id']);
     $status = in_array($_POST['status'], ['waiting', 'accepted', 'rejected']) ? $_POST['status'] : 'waiting';
@@ -24,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status_update_id'])) 
     $success = "Status updated.";
 }
 
-// Handle send accepted email
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
     $id = intval($_POST['send_accept_id']);
     $app = $db->prepare("SELECT * FROM applications WHERE id=?");
@@ -55,14 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
     }
 }
 
-// Handle add as member
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
     $appId = intval($_POST['add_member_id']);
     $app = $db->prepare("SELECT * FROM applications WHERE id=?");
     $app->execute([$appId]);
     $app = $app->fetch();
     if ($app) {
-        // Map application fields to users fields as needed
         $fields = [
             'first_name'    => $app['first_name'] ?? '',
             'last_name'     => $app['last_name'] ?? '',
