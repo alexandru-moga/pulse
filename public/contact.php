@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)");
         $stmt->execute([$name, $email, $message]);
 
-        $_SESSION['form_success'] = "Message sent successfully!";
+        $_SESSION['form_success'] = true;
         header("Location: " . BASE_URL . "contact.php");
         exit();
     } else {
@@ -38,10 +38,12 @@ include 'components/layout/header.php';
 </head>
 
 <main>
-    <?php if(isset($_SESSION['form_success'])): ?>
+    <?php if (isset($_SESSION['form_success'])): ?>
         <?php
             echo $pageManager->renderComponent([
-                'type' => 'contacted',
+                'block_type' => 'contacted',
+                'block_name' => 'contacted',
+                'order_num' => 999,
                 'content' => ''
             ]);
             unset($_SESSION['form_success']);
