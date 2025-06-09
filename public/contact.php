@@ -19,12 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$name, $email, $message]);
 
         $_SESSION['form_success'] = true;
-        header("Location: " . BASE_URL . "contact.php");
+        header("Location: " . "contact.php");
         exit();
     } else {
         $_SESSION['form_errors'] = $errors;
         $_SESSION['form_data'] = $fields;
-        header("Location: " . BASE_URL . "contact.php");
+        header("Location: " . "contact.php");
         exit();
     }
 }

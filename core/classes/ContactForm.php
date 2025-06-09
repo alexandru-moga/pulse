@@ -12,7 +12,7 @@
         </div>
     <?php endif; ?>
 
-    <form class="contact-form" method="POST" action="<?= BASE_URL ?>contact.php">
+    <form class="contact-form" method="POST" action="contact.php">
         <div class="form-group">
             <label for="name">Name <span class="required">*</span></label>
             <input type="text" id="name" name="name" 

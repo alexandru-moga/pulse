@@ -10,7 +10,7 @@ $members = $db->query(
 
 function getMemberImage($id) {
     $baseDir = $_SERVER['DOCUMENT_ROOT'] . '/images/members/';
-    $baseUrl = BASE_URL . 'images/members/';
+    $baseUrl = 'images/members/';
     $extensions = ['jpg', 'jpeg', 'png', 'webp'];
     foreach ($extensions as $ext) {
         $file = $baseDir . $id . '.' . $ext;

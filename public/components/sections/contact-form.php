@@ -41,7 +41,7 @@ try {
             </div>
         <?php endif; ?>
 
-        <form class="contact-form" method="POST" action="<?= BASE_URL ?>contact.php">
+        <form class="contact-form" method="POST" action="contact.php">
             <?php foreach ($content['fields'] as $field): ?>
                 <div class="form-group">
                     <label for="<?= htmlspecialchars($field['name']) ?>">
