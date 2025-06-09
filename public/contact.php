@@ -1,16 +1,27 @@
 <?php
 require_once '../core/init.php';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $contactForm = new ContactForm($db);
-    
-    if($contactForm->processSubmission($_POST)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = [];
+    $fields = $_POST;
+
+    $required = ['name', 'email', 'message'];
+    foreach ($required as $field) {
+        if (empty(trim($fields[$field] ?? ''))) {
+            $errors[$field] = ucfirst($field) . " is required.";
+        }
+    }
+    if (!empty($fields['email']) && !filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = "Invalid email address.";
+    }
+
+    if (empty($errors)) {
         $_SESSION['form_success'] = "Message sent successfully!";
         header("Location: " . BASE_URL . "contact.php");
         exit();
     } else {
-        $_SESSION['form_errors'] = $contactForm->getErrors();
-        $_SESSION['form_data'] = $_POST;
+        $_SESSION['form_errors'] = $errors;
+        $_SESSION['form_data'] = $fields;
         header("Location: " . BASE_URL . "contact.php");
         exit();
     }
@@ -35,6 +46,7 @@ include 'components/layout/header.php';
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
+
     <?php include 'components/effects/mouse.php'; ?>
     <?php include 'components/effects/grid.php'; ?>
     <?php include 'components/effects/birds.php'; ?>
