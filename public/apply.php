@@ -5,7 +5,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $applyForm->processSubmission($_POST);
     
     if($result) {
-        $_SESSION['form_success'] = "Application submitted successfully!";
+        $_SESSION['form_success'] = true;
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit();
     } else {
@@ -25,16 +25,21 @@ include 'components/layout/header.php';
 
 <main>
     <?php if(isset($_SESSION['form_success'])): ?>
-        <div class="form-success">
-            <?= $_SESSION['form_success'] ?>
-            <?php unset($_SESSION['form_success']); ?>
-        </div>
+        <?php
+            echo $pageManager->renderComponent([
+                'block_type' => 'applied',
+                'block_name' => 'applied',
+                'order_num' => 999,
+                'content' => ''
+            ]);
+            unset($_SESSION['form_success']);
+        ?>
+    <?php else: ?>
+        <?php foreach ($pageStructure['components'] as $component): ?>
+            <?= $pageManager->renderComponent($component) ?>
+        <?php endforeach; ?>
     <?php endif; ?>
 
-    <?php foreach ($pageStructure['components'] as $component): ?>
-        <?= $pageManager->renderComponent($component) ?>
-    <?php endforeach; ?>
-    
     <?php include 'components/effects/mouse.php'; ?>
     <?php include 'components/effects/net.php'; ?>
     <?php include 'components/effects/grid.php'; ?>
