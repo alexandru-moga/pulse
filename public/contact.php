@@ -40,7 +40,10 @@ include 'components/layout/header.php';
 <main>
     <?php if(isset($_SESSION['form_success'])): ?>
         <?php
-            echo $pageManager->renderComponent('contacted');
+            echo $pageManager->renderComponent([
+                'type' => 'contacted',
+                'content' => ''
+            ]);
             unset($_SESSION['form_success']);
         ?>
     <?php else: ?>
