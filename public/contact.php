@@ -2,20 +2,22 @@
 require_once '../core/init.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $errors = [];
     $fields = $_POST;
+    $errors = [];
 
-    $required = ['name', 'email', 'message'];
-    foreach ($required as $field) {
-        if (empty(trim($fields[$field] ?? ''))) {
-            $errors[$field] = ucfirst($field) . " is required.";
-        }
-    }
-    if (!empty($fields['email']) && !filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = "Invalid email address.";
-    }
+    $name = trim($fields['name'] ?? '');
+    $email = trim($fields['email'] ?? '');
+    $message = trim($fields['message'] ?? '');
+
+    if ($name === '') $errors['name'] = "Name is required.";
+    if ($email === '') $errors['email'] = "Email is required.";
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'] = "Invalid email address.";
+    if ($message === '') $errors['message'] = "Message is required.";
 
     if (empty($errors)) {
+        $stmt = $db->prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)");
+        $stmt->execute([$name, $email, $message]);
+
         $_SESSION['form_success'] = "Message sent successfully!";
         header("Location: " . BASE_URL . "contact.php");
         exit();
