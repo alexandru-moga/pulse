@@ -7,7 +7,7 @@
     <h1 class="applied-title"><?= htmlspecialchars($block_content['title'] ?? 'Application Received!') ?></h1>
     
     <div class="applied-message">
-      <?= nl2br(htmlspecialchars($block_content['message'] ?? 'Your message has been successfully submitted.')) ?>
+      <?= nl2br(htmlspecialchars($block_content['message'] ?? 'Your message has been successfully submitted. You will receive a response in 1-2 buisness days.')) ?>
     </div>
 
     <?php if (!empty($block_content['next_steps'])): ?>
