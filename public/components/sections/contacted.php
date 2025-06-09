@@ -13,7 +13,7 @@
     <div class="applied-next-steps">
       <h2>What Happens Next?</h2>
       <ul>
-        <li>We will review your application within 3-5 business days</li>
+        <li>We will review your message within 3-5 business days</li>
         <li>Check your email regularly for updates</li>
         <li>Join our Discord community for real-time updates</li>
       </ul>
