@@ -60,7 +60,9 @@ $messages = $db->query("SELECT * FROM contact_messages ORDER BY id DESC")->fetch
                         </form>
                     </td>
                     <td>
-                        <a href="mailto:<?= htmlspecialchars($msg['email']) ?>?subject=Reply to your contact message" class="add-member-btn">Reply</a>
+                        <?php if ($msg['status'] != 'solved'): ?>
+                            <a href="mailto:<?= htmlspecialchars($msg['email']) ?>?subject=Reply to your contact message" class="add-member-btn">Reply</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
