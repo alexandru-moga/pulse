@@ -74,7 +74,8 @@ include '../components/layout/header.php';
                 <th>Page Name</th>
                 <th>Title</th>
                 <th>Table Name</th>
-                <th>Actions</th>
+                <th>Edit</th>
+                <th>Delete</th>
             </tr>
             <?php foreach ($pages as $pg): ?>
                 <?php if (empty($pg['table_name'])) continue; ?>
@@ -85,9 +86,13 @@ include '../components/layout/header.php';
                     <td>
                         <a href="page-settings.php?page=<?= urlencode($pg['name']) ?>" class="cta-button">Edit Elements</a>
                     </td>
+                    <td>
+                        <a href="delete-page.php?id=<?= $pg['id'] ?>" class="cta-button" onclick="return confirm('Are you sure you want to delete this page, its PHP file, and its table?')">Delete</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </table>
+        <a href="create-page.php" class="cta-button">Create Page</a>
         <a href="settings.php" class="cta-button">Back</a>
     <?php endif; ?>
 </main>

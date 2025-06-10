@@ -1,17 +1,51 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
-global $db, $currentUser;
-global $settings;
+global $db, $currentUser, $settings;
+
+$isLoggedIn = isset($currentUser) && $currentUser;
+$role = $isLoggedIn ? $currentUser->role : 'guest';
+
+function page_is_visible($page, $role) {
+    if (empty($page['visibility'])) return true;
+    foreach (explode(',', $page['visibility']) as $vis) {
+        if (strcasecmp(trim($vis), $role) === 0) return true;
+    }
+    return false;
+}
+
+$allPages = $db->query("SELECT * FROM pages ORDER BY id ASC")->fetchAll();
+$page_lookup = [];
+foreach ($allPages as $p) $page_lookup[$p['id']] = $p;
+
+$mainPages = array_filter($allPages, function($p) use ($role) {
+    return ($p['menu_enabled'] ?? 0) && empty($p['parent_id']) && page_is_visible($p, $role);
+});
+
+$dashboardPage = null;
+foreach ($mainPages as $p) {
+    if ($p['name'] === 'dashboard') {
+        $dashboardPage = $p;
+        break;
+    }
+}
+$dashboardPageId = $dashboardPage['id'] ?? null;
+
+$dashboardChildren = [];
+if ($dashboardPageId) {
+    foreach ($allPages as $p) {
+        if (($p['parent_id'] ?? null) == $dashboardPageId && page_is_visible($p, $role)) {
+            $dashboardChildren[] = $p;
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'PULSE') ?></title>
     <link rel="stylesheet" href="<?= $settings['site_url'] ?>/css/main.css">
     <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
-    <?php if (!empty($extraCss)) echo $extraCss; ?>
 </head>
 <body>
 <header class="site-header translucent">
@@ -19,52 +53,22 @@ global $settings;
         <a href="<?= $settings['site_url'] ?>/" class="site-title"><?= htmlspecialchars($settings['site_title']) ?></a>
         <nav class="nav-links">
             <?php
-            $isLoggedIn = isset($currentUser) && $currentUser;
-            $role = $isLoggedIn ? $currentUser->role : 'guest';
+            foreach ($mainPages as $page) {
+                $url = ($page['name'] === 'index')
+                    ? $settings['site_url'] . '/'
+                    : $settings['site_url'] . '/' . htmlspecialchars($page['name']) . '.php';
 
-            $menus = $db->query(
-                "SELECT m.id, m.title, p.name AS page_name
-                 FROM menus m
-                 JOIN pages p ON m.page_id = p.id
-                 WHERE m.parent_id IS NULL AND p.name != 'dashboard'
-                 AND (m.visibility IS NULL OR m.visibility = '' OR FIND_IN_SET('$role', REPLACE(m.visibility, ' ', '')))
-                 ORDER BY m.order_num"
-            )->fetchAll();
-
-            foreach ($menus as $menu) {
-            $url = ($menu['page_name'] === 'index')
-            ? $settings['site_url'] . '/'
-            : $settings['site_url'] . '/' . htmlspecialchars($menu['page_name']) . '.php';
-
-                echo '<a href="' . $url . '">' . htmlspecialchars($menu['title']) . '</a>';
-            }
-
-            $dashboardParent = $db->prepare(
-                "SELECT id FROM menus WHERE title='Dashboard' AND parent_id IS NULL AND page_id = (SELECT id FROM pages WHERE name='dashboard') LIMIT 1"
-            );
-            $dashboardParent->execute();
-            $dashboardParentId = $dashboardParent->fetchColumn();
-
-            if ($dashboardParentId) {
-                $childrenStmt = $db->prepare(
-                    "SELECT m.title, p.name AS page_name
-                     FROM menus m
-                     JOIN pages p ON m.page_id = p.id
-                     WHERE m.parent_id = ? AND (m.visibility IS NULL OR m.visibility = '' OR FIND_IN_SET(?, REPLACE(m.visibility, ' ', '')))
-                     ORDER BY m.order_num"
-                );
-                $childrenStmt->execute([$dashboardParentId, $role]);
-                $dashboardLinks = $childrenStmt->fetchAll();
-
-                if ($dashboardLinks) {
+                if ($dashboardPageId && $page['id'] == $dashboardPageId && count($dashboardChildren) > 0) {
                     echo '<div class="dropdown">';
-                    echo '<button class="dropbtn">Dashboard</button>';
+                    echo '<button class="dropbtn">' . htmlspecialchars($page['title']) . '</button>';
                     echo '<div class="dropdown-content">';
-                    foreach ($dashboardLinks as $item) {
-                        $url = $settings['site_url'] . '/' . htmlspecialchars($item['page_name']) . '.php';
-                        echo '<a href="' . $url . '">' . htmlspecialchars($item['title']) . '</a>';
+                    foreach ($dashboardChildren as $child) {
+                        $childUrl = $settings['site_url'] . '/' . htmlspecialchars($child['name']) . '.php';
+                        echo '<a href="' . $childUrl . '">' . htmlspecialchars($child['title']) . '</a>';
                     }
                     echo '</div></div>';
+                } else {
+                    echo '<a href="' . $url . '">' . htmlspecialchars($page['title']) . '</a>';
                 }
             }
             ?>

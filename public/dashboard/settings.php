@@ -16,6 +16,7 @@ include '../components/layout/header.php';
         <a href="email-settings.php" class="cta-button">Email Settings</a>
         <a href="site-settings.php" class="cta-button">Website Settings</a>
         <a href="page-settings.php" class="cta-button">Pages Settings</a>
+        <a href="footer-settings.php" class="cta-button">Footer Settings</a>
     </div>
 </main>
 
