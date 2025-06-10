@@ -5,51 +5,36 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db;
 
-$pageName = $_GET['page'] ?? '';
-$blockId = intval($_GET['id'] ?? 0);
+$pageId = isset($_GET['id']) ? intval($_GET['id']) : null;
+$blockId = isset($_GET['block_id']) ? intval($_GET['block_id']) : null;
+if (!$pageId || !$blockId) die('Invalid page or block ID.');
 
-if (!$pageName || !$blockId) {
-    die('Invalid page or block ID.');
-}
-
-$page = $db->prepare("SELECT * FROM pages WHERE name = ?");
-$page->execute([$pageName]);
+$page = $db->prepare("SELECT * FROM pages WHERE id = ?");
+$page->execute([$pageId]);
 $page = $page->fetch();
 
 if (!$page || empty($page['table_name'])) {
     die('Invalid page or table name.');
 }
-
 $tableName = $page['table_name'];
-
 $stmt = $db->prepare("SELECT * FROM `$tableName` WHERE id = ?");
 $stmt->execute([$blockId]);
 $block = $stmt->fetch();
-
-if (!$block) {
-    die('Block not found.');
-}
+if (!$block) { die('Block not found.'); }
 
 $errors = [];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $block_name = trim($_POST['block_name'] ?? '');
     $block_type = trim($_POST['block_type'] ?? '');
     $content = trim($_POST['content'] ?? '');
     $order_num = intval($_POST['order_num'] ?? 0);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
-
-    if (!$block_name) {
-        $errors[] = 'Block name is required.';
-    }
-    if (!$block_type) {
-        $errors[] = 'Block type is required.';
-    }
-
+    if (!$block_name) { $errors[] = 'Block name is required.'; }
+    if (!$block_type) { $errors[] = 'Block type is required.'; }
     if (empty($errors)) {
         $update = $db->prepare("UPDATE `$tableName` SET block_name = ?, block_type = ?, content = ?, order_num = ?, is_active = ? WHERE id = ?");
         $update->execute([$block_name, $block_type, $content, $order_num, $is_active, $blockId]);
-        header("Location: page-settings.php?page=" . urlencode($pageName));
+        header("Location: page-settings.php?id=" . $pageId);
         exit();
     }
 }

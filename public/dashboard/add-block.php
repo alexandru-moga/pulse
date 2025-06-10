@@ -5,36 +5,31 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db;
 
-$pageName = $_GET['page'] ?? null;
-if (!$pageName) {
-    die('No page specified.');
-}
+$pageId = isset($_GET['id']) ? intval($_GET['id']) : null;
+if (!$pageId) die('Invalid page ID.');
 
-$page = $db->prepare("SELECT * FROM pages WHERE name = ?");
-$page->execute([$pageName]);
+$page = $db->prepare("SELECT * FROM pages WHERE id = ?");
+$page->execute([$pageId]);
 $page = $page->fetch();
 
 if (!$page || empty($page['table_name'])) {
     die('Invalid page or table name.');
 }
-
 $tableName = $page['table_name'];
-
 $errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $block_name = trim($_POST['block_name'] ?? '');
     $block_type = trim($_POST['block_type'] ?? '');
     $content = trim($_POST['content'] ?? '');
     $order_num = intval($_POST['order_num'] ?? 0);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
-
     if (!$block_name) $errors[] = 'Block name is required.';
     if (!$block_type) $errors[] = 'Block type is required.';
-
     if (empty($errors)) {
         $stmt = $db->prepare("INSERT INTO `$tableName` (block_name, block_type, content, order_num, is_active) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$block_name, $block_type, $content, $order_num, $is_active]);
-        header("Location: page-settings.php?page=" . urlencode($pageName));
+        header("Location: page-settings.php?id=" . $pageId);
         exit();
     }
 }
@@ -47,13 +42,8 @@ include '../components/layout/header.php';
 </head>
 
 <main class="contact-form-section" style="max-width:600px;margin:2rem auto;">
-    <h2>Add New Block to <?= htmlspecialchars(ucfirst($pageName)) ?></h2>
+    <h2>Add New Block</h2>
     <?php if ($errors): ?>
-        <div class="form-errors">
-            <?php foreach ($errors as $error): ?>
-                <div class="error"><?= htmlspecialchars($error) ?></div>
-            <?php endforeach; ?>
-        </div>
     <?php endif; ?>
     <form method="post">
         <div class="form-group">
