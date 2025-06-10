@@ -10,7 +10,6 @@ if (!$pageName) {
     die('No page specified.');
 }
 
-// Get the table name for this page
 $page = $db->prepare("SELECT * FROM pages WHERE name = ?");
 $page->execute([$pageName]);
 $page = $page->fetch();

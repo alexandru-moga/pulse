@@ -118,3 +118,14 @@ select[multiple] {
   font-family: monospace;
   width: 100%;
 }
+
+.members-grid .member-image img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 100%;
+}
