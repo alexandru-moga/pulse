@@ -21,6 +21,11 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
+$settings = [];
+foreach ($db->query("SELECT name, value FROM settings") as $row) {
+    $settings[$row['name']] = $row['value'];
+}
+
 $pageManager = new PageManager($db);
 
 $currentPage = basename($_SERVER['SCRIPT_NAME'], '.php');

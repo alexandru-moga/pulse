@@ -5,6 +5,8 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db;
 
+include '../components/layout/header.php';
+
 $success = $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST['settings'] as $id => $value) {
@@ -14,10 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $success = "Email settings updated successfully!";
 }
 
-$settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' ORDER BY id ASC")->fetchAll();
-
-$pageStructure = $pageManager->getPageStructure('dashboard');
-include '../components/layout/header.php';
+$email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' ORDER BY id ASC")->fetchAll();
 ?>
 
 <head>
@@ -31,7 +30,7 @@ include '../components/layout/header.php';
             <div class="form-success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
         <form method="post" class="dashboard-form">
-            <?php foreach ($settings as $setting): ?>
+            <?php foreach ($email_settings as $setting): ?>
                 <div class="form-group">
                     <label for="setting-<?= $setting['id'] ?>">
                         <?= htmlspecialchars($setting['name']) ?>
@@ -51,8 +50,8 @@ include '../components/layout/header.php';
     </section>
 </main>
 
-<?php 
-include '../components/effects/grid.php';
+<?php
 include '../components/layout/footer.php';
 include '../components/effects/mouse.php';
+include '../components/effects/grid.php';
 ?>

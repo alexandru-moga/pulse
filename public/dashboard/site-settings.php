@@ -1,14 +1,15 @@
 <?php
 $settingNames = [
-    'site_title',
+    'SITE_TITLE',
     'site_url',
-    'admin_email',
     'maintenance_mode'
 ];
 
 require_once '../../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
+
+include '../components/layout/header.php';
 
 global $db;
 
@@ -24,10 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $inSql = implode(',', array_fill(0, count($settingNames), '?'));
 $stmt = $db->prepare("SELECT * FROM settings WHERE name IN ($inSql) ORDER BY id ASC");
 $stmt->execute($settingNames);
-$settings = $stmt->fetchAll();
+$site_settings = $stmt->fetchAll();
 
 $pageStructure = $pageManager->getPageStructure('dashboard');
-include '../components/layout/header.php';
 ?>
 
 <head>
@@ -41,7 +41,7 @@ include '../components/layout/header.php';
             <div class="form-success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
         <form method="post" class="dashboard-form">
-            <?php foreach ($settings as $setting): ?>
+            <?php foreach ($site_settings as $setting): ?>
                 <div class="form-group">
                     <label for="setting-<?= $setting['id'] ?>">
                         <?= htmlspecialchars($setting['name']) ?>
@@ -61,8 +61,8 @@ include '../components/layout/header.php';
     </section>
 </main>
 
-<?php 
-include '../components/effects/grid.php';
+<?php
 include '../components/layout/footer.php';
 include '../components/effects/mouse.php';
+include '../components/effects/grid.php';
 ?>

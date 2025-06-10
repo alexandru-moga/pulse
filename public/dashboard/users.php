@@ -110,7 +110,7 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
             $mail->Port = $smtp['smtp_port'];
             $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
             $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
-            $resetLink = SITE_URL . "/reset-password.php?token=$token";
+            $resetLink = $settings['site_url'] . "/reset-password.php?token=$token";
             $mail->isHTML(true);
             $mail->Subject = 'Reset your PULSE password';
             $mail->Body = "Hello,<br><br>Click <a href=\"$resetLink\">here</a> to reset your password. This link will expire in 1 hour.<br><br>PULSE Team";

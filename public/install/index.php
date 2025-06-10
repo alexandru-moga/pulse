@@ -61,11 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $configContent = file_get_contents($configFile);
                 $configContent = preg_replace([
-                    "/define\('SITE_TITLE', '.*?'\)/",
+                    "/define\('site_title', '.*?'\)/",
                     "/define\('SITE_URL', '.*?'\)/",
                     "/define\('ADMIN_EMAIL', '.*?'\)/"
                 ], [
-                    "define('SITE_TITLE', '$siteTitle')",
+                    "define('site_title', '$siteTitle')",
                     "define('SITE_URL', '$siteUrl')",
                     "define('ADMIN_EMAIL', '$adminEmail')"
                 ], $configContent);
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Install Club Website</title>
 </head>
 <body>
-    <div class="card">
+    <div class="contact-form-section">
         <h1>Install Club Website</h1>
         
         <?php if ($error): ?>

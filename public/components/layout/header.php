@@ -1,6 +1,7 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 global $db, $currentUser;
+global $settings;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,14 +9,14 @@ global $db, $currentUser;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'PULSE') ?></title>
-    <link rel="stylesheet" href="<?= SITE_URL ?>/css/main.css">
-    <link rel="icon" type="image/x-icon" href="<?= SITE_URL ?>/images/favicon.ico">
+    <link rel="stylesheet" href="<?= $settings['site_url'] ?>/css/main.css">
+    <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
     <?php if (!empty($extraCss)) echo $extraCss; ?>
 </head>
 <body>
 <header class="site-header translucent">
     <div class="header-container">
-        <a href="<?= SITE_URL ?>/" class="site-title"><?= htmlspecialchars(SITE_TITLE) ?></a>
+        <a href="<?= $settings['site_url'] ?>/" class="site-title"><?= htmlspecialchars($settings['site_title']) ?></a>
         <nav class="nav-links">
             <?php
             $isLoggedIn = isset($currentUser) && $currentUser;
@@ -32,8 +33,8 @@ global $db, $currentUser;
 
             foreach ($menus as $menu) {
             $url = ($menu['page_name'] === 'index')
-            ? SITE_URL . '/'
-            : SITE_URL . '/' . htmlspecialchars($menu['page_name']) . '.php';
+            ? $settings['site_url'] . '/'
+            : $settings['site_url'] . '/' . htmlspecialchars($menu['page_name']) . '.php';
 
                 echo '<a href="' . $url . '">' . htmlspecialchars($menu['title']) . '</a>';
             }
@@ -60,7 +61,7 @@ global $db, $currentUser;
                     echo '<button class="dropbtn">Dashboard</button>';
                     echo '<div class="dropdown-content">';
                     foreach ($dashboardLinks as $item) {
-                        $url = SITE_URL . '/' . htmlspecialchars($item['page_name']) . '.php';
+                        $url = $settings['site_url'] . '/' . htmlspecialchars($item['page_name']) . '.php';
                         echo '<a href="' . $url . '">' . htmlspecialchars($item['title']) . '</a>';
                     }
                     echo '</div></div>';
