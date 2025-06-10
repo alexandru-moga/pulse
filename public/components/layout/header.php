@@ -60,7 +60,7 @@ global $db, $currentUser;
                     echo '<button class="dropbtn">Dashboard</button>';
                     echo '<div class="dropdown-content">';
                     foreach ($dashboardLinks as $item) {
-                        $url = '/' . htmlspecialchars($item['page_name']) . '.php';
+                        $url = SITE_URL . '/' . htmlspecialchars($item['page_name']) . '.php';
                         echo '<a href="' . $url . '">' . htmlspecialchars($item['title']) . '</a>';
                     }
                     echo '</div></div>';
