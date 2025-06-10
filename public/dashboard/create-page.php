@@ -22,7 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_id = !empty($_POST['parent_id']) ? intval($_POST['parent_id']) : null;
     $menu_enabled = isset($_POST['menu_enabled']) ? 1 : 0;
     $visibility = $_POST['visibility'] ?? [];
-    $visibility_str = implode(', ', $visibility);
+    if (count($visibility) === 1 && $visibility[0] === 'everyone') {
+        $visibility_db = null;
+    } else {
+        $visibility_db = implode(', ', $visibility);
+    }
 
     $name = slugify($title);
     $table_name = 'page_' . $name;
