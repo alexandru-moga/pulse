@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-$configFile = __DIR__ . '/../core/config.php';
-$configTemplate = __DIR__ . '/../core/config.php.template';
+$configFile = __DIR__ . '/../../core/config.php';
+$configTemplate = __DIR__ . '/../../core/config.php.template';
 $schemaFile = __DIR__ . '/schema.sql';
 
 $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
 
             case 2:
-                require_once __DIR__ . '/../core/init.php';
+                require_once __DIR__ . '/../../core/init.php';
                 
                 $username = $_POST['username'] ?? '';
                 $email = $_POST['email'] ?? '';
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
 
             case 3: 
-                require_once __DIR__ . '/../core/init.php';
+                require_once __DIR__ . '/../../core/init.php';
                 
                 $siteTitle = $_POST['site_title'] ?? '';
                 $siteUrl = $_POST['site_url'] ?? '';
@@ -155,11 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Installation Complete! 🎉</h2>
                 <p>Your Club Website is ready to use.</p>
                 <p>
-                    <a href="../public/">Visit Site</a> | 
-                    <a href="../public/admin/">Admin Dashboard</a>
+                    <a href="../">Visit Site</a> | 
                 </p>
                 <p><strong>For security, please delete the install directory:</strong></p>
-                <code>rm -rf install/</code>
             </div>
         <?php endif; ?>
     </div>
