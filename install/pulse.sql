@@ -192,3 +192,6 @@ CREATE TABLE `user_projects` (
   `assigned_by` int(11) DEFAULT NULL,
   `assigned_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `discord_id`, `school`, `ysws_projects`, `hcb_member`, `birthdate`, `class`, `phone`, `role`, `join_date`, `description`, `slack_id`, `github_username`, `active_member`, `password`) VALUES
+(1, 'Admin', 'User', 'admin@example.com', '', '', NULL, '0', '2025-01-31', '', '', 'Leader', '2025-06-13 21:54:39', '', '', '', 1, '$2y$10$hipuKxGAeivbuRBymienKOcmjqehGnOL5LEKG9eRtr9yJsbu5yZVW');
