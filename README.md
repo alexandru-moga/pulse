@@ -16,45 +16,73 @@ Pulse is a modular PHP web application for building and managing dynamic website
 
 ---
 
-## Quick Start (Plesk or Shared Hosting)
+# 🚀 Deploy Pulse on InfinityFree (Step-by-Step)
 
-### 1. Upload Files
+## 1. Create Your Free InfinityFree Account
 
-- Upload the entire `pulse` directory to your web root (e.g., `httpdocs/` on Plesk).
+- Go to [https://dash.infinityfree.com/](https://dash.infinityfree.com/)
+- Click **Create Account** and select **InfinityFree ($0 forever)**
+- Click **Create Now**
 
-### 2. Create the Database
+---
 
-- In Plesk, go to **Databases** and create a new MySQL database (e.g., `pulse_db`).
-- Create a new database user and assign it to the database.
+## 2. Set Up Your Domain
 
-### 3. Import the SQL Schema
+- Enter a subdomain (e.g., `pulse-test`) and check availability  
+- Leave the domain extension as default (e.g., `.wuaze.com`)
+- Click **Create Account**
+- Your domain (e.g., `pulse-test.wuaze.com`) will be shown on your account home page  
+---
 
-- Use Plesk's **phpMyAdmin** or the **Import** tool to import the provided SQL file `pulse.sql` into your new database.
+## 3. Create Your MySQL Database
 
-### 4. Configure Database Connection
+- In your InfinityFree dashboard, click **MySQL Databases**
+- Enter a database name (e.g., `pulse`)
+- Click **Create Database**  
+- Note your database name, username, and password (shown in the dashboard)
 
-- Edit `core/config.php` and set your database credentials:
+---
 
-```
-$db_host = 'localhost';
-$db_name = 'pulse_db';
-$db_user = 'your_db_user';
-$db_pass = 'your_db_password';
-```
-- Save and upload the file.
+## 4. Upload Pulse Files
 
-### 5. Set Permissions
+- Go to **FTP Details** in InfinityFree
+- Use an FTP client like [WinSCP](https://winscp.net/) or [FileZilla](https://filezilla-project.org/)
+  - Host, Username, Password: copy from your FTP Details in InfinityFree
+- Connect and upload all Pulse files and folders (including `/install`) to the `htdocs` directory
 
-- Ensure the `public` directory is writable by PHP if you want to allow dynamic page creation.
+---
 
-### 6. Set the default folder in plesk
+## 5. Run the Installer
 
-- Set your default directoru to `/public/`
-  
-### 7. Access the Application
+- In your browser, go to `https://your-subdomain.wuaze.com/install`
+- Fill in:
+  - **Database Host:** (from MySQL Databases, e.g., `sqlXXX.infinityfree.com`)
+  - **Database Name:** (e.g., `if0_39226352_pulse`)
+  - **Database User:** (e.g., `if0_39226352`)
+  - **Database Password:** (from MySQL Databases)
+  - **Site URL:** Your full URL (e.g., `https://pulse-test.wuaze.com`)
+  - **Site Title:** Your site’s name (e.g., `Pulse Club`)
+- Click **Install Pulse**
+- The installer will:
+  - Connect to your database
+  - Import the database structure and data automatically
+  - Save your config file
+  - Delete the `/install` folder for security
 
-- Visit your domain (e.g., `https://yourdomain.com`).
-- Log in with your admin credentials or create a new user if needed.
+---
+
+## 6. Visit Your Site
+
+- Go to `https://your-subdomain.wuaze.com`
+- Your Pulse site is now live!
+
+---
+
+## **Troubleshooting**
+
+- **Database connection errors:** Double-check your host, database name, user, and password in InfinityFree’s MySQL Databases page.
+- **Installer not found:** Make sure you uploaded all files to the `htdocs` directory.
+- **File permissions:** InfinityFree sets these automatically; you usually don’t need to change them.
 
 ---
 
