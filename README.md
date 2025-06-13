@@ -16,67 +16,68 @@ Pulse is a modular PHP web application for building and managing dynamic website
 
 ---
 
-# 🚀 Deploy Pulse on InfinityFree (Step-by-Step)
+# 🚀 Deploy using XAMPP
 
-## 1. Create Your Free InfinityFree Account
-
-- Go to [https://dash.infinityfree.com/](https://dash.infinityfree.com/)
-- Click **Create Account** and select **InfinityFree ($0 forever)**
-- Click **Create Now**
+This guide will help you set up the Pulse PHP project on your own computer using **XAMPP** and **phpMyAdmin**.  
+Just follow these steps to get your local development environment running!
 
 ---
 
-## 2. Set Up Your Domain
+## ## 1. Install XAMPP
 
-- Enter a subdomain (e.g., `pulse-test`) and check availability  
-- Leave the domain extension as default (e.g., `.wuaze.com`)
-- Click **Create Account**
-- Your domain (e.g., `pulse-test.wuaze.com`) will be shown on your account home page  
----
-
-## 3. Create Your MySQL Database
-
-- In your InfinityFree dashboard, click **MySQL Databases**
-- Enter a database name (e.g., `pulse`)
-- Click **Create Database**  
-- Note your database name, username, and password (shown in the dashboard)
+- Download XAMPP from [https://www.apachefriends.org/index.html](https://www.apachefriends.org/index.html)
+- Run the installer and follow the prompts (default settings are fine).
+- Open the **XAMPP Control Panel** and click **Start** for both **Apache** and **MySQL**.
 
 ---
 
-## 4. Upload Pulse Files
+## ## 2. Copy Pulse Files to XAMPP
 
-- Go to **FTP Details** in InfinityFree
-- Use an FTP client like [WinSCP](https://winscp.net/) or [FileZilla](https://filezilla-project.org/)
-  - Host, Username, Password: copy from your FTP Details in InfinityFree
-- Connect and upload all Pulse files and folders (including `/install`) to the `htdocs` directory
-
----
-
-## 5. Run the Installer
-
-- In your browser, go to `https://your-subdomain.wuaze.com/install`
-- Fill in:
-  - **Database Host:** (from MySQL Databases, e.g., `sqlXXX.infinityfree.com`)
-  - **Database Name:** (e.g., `if0_39226352_pulse`)
-  - **Database User:** (e.g., `if0_39226352`)
-  - **Database Password:** (from MySQL Databases)
-  - **Site URL:** Your full URL (e.g., `https://pulse-test.wuaze.com`)
-  - **Site Title:** Your site’s name (e.g., `Pulse Club`)
-- Click **Install Pulse**
-- The installer will:
-  - Connect to your database
-  - Import the database structure and data automatically
-  - Save your config file
-  - Delete the `/install` folder for security
+- Find your XAMPP installation directory (usually `C:\xampp` on Windows).
+- Open the `htdocs` folder inside XAMPP.
+- Copy all Pulse project files and folders into `C:\xampp\htdocs\pulse`
+  - Your structure should look like:
+    ```
+    C:\xampp\htdocs\pulse\
+        index.php
+        core/
+        components/
+        css/
+        ...etc.
+    ```
 
 ---
 
-## 6. Visit Your Site
+## ## 3. Create a Database Using phpMyAdmin
 
-- Go to `https://your-subdomain.wuaze.com`
-- Your Pulse site is now live!
+- In your browser, go to [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+- Click the **Databases** tab at the top.
+- Enter a name for your database, e.g. `pulse`
+- Click **Create**
 
 ---
+
+## ## 4. Import the Database Schema
+
+- With your new database selected in phpMyAdmin, click the **Import** tab.
+- Click **Browse** and select the `schema.sql` file from the Pulse project (download from GitHub if needed).
+- Click **Go** to import the database structure and initial data.
+
+---
+
+## ## 5. Set Database Details
+
+- Go to [http://localhost/pulse/install](http://localhost/pulse/install) in your web browser.
+- Fill Out the Installer Form
+    Database Host: localhost
+    Database Name: (e.g., pulse)
+    Database User: root (default for XAMPP)
+    Database Password: (leave blank for XAMPP default)
+    Site URL: http://localhost/pulse
+    Site Title: (e.g., Pulse Club)
+    Click Install Pulse.
+
+
 
 ## **Troubleshooting**
 
