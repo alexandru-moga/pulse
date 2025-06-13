@@ -65,7 +65,10 @@ Just follow these steps to get your local development environment running!
 
 ---
 
+## 5. Access website
+- You can access pulse by going to [http://localhost/pulse](http://localhost/pulse)
 
+---
 
 ## **Troubleshooting**
 
