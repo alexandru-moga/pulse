@@ -1,5 +1,5 @@
 <?php
-require_once '../../core/init.php';
+require_once '../core/init.php';
 if (!isLoggedIn()) {
     header('Location: login.php');
     exit();

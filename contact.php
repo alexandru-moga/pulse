@@ -1,5 +1,5 @@
 <?php
-require_once '../core/init.php';
+require_once 'core/init.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fields = $_POST;

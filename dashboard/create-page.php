@@ -1,5 +1,5 @@
 <?php
-require_once '../../core/init.php';
+require_once '../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
@@ -61,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Page added, but table creation failed: " . $e->getMessage();
         }
 
-        $template_path = '../../core/page-template.php';
-        $public_path = '../../public/' . $name . '.php';
+        $template_path = '../core/page-template.php';
+        $public_path = '../' . $name . '.php';
 
         if (file_exists($template_path)) {
             $template_content = file_get_contents($template_path);

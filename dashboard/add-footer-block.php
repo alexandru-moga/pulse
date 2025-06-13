@@ -1,5 +1,5 @@
 <?php
-require_once '../../core/init.php';
+require_once '../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 

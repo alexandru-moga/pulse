@@ -28,7 +28,7 @@ class PageManager {
     public function renderComponent($block) {
         $type = $block['block_type'];
         $content = $block['content'];
-        $filePath = __DIR__ . "/../../public/components/sections/{$type}.php";
+        $filePath = ROOT_DIR . "/components/sections/{$type}.php";
         $block_name = $block['block_name'];
         $order_num = $block['order_num'];
         $data = json_decode($content, true);
