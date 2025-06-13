@@ -69,7 +69,7 @@ Just follow these steps to get your local development environment running!
 
 ## **Troubleshooting**
 
-- **Database connection errors:** Database credentials detaults are set for XAMPP. If you want to change database name, user, password or host you have to modify code/config.php file.
+- **Database connection errors:** Database credentials detaults are set for XAMPP. If you want to change database name, user, password or host you have to modify core/init.php file.
 
 ---
 

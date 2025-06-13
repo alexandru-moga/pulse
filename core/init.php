@@ -1,6 +1,8 @@
 <?php
-
-require_once __DIR__ . '../config.php';
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'pulse');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
