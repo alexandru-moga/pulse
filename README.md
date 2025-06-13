@@ -57,15 +57,7 @@ Just follow these steps to get your local development environment running!
 
 ---
 
-## 4. Import the Database Schema
-
-- With your new database selected in phpMyAdmin, click the **Import** tab.
-- Click **Browse** and select the `schema.sql` file from the Pulse project (download from GitHub if needed).
-- Click **Go** to import the database structure and initial data.
-
----
-
-## 5. Set Database Details
+## 4. Set Database Details
 
 - Go to [http://localhost/pulse/install](http://localhost/pulse/install) in your web browser.
 - Fill Out the Installer Form
