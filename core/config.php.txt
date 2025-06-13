@@ -1,9 +1,9 @@
 <?php
 // Database Configuration
-define('DB_HOST', '{{DB_HOST}}');
-define('DB_NAME', '{{DB_NAME}}');
-define('DB_USER', '{{DB_USER}}');
-define('DB_PASS', '{{DB_PASS}}');
+define('DB_HOST', 'server:port5');
+define('DB_NAME', 'pulse');
+define('DB_USER', 'root');
+define('DB_PASS', 'passsword');
 
 // File Paths
 define('ROOT_PATH', dirname(__DIR__));
