@@ -1,8 +1,6 @@
 <?php
-define('DB_HOST', 'server:port');
-define('DB_NAME', 'database');
-define('DB_USER', 'username');
-define('DB_PASS', 'password');
+
+require_once __DIR__ . '/../config.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

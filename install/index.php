@@ -1,5 +1,4 @@
 <?php
-// If config.php exists, redirect to site root
 if (file_exists(__DIR__ . '/../config.php')) {
     header('Location: /');
     exit;
@@ -16,21 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_url = trim($_POST['site_url'] ?? '');
     $site_title = trim($_POST['site_title'] ?? '');
 
-    // 1. Try DB connection
     $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name);
     if ($mysqli->connect_errno) {
         $error = "Database connection failed: " . $mysqli->connect_error;
     } else {
-        // 2. Import SQL
         $sql = file_get_contents(__DIR__ . '/pulse.sql');
         if (!$mysqli->multi_query($sql)) {
             $error = "SQL import failed: " . $mysqli->error;
         } else {
-            // 3. Set site_url and site_title
             $mysqli->query("UPDATE settings SET value='" . $mysqli->real_escape_string($site_url) . "' WHERE name='site_url'");
             $mysqli->query("UPDATE settings SET value='" . $mysqli->real_escape_string($site_title) . "' WHERE name='site_title'");
 
-            // 4. Write config.php
             $config = "<?php
 define('DB_HOST', '" . addslashes($db_host) . "');
 define('DB_NAME', '" . addslashes($db_name) . "');
@@ -39,7 +34,6 @@ define('DB_PASS', '" . addslashes($db_pass) . "');
 ";
             file_put_contents(__DIR__ . '/../config.php', $config);
 
-            // 5. Self-delete install folder
             function rrmdir($dir) {
                 foreach(glob($dir . '/*') as $file) {
                     if(is_dir($file)) rrmdir($file); else unlink($file);
@@ -49,7 +43,6 @@ define('DB_PASS', '" . addslashes($db_pass) . "');
             rrmdir(__DIR__);
 
             $success = "Installation complete! <a href='/'>Go to your site</a>";
-            // After self-delete, script stops, so show success before
             echo "<!DOCTYPE html><html><body><h2>$success</h2></body></html>";
             exit;
         }
