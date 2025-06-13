@@ -162,7 +162,7 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (5, 'smtp_from', 'example@gmail.com'),
 (6, 'smtp_from_name', 'PULSE Team'),
 (7, 'site_title', 'Pulse'),
-(8, 'site_url', 'https://example.com'),
+(8, 'site_url', 'http://localhost/pulse'),
 (9, 'maintenance_mode', '0');
 
 CREATE TABLE `users` (
