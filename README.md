@@ -78,7 +78,7 @@ Just follow these steps to get your local development environment running!
 ## Usage
 
 - **Admin Dashboard:**
-- -Default credentials are:
+- Default credentials are:
     User: admin@example.com
     Password: pulse
 - Create, edit, and delete pages and content blocks.
