@@ -69,9 +69,7 @@ Just follow these steps to get your local development environment running!
 
 ## **Troubleshooting**
 
-- **Database connection errors:** Double-check your host, database name, user, and password in InfinityFree’s MySQL Databases page.
-- **Installer not found:** Make sure you uploaded all files to the `htdocs` directory.
-- **File permissions:** InfinityFree sets these automatically; you usually don’t need to change them.
+- **Database connection errors:** Database credentials detaults are set for XAMPP. If you want to change database name, user, password or host you have to modify code/config.php file.
 
 ---
 
