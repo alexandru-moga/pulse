@@ -57,17 +57,13 @@ Just follow these steps to get your local development environment running!
 
 ---
 
-## 4. Set Database Details
+## 4. Import the Database Schema
 
-- Go to [http://localhost/pulse/install](http://localhost/pulse/install) in your web browser.
-- Fill Out the Installer Form
-    Database Host: localhost
-    Database Name: (e.g., pulse)
-    Database User: root (default for XAMPP)
-    Database Password: (leave blank for XAMPP default)
-    Site URL: http://localhost/pulse
-    Site Title: (e.g., Pulse Club)
-    Click Install Pulse.
+- With your new database selected in phpMyAdmin, click the **Import** tab.
+- Click **Browse** and select the `pulse.sql` file from the Pulse project (download from GitHub if needed).
+- Click **Go** to import the database structure and initial data.
+
+---
 
 
 
@@ -81,7 +77,10 @@ Just follow these steps to get your local development environment running!
 
 ## Usage
 
-- **Admin Dashboard:**  
+- **Admin Dashboard:**
+- -Default credentials are:
+    User: admin@example.com
+    Password: pulse
 - Create, edit, and delete pages and content blocks.
 - Only pages with a non-empty `table_name` are editable for blocks.
 - **Members:**  
