@@ -1,5 +1,7 @@
 <?php
 
+define('ROOT_DIR', realpath(__DIR__ . '/..'));
+
 require_once __DIR__ . '../../lib/phpdotenv/src/Dotenv.php';
 
 error_reporting(E_ALL);
@@ -22,18 +24,25 @@ spl_autoload_register(function ($class) {
         return;
     }
 
+    $resultTypePrefix = 'GrahamCampbell\\ResultType\\';
+    $resultTypeDir = __DIR__ . '/../lib/result-type/src/ResultType/';
+    if (str_starts_with($class, $resultTypePrefix)) {
+        $file = $resultTypeDir . substr($class, strlen($resultTypePrefix)) . '.php';
+        if (file_exists($file)) require $file;
+        return;
+    }
+
     $file = ROOT_DIR . '/core/classes/' . $class . '.php';
     if (file_exists($file)) require_once $file;
 });
 
-define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
-define('DB_NAME', $_ENV['DB_NAME'] ?? 'pulse');
-define('DB_USER', $_ENV['DB_USER'] ?? 'root');
-define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
-if (!defined('ROOT_DIR')) {
-    define('ROOT_DIR', realpath(__DIR__.'/..'));
-}
+define('DB_HOST', $_ENV['DB_HOST']);
+define('DB_NAME', $_ENV['DB_NAME']);
+define('DB_USER', $_ENV['DB_USER']);
+define('DB_PASS', $_ENV['DB_PASS']);
 
 try {
     $db = new Database(DB_HOST, DB_USER, DB_PASS, DB_NAME);
