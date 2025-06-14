@@ -101,20 +101,25 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
         foreach ($db->query("SELECT name, value FROM settings") as $row) $smtp[$row['name']] = $row['value'];
         $mail = new PHPMailer(true);
         try {
-            $mail->isSMTP();
-            $mail->Host = $smtp['smtp_host'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtp['smtp_user'];
-            $mail->Password = $smtp['smtp_pass'];
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = $smtp['smtp_port'];
-            $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
-            $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
-            $resetLink = $settings['site_url'] . "/reset-password.php?token=$token";
-            $mail->isHTML(true);
-            $mail->Subject = 'Reset your PULSE password';
-            $mail->Body = "Hello,<br><br>Click <a href=\"$resetLink\">here</a> to reset your password. This link will expire in 1 hour.<br><br>PULSE Team";
-            $mail->send();
+                $mail->isSMTP();
+                $mail->Host = $smtp['smtp_host'];
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtp['smtp_user'];
+                $mail->Password = $smtp['smtp_pass'];
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = $smtp['smtp_port'];
+
+                $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
+                $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
+                $mail->isHTML(true);
+                $mail->Subject = 'Reset Your PULSE Password';
+                $mail->Body = "Hello,<br><br>
+                    We received a request to reset your password. 
+                    <b><a href=\"$resetLink\">Click here to reset your password</a></b>.<br><br>
+                    This link will expire in 1 hour. If you did not request this, you can ignore this email.<br><br>
+                    PULSE Team";
+
+                $mail->send();
             $resetSuccess = "Password reset email sent to " . htmlspecialchars($user['email']);
         } catch (Exception $e) {
             $resetError = "Failed to send email: " . $mail->ErrorInfo;
