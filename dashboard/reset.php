@@ -30,6 +30,7 @@ if ($token) {
 }
 
 include '../components/layout/header.php';
+include '../components/layout/grid.php';
 include '../components/effects/mouse.php';
 ?>
 <head>

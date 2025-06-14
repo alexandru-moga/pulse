@@ -113,7 +113,7 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                 $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
                 $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
                 $mail->isHTML(true);
-                $mail->Subject = 'Reset Your PULSE Password';
+                $mail->Subject = 'Set Your PULSE Password';
                 $mail->Body = "Hello,<br><br>
                     Is's time for you to set your password. 
                     <b><a href=\"$resetLink\">Click here to set your password</a></b>.<br><br>
