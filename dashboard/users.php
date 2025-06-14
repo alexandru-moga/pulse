@@ -97,6 +97,7 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
         $expires = date('Y-m-d H:i:s', time() + 3600);
         $db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
             ->execute([$userId, $token, $expires]);
+        $resetLink = $settings['site_url'] . "/dashboard/reset.php?token=$token";
         $smtp = [];
         foreach ($db->query("SELECT name, value FROM settings") as $row) $smtp[$row['name']] = $row['value'];
         $mail = new PHPMailer(true);
