@@ -115,9 +115,9 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                 $mail->isHTML(true);
                 $mail->Subject = 'Reset Your PULSE Password';
                 $mail->Body = "Hello,<br><br>
-                    We received a request to reset your password. 
-                    <b><a href=\"$resetLink\">Click here to reset your password</a></b>.<br><br>
-                    This link will expire in 1 hour. If you did not request this, you can ignore this email.<br><br>
+                    Is's time for you to set your password. 
+                    <b><a href=\"$resetLink\">Click here to set your password</a></b>.<br><br>
+                    This link will expire in 1 hour.<br><br>
                     PULSE Team";
 
                 $mail->send();
