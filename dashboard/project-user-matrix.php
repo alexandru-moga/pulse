@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../core/init.php';
 include '../components/layout/header.php';
 
-$users = $db->query("SELECT id, first_name, last_name FROM users ORDER BY last_name, first_name")->fetchAll(PDO::FETCH_ASSOC);
+$users = $db->query("SELECT id, first_name, last_name FROM users ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
 $projects = $db->query("SELECT id, title FROM projects ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
 
 $assignments = [];
