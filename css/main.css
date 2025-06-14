@@ -19,6 +19,8 @@
 @import url('components/sections/contact-form.css');
 @import url('components/sections/members.css');
 @import url('components/sections/applications.css');
+@import url('components/dashboard/project-user-matrix.css');
+@import url('components/dashboard/user-projects.css');
 
 :root {
   --primary: #ec3750;

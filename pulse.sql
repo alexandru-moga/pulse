@@ -139,14 +139,6 @@ CREATE TABLE `password_resets` (
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `projects` (
-  `id` int(11) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `status` enum('active','completed') DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 CREATE TABLE `settings` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -172,7 +164,6 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `discord_id` varchar(255) DEFAULT NULL,
   `school` varchar(255) DEFAULT NULL,
-  `ysws_projects` text DEFAULT NULL,
   `hcb_member` varchar(255) DEFAULT NULL,
   `birthdate` date DEFAULT NULL,
   `class` varchar(20) DEFAULT NULL,
@@ -186,12 +177,30 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL DEFAULT 'changeme'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `user_projects` (
-  `user_id` int(11) NOT NULL,
-  `project_id` int(11) NOT NULL,
-  `assigned_by` int(11) DEFAULT NULL,
-  `assigned_at` timestamp NULL DEFAULT current_timestamp()
+CREATE TABLE IF NOT EXISTS projects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    reward_amount DECIMAL(10,2) DEFAULT NULL,
+    reward_description TEXT DEFAULT NULL,
+    requirements TEXT DEFAULT NULL,
+    start_date DATE DEFAULT NULL,
+    end_date DATE DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE users
+  MODIFY COLUMN id INT(11) NOT NULL AUTO_INCREMENT,
+  ADD PRIMARY KEY (id);
+
+CREATE TABLE project_assignments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    user_id INT NOT NULL,
+    status ENUM('not_participating','waiting','rejected','accepted','completed') DEFAULT 'waiting',
+    pizza_grant ENUM('none','applied','received') DEFAULT 'none',
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `discord_id`, `school`, `ysws_projects`, `hcb_member`, `birthdate`, `class`, `phone`, `role`, `join_date`, `description`, `slack_id`, `github_username`, `active_member`, `password`) VALUES
 (1, 'Admin', 'User', 'admin@example.com', '', '', NULL, '0', '2025-01-31', '', '', 'Leader', '2025-06-13 21:54:39', '', '', '', 1, '$2y$10$hipuKxGAeivbuRBymienKOcmjqehGnOL5LEKG9eRtr9yJsbu5yZVW');

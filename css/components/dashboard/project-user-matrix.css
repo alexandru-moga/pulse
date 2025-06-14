@@ -1,0 +1,199 @@
+.projects-management-section {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--elevated, #2d2d2d);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--sheet, #404040);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.projects-table th,
+.projects-table td {
+  padding: 1rem 0.75rem;
+  color: var(--text, #fff);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  vertical-align: top;
+}
+
+.projects-table th {
+  background: rgba(var(--primary-rgb, 236, 55, 80), 0.10);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  max-width: 260px;
+}
+
+.assignment-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  background: rgba(var(--primary-rgb, 236, 55, 80), 0.08);
+  border-radius: 6px;
+  padding: 0.25em 0.5em;
+  margin-bottom: 2px;
+}
+
+.assignment-name {
+  font-weight: 500;
+  color: var(--text, #fff);
+}
+
+.assignment-status {
+  font-size: 0.93em;
+  margin-left: 0.5em;
+  padding: 0.1em 0.6em;
+  border-radius: 4px;
+  background: var(--accent, #33d6a6);
+  color: #fff;
+}
+
+.status-accepted {
+  background: var(--primary, #ec3750);
+}
+
+.status-waiting {
+  background: var(--secondary, #ff8c37);
+}
+
+.status-rejected {
+  background: #555;
+}
+
+.status-completed {
+  background: var(--accent, #33d6a6);
+}
+
+.status-not_participating {
+  background: #888;
+}
+
+.assignments-toggle {
+  background: var(--primary, #ec3750);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95em;
+  padding: 0.3em 1em;
+  cursor: pointer;
+  margin-top: 0.3em;
+}
+
+.assignments-collapsed {
+  display: none;
+  flex-direction: column;
+  gap: 0.3em;
+  margin-top: 0.3em;
+}
+
+.assignments-collapsed.expanded {
+  display: flex;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.btn-small {
+  background: var(--primary, #ec3750);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.95em;
+  padding: 0.3em 0.7em;
+  cursor: pointer;
+  margin-left: 0.2em;
+  transition: background 0.2s;
+}
+
+.btn-small:hover {
+  background: var(--secondary, #ff8c37);
+}
+
+.btn-danger {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #ff1a1a;
+}
+
+.assign-user-form {
+  margin-top: 0.5em;
+  display: flex;
+  gap: 0.3em;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .projects-management-section {
+    padding: 1rem;
+  }
+
+  .projects-table th,
+  .projects-table td {
+    font-size: 0.97em;
+    padding: 0.7rem 0.45rem;
+  }
+
+  .assignments-list {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .projects-management-section {
+    padding: 0.5rem;
+  }
+
+  .projects-table th,
+  .projects-table td {
+    font-size: 0.89em;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.7em;
+  border-radius: 12px;
+  font-size: 0.95em;
+  margin: 0 0.2em 0.2em 0;
+}
+
+.badge-green {
+  background: var(--accent, #33d6a6);
+  color: #fff;
+}
+
+.badge-orange {
+  background: var(--secondary, #ff8c37);
+  color: #fff;
+}
+
+.badge-red {
+  background: var(--primary, #ec3750);
+  color: #fff;
+}
+
+.badge-grey {
+  background: #888;
+  color: #fff;
+}
+
+.badge-blue {
+  background: #0072ff;
+  color: #fff;
+}
