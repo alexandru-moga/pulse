@@ -25,104 +25,50 @@ $messages = $db->query("SELECT * FROM contact_messages ORDER BY id DESC")->fetch
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/applications.css">
 </head>
-<div class="projects-management-section">
-    <h2>Projects Management</h2>
-    <a href="create-project.php" class="cta-button" style="margin-bottom:1.5em;">Create New Project</a>
-    <div class="table-responsive">
-        <table class="dashboard-table projects-table">
-            <thead>
+<main class="applications-section">
+    <h2>Contact Messages</h2>
+    <?php if ($success): ?><div class="form-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($error) ?></div></div><?php endif; ?>
+    <?php if (empty($messages)): ?>
+        <div class="form-errors"><div class="error">No messages found.</div></div>
+    <?php else: ?>
+        <div style="overflow-x:auto;">
+        <table class="applications-table">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Submitted At</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            <?php foreach ($messages as $msg): ?>
                 <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Dates</th>
-                    <th>Reward</th>
-                    <th>Requirements</th>
-                    <th>Assignments</th>
-                    <th>Actions</th>
+                    <td><?= htmlspecialchars($msg['id']) ?></td>
+                    <td><?= htmlspecialchars($msg['name']) ?></td>
+                    <td><?= htmlspecialchars($msg['email']) ?></td>
+                    <td><?= htmlspecialchars($msg['message']) ?></td>
+                    <td><?= htmlspecialchars($msg['submitted_at']) ?></td>
+                    <td>
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="status_update_id" value="<?= $msg['id'] ?>">
+                            <select name="status" onchange="this.form.submit()" style="padding:2px 8px;">
+                                <option value="waiting" <?= $msg['status']=='waiting'?'selected':'' ?>>Waiting</option>
+                                <option value="solved" <?= $msg['status']=='solved'?'selected':'' ?>>Solved</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <?php if ($msg['status'] != 'solved'): ?>
+                            <a href="mailto:<?= htmlspecialchars($msg['email']) ?>?subject=Reply to your contact message" class="add-member-btn">Reply</a>
+                        <?php endif; ?>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-<?php foreach ($projects as $project): ?>
-    <tr>
-        <td><?= htmlspecialchars($project['title']) ?></td>
-        <td><?= nl2br(htmlspecialchars($project['description'])) ?></td>
-        <td><?= $project['start_date'] ?? 'Indefinite' ?> - <?= $project['end_date'] ?? 'Indefinite' ?></td>
-        <td>
-            $<?= htmlspecialchars($project['reward_amount']) ?><br>
-            <?= nl2br(htmlspecialchars($project['reward_description'])) ?>
-        </td>
-        <td><?= nl2br(htmlspecialchars($project['requirements'])) ?></td>
-        <td>
-            <?php
-            // Fetch assignments for this project
-            $stmt = $db->prepare(
-                "SELECT pa.*, u.first_name, u.last_name FROM project_assignments pa
-                 JOIN users u ON u.id = pa.user_id WHERE pa.project_id = ?");
-            $stmt->execute([$project['id']]);
-            $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $showCount = 3; // Show first 3 assignments, collapse the rest
-            $totalAssignments = count($assignments);
-            ?>
-            <div class="assignments-list">
-                <?php foreach ($assignments as $i => $a): ?>
-                    <?php if ($i < $showCount): ?>
-                        <div class="assignment-row">
-                            <span class="assignment-name"><?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name']) ?></span>
-                            <span class="assignment-status status-<?= $a['status'] ?>"><?= ucfirst($a['status']) ?></span>
-                            <form method="post" action="projects-management.php" class="inline-form">
-                                <input type="hidden" name="action" value="remove_assignment">
-                                <input type="hidden" name="assignment_id" value="<?= $a['id'] ?>">
-                                <button type="submit" class="btn-small btn-danger" title="Remove">&#10005;</button>
-                            </form>
-                        </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-                <?php if ($totalAssignments > $showCount): ?>
-                    <button type="button" class="btn-small assignments-toggle" onclick="this.nextElementSibling.classList.toggle('expanded');this.style.display='none';">+<?= $totalAssignments - $showCount ?> more</button>
-                    <div class="assignments-collapsed">
-                        <?php foreach ($assignments as $i => $a): ?>
-                            <?php if ($i >= $showCount): ?>
-                                <div class="assignment-row">
-                                    <span class="assignment-name"><?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name']) ?></span>
-                                    <span class="assignment-status status-<?= $a['status'] ?>"><?= ucfirst($a['status']) ?></span>
-                                    <form method="post" action="projects-management.php" class="inline-form">
-                                        <input type="hidden" name="action" value="remove_assignment">
-                                        <input type="hidden" name="assignment_id" value="<?= $a['id'] ?>">
-                                        <button type="submit" class="btn-small btn-danger" title="Remove">&#10005;</button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-            <!-- Assign new user -->
-            <form method="post" action="projects-management.php" class="assign-user-form">
-                <input type="hidden" name="action" value="assign_user">
-                <input type="hidden" name="project_id" value="<?= $project['id'] ?>">
-                <select name="user_id">
-                    <?php foreach ($users as $user): ?>
-                        <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="btn-small">Assign</button>
-            </form>
-        </td>
-        <td>
-            <form method="post" action="projects-management.php">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="project_id" value="<?= $project['id'] ?>">
-                <button type="submit" class="btn-small btn-danger" onclick="return confirm('Delete this project?')">Delete</button>
-            </form>
-        </td>
-    </tr>
-<?php endforeach; ?>
-            </tbody>
+            <?php endforeach; ?>
         </table>
-    </div>
-</div>
-
+        </div>
+    <?php endif; ?>
 </main>
 <?php
 include '../components/layout/footer.php';
