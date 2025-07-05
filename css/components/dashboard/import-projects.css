@@ -1,0 +1,168 @@
+.ysws-section {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(20,20,20,0.13);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+  font-family: 'Phantom Sans', system-ui, sans-serif;
+}
+.ysws-section h2 {
+  color: var(--text, #fff);
+  font-size: 2rem;
+  margin-bottom: 0.3em;
+}
+.ysws-section-subtitle {
+  color: rgba(255,255,255,0.7);
+  font-size: 1.1rem;
+  margin-bottom: 2.2rem;
+}
+.ysws-projects-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+.ysws-project-card {
+  background: rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1.5em 1.7em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  position: relative;
+}
+.ysws-project-card.ysws-linked {
+  border: 1.5px solid var(--accent, #33d6a6);
+}
+.ysws-header {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 0.7em;
+}
+.ysws-header h3 {
+  font-size: 1.2rem;
+  margin: 0;
+  flex: 1;
+}
+.ysws-header a {
+  color: var(--primary, #ec3750);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.ysws-header a:hover {
+  color: var(--secondary, #ff8c37);
+}
+.ysws-linked-badge {
+  background: var(--accent, #33d6a6);
+  color: #fff;
+  padding: 0.3em 1em;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95em;
+  margin-left: 0.3em;
+}
+.ysws-pubdate {
+  color: #bbb;
+  font-size: 0.93em;
+  margin-bottom: 0.6em;
+}
+.ysws-main-desc {
+  font-size: 1.08em;
+  color: var(--text, #fff);
+  margin-bottom: 0.6em;
+}
+.ysws-section-heading {
+  font-weight: 600;
+  margin-top: 1em;
+  color: var(--primary, #ec3750);
+  font-size: 1.05em;
+}
+.ysws-grant-list {
+  margin: 0.4em 0 1em 1.2em;
+  color: var(--accent, #33d6a6);
+  font-size: 1em;
+}
+.ysws-grant-desc {
+  color: var(--accent, #33d6a6);
+  margin-bottom: 1em;
+}
+.ysws-discussion {
+  margin-top: 0.4em;
+  font-size: 0.97em;
+}
+.ysws-discussion a {
+  color: var(--primary, #ec3750);
+  text-decoration: underline;
+}
+.ysws-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.7em;
+  align-items: center;
+}
+.ysws-action-form {
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
+}
+.ysws-btn {
+  background: var(--primary, #ec3750);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: 600;
+  padding: 0.4em 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ysws-btn:disabled {
+  background: #bbb;
+  color: #fff;
+  cursor: not-allowed;
+}
+.ysws-btn:hover:not(:disabled) {
+  background: var(--secondary, #ff8c37);
+}
+.ysws-select {
+  border-radius: 6px;
+  padding: 0.3em 0.7em;
+  border: 1px solid #bbb;
+  background: rgba(255,255,255,0.07);
+  color: var(--text, #fff);
+  font-size: 1em;
+}
+.ysws-notice {
+  padding: 1em;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+  font-weight: 600;
+  text-align: center;
+}
+.ysws-success {
+  background: var(--accent, #33d6a6);
+  color: #fff;
+}
+.ysws-error {
+  background: var(--primary, #ec3750);
+  color: #fff;
+}
+@media (max-width: 900px) {
+  .ysws-section {
+    padding: 1rem;
+  }
+  .ysws-projects-list {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .ysws-section {
+    padding: 0.5rem;
+  }
+  .ysws-project-card {
+    padding: 1em 0.7em;
+  }
+}
