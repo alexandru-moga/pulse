@@ -1,89 +1,37 @@
-.ysws-main-desc {
-  font-size: 1.05em;
-  color: var(--text, #fff);
-  margin-bottom: 0.5em;
-  line-height: 1.5;
+
+
+.events-section, .events-admin-section {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  font-family: 'Phantom Sans', system-ui, sans-serif;
 }
-.ysws-deadline {
-  color: var(--primary, #ec3750);
-  font-weight: 600;
-  margin: 0.5em 0 0.7em 0;
-  padding: 0.5em;
-  background: rgba(236, 55, 80, 0.1);
-  border-radius: 6px;
+.event-card {
+  background: #181818;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
-.ysws-discussion {
-  margin-top: 0.4em;
-  font-size: 0.97em;
-}
-.ysws-discussion a {
-  color: var(--primary, #ec3750);
-  text-decoration: underline;
-}
-.ysws-linked-badge {
-  background: var(--accent, #33d6a6);
-  color: #fff;
-  padding: 0.25em 0.8em;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 0.8rem;
-  margin-left: 0.5em;
-  text-decoration: none;
-}
-.ysws-linked-badge a {
-  color: inherit;
-  text-decoration: none;
-}
-.ysws-join-btn {
-  display: block;
-  width: 100%;
-  text-align: center;
+.event-card h3 { margin: 0 0 0.7em 0; }
+.event-meta { color: #bbb; font-size: 0.97em; margin-bottom: 0.7em; }
+.event-desc { margin-bottom: 1em; }
+.event-ysws ul { margin: 0.5em 0 0 1em; }
+.event-ysws li a { color: var(--primary, #ec3750); }
+.add-to-calendar-btn {
   background: var(--primary, #ec3750);
   color: #fff;
   border: none;
   border-radius: 8px;
+  padding: 0.7em 1.5em;
   font-weight: 600;
-  font-size: 1.1em;
-  padding: 0.8em 0;
-  margin-top: 1.2em;
   cursor: pointer;
-  transition: background 0.2s;
-  text-decoration: none;
+  margin-top: 1em;
 }
-.ysws-join-btn:hover {
-  background: var(--secondary, #ff8c37);
-}
-.project-details {
-  margin-top: 1.2em;
-}
-.detail-item {
-  display: flex;
-  margin-bottom: 0.8em;
-  gap: 0.5em;
-}
-.detail-label {
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  min-width: 80px;
-}
-.detail-value {
-  color: rgba(255,255,255,0.8);
-  flex: 1;
-}
-
-.status-past {
-  background: #888;
-  color: #fff;
-}
-.ysws-link-row {
-  margin-top: 0.7em;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-.ysws-link {
-  color: var(--primary, #ec3750);
-  text-decoration: underline;
-  font-size: 0.97em;
-  word-break: break-all;
-}
+.add-to-calendar-btn:hover { background: var(--secondary, #ff8c37); }
+.event-past { opacity: 0.6; }
+.assign-ysws-form select { width: 100%; min-height: 80px; }
+.btn { background: var(--primary, #ec3750); color: #fff; border: none; border-radius: 6px; padding: 0.4em 1em; cursor: pointer; }
+.btn-accent { background: var(--accent, #33d6a6); }
