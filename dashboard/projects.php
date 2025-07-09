@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-include '../components/layout/header.php';
+checkLoggedIn();
+
+global $db, $currentUser, $settings;
+
+$pageTitle = 'My Projects';
+include __DIR__ . '/components/dashboard-header.php';
 
 $ysws_feed_url = "https://ysws.hackclub.com/feed.xml";
 $ysws_feed = @simplexml_load_file($ysws_feed_url);
@@ -123,93 +128,109 @@ foreach ($myProjects as $project) {
 }
 ?>
 
-<link rel="stylesheet" href="/css/projects-page.css">
-
-<div class="projects-hero">
-    <div class="hero-content">
-        <h1>You Build, We Reward.</h1>
-        <p class="hero-subtitle">Find your next project opportunity and the rewards that come with it.</p>
-        <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-number">$<?= number_format($totalMoney, 2) ?></span>
-                <span class="stat-label">Total Earned</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number"><?= count($myProjects) ?></span>
-                <span class="stat-label">Projects Joined</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-number"><?= count($availableProjects) ?></span>
-                <span class="stat-label">Available Projects</span>
+<div class="space-y-6">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-primary to-red-600 rounded-lg shadow-lg p-8 text-white">
+        <div class="max-w-4xl">
+            <h1 class="text-3xl font-bold mb-2">You Build, We Reward.</h1>
+            <p class="text-red-100 mb-6">Find your next project opportunity and the rewards that come with it.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                    <div class="text-2xl font-bold">$<?= number_format($totalMoney, 2) ?></div>
+                    <div class="text-red-100 text-sm">Total Earned</div>
+                </div>
+                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                    <div class="text-2xl font-bold"><?= count($myProjects) ?></div>
+                    <div class="text-red-100 text-sm">Projects Joined</div>
+                </div>
+                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                    <div class="text-2xl font-bold"><?= count($availableProjects) ?></div>
+                    <div class="text-red-100 text-sm">Available Projects</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="projects-container">
-
-    <section class="projects-section">
-        <h2>My Projects</h2>
-        <p class="section-subtitle">All projects you participated in</p>
+    <!-- My Projects -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">My Projects</h3>
+            <p class="text-sm text-gray-500 mt-1">All projects you participated in</p>
+        </div>
+        
         <?php if ($myProjects): ?>
-            <div class="projects-grid">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($myProjects as $project):
                     $virtualStatus = ($project['status'] === 'accepted' && $project['pizza_grant'] === 'received') ? 'accepted_pizza' : $project['status'];
                     $statusLabel = $statusLabels[$virtualStatus] ?? ucfirst($virtualStatus);
-                    $statusClass = $statusClasses[$virtualStatus] ?? 'status-not-sent';
                     $rewardTotal = (float)($project['reward_amount'] ?? 0);
                     $yswsLink = getYswsLink($project['requirements']);
                     $isYswsDescription = !empty($project['description']) && strpos($project['description'], '<p>') !== false;
                     $formattedDesc = $isYswsDescription ? formatYswsDescription($project['description']) : null;
                     $deadline = $project['end_date'] ?? '';
+                    
+                    $statusColors = [
+                        'accepted' => 'bg-green-100 text-green-800',
+                        'accepted_pizza' => 'bg-purple-100 text-purple-800',
+                        'waiting' => 'bg-yellow-100 text-yellow-800',
+                        'rejected' => 'bg-red-100 text-red-800',
+                        'completed' => 'bg-blue-100 text-blue-800',
+                        'not_participating' => 'bg-gray-100 text-gray-800',
+                        'not_sent' => 'bg-gray-100 text-gray-800'
+                    ];
+                    $statusColor = $statusColors[$virtualStatus] ?? 'bg-gray-100 text-gray-800';
                 ?>
-                <div class="project-card my-project<?= $yswsLink ? ' ysws-linked' : '' ?>">
-                    <div class="project-header">
-                        <h3><?= htmlspecialchars($project['title']) ?></h3>
-                        <div class="project-badges">
-                            <span class="status-badge <?= $statusClass ?>"><?= $statusLabel ?></span>
-                        </div>
+                <div class="border border-gray-200 rounded-lg p-4 <?= $yswsLink ? 'border-green-200 bg-green-50' : '' ?>">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-medium text-gray-900"><?= htmlspecialchars($project['title']) ?></h4>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
+                            <?= $statusLabel ?>
+                        </span>
                     </div>
+                    
                     <?php if ($isYswsDescription && $formattedDesc): ?>
-                        <?= $formattedDesc['main'] ?>
+                        <div class="text-sm text-gray-700 mb-3">
+                            <?= $formattedDesc['main'] ?>
+                        </div>
                         <?php if ($formattedDesc['grant']): ?>
-                            <div class="ysws-section-heading">Grant Amounts:</div>
-                            <?= $formattedDesc['grant'] ?>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Grant Amounts:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['grant'] ?></div>
+                            </div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['deadline']): ?>
-                            <div class="ysws-deadline"><?= $formattedDesc['deadline'] ?></div>
+                            <div class="text-sm text-gray-600 mb-2"><?= $formattedDesc['deadline'] ?></div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['discussion']): ?>
-                            <div class="ysws-section-heading">Discussion:</div>
-                            <div class="ysws-discussion"><?= $formattedDesc['discussion'] ?></div>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Discussion:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['discussion'] ?></div>
+                            </div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <div class="project-description"><?= htmlspecialchars($project['description'] ?? '') ?></div>
+                        <p class="text-sm text-gray-700 mb-3"><?= htmlspecialchars($project['description'] ?? '') ?></p>
                     <?php endif; ?>
-                    <div class="project-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Reward:</span>
-                            <span class="detail-value">
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Reward:</span>
+                            <span class="text-gray-900">
                                 <?php if ($rewardTotal > 0): ?>
                                     $<?= number_format($rewardTotal, 2) ?>
                                 <?php endif; ?>
                                 <?= htmlspecialchars($project['reward_description'] ?? '') ?>
                             </span>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Requirements:</span>
-                            <span class="detail-value">
-                                <?= nl2br(htmlspecialchars(trim(preg_replace('/YSWS:\s*https?:\/\/\S+/i', '', $project['requirements'] ?? '')))) ?>
-                            </span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Deadline:</span>
-                            <span class="detail-value"><?= $deadline ?: 'Indefinite' ?></span>
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Deadline:</span>
+                            <span class="text-gray-900"><?= $deadline ?: 'Indefinite' ?></span>
                         </div>
                         <?php if ($yswsLink): ?>
-                            <div class="ysws-link-row">
-                                <span class="detail-label">YSWS Link:</span>
-                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" class="ysws-link"><?= htmlspecialchars($yswsLink) ?></a>
+                            <div class="pt-2">
+                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" 
+                                   class="text-primary hover:text-red-600 text-sm">
+                                    View YSWS Project →
+                                </a>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -217,18 +238,25 @@ foreach ($myProjects as $project) {
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="empty-state">
-                <h3>No projects yet</h3>
-                <p>Join your first project to start earning rewards!</p>
+            <div class="p-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No projects yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Join your first project to start earning rewards!</p>
             </div>
         <?php endif; ?>
-    </section>
+    </div>
 
-    <section class="projects-section" id="available-projects">
-        <h2>Available Projects</h2>
-        <p class="section-subtitle">Projects you can join now</p>
+    <!-- Available Projects -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Available Projects</h3>
+            <p class="text-sm text-gray-500 mt-1">Projects you can join now</p>
+        </div>
+        
         <?php if ($availableProjects): ?>
-            <div class="projects-grid">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($availableProjects as $project):
                     $rewardTotal = (float)($project['reward_amount'] ?? 0);
                     $yswsLink = getYswsLink($project['requirements']);
@@ -236,79 +264,93 @@ foreach ($myProjects as $project) {
                     $formattedDesc = $isYswsDescription ? formatYswsDescription($project['description']) : null;
                     $deadline = $project['end_date'] ?? '';
                 ?>
-                <div class="project-card available-project<?= $yswsLink ? ' ysws-linked' : '' ?>">
-                    <div class="project-header">
-                        <h3><?= htmlspecialchars($project['title']) ?></h3>
-                        <div class="project-badges">
-                            <span class="status-badge status-available">Available</span>
-                        </div>
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors <?= $yswsLink ? 'border-green-200 bg-green-50' : '' ?>">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-medium text-gray-900"><?= htmlspecialchars($project['title']) ?></h4>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Available
+                        </span>
                     </div>
+                    
                     <?php if ($isYswsDescription && $formattedDesc): ?>
-                        <?= $formattedDesc['main'] ?>
+                        <div class="text-sm text-gray-700 mb-3">
+                            <?= $formattedDesc['main'] ?>
+                        </div>
                         <?php if ($formattedDesc['grant']): ?>
-                            <div class="ysws-section-heading">Grant Amounts:</div>
-                            <?= $formattedDesc['grant'] ?>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Grant Amounts:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['grant'] ?></div>
+                            </div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['deadline']): ?>
-                            <div class="ysws-deadline"><?= $formattedDesc['deadline'] ?></div>
+                            <div class="text-sm text-gray-600 mb-2"><?= $formattedDesc['deadline'] ?></div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['discussion']): ?>
-                            <div class="ysws-section-heading">Discussion:</div>
-                            <div class="ysws-discussion"><?= $formattedDesc['discussion'] ?></div>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Discussion:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['discussion'] ?></div>
+                            </div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <div class="project-description"><?= htmlspecialchars($project['description'] ?? '') ?></div>
+                        <p class="text-sm text-gray-700 mb-3"><?= htmlspecialchars($project['description'] ?? '') ?></p>
                     <?php endif; ?>
-                    <div class="project-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Reward:</span>
-                            <span class="detail-value reward-highlight">
+                    
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Reward:</span>
+                            <span class="text-gray-900 font-medium">
                                 <?php if ($rewardTotal > 0): ?>
                                     $<?= number_format($rewardTotal, 2) ?>
                                 <?php endif; ?>
                                 <?= htmlspecialchars($project['reward_description'] ?? '') ?>
                             </span>
                         </div>
-                        <?php if (!empty($project['requirements'])): ?>
-                        <div class="detail-item">
-                            <span class="detail-label">Requirements:</span>
-                            <span class="detail-value"><?= nl2br(htmlspecialchars(trim(preg_replace('/YSWS:\s*https?:\/\/\S+/i', '', $project['requirements'])))) ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <div class="detail-item">
-                            <span class="detail-label">Deadline:</span>
-                            <span class="detail-value"><?= $deadline ?: 'Indefinite' ?></span>
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Deadline:</span>
+                            <span class="text-gray-900"><?= $deadline ?: 'Indefinite' ?></span>
                         </div>
                         <?php if ($yswsLink): ?>
-                            <div class="ysws-link-row">
-                                <span class="detail-label">YSWS Link:</span>
-                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" class="ysws-link"><?= htmlspecialchars($yswsLink) ?></a>
+                            <div class="pt-2">
+                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" 
+                                   class="text-primary hover:text-red-600 text-sm">
+                                    View YSWS Project →
+                                </a>
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php if ($yswsLink): ?>
-                    <?php else: ?>
-                        <form method="post" action="apply-project.php" class="apply-form">
+                    
+                    <?php if (!$yswsLink): ?>
+                        <form method="post" action="apply-project.php">
                             <input type="hidden" name="project_id" value="<?= $project['id'] ?>">
-                            <button type="submit" class="apply-button">Join Project</button>
+                            <button type="submit" 
+                                    class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Join Project
+                            </button>
                         </form>
                     <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="empty-state">
-                <h3>No available projects</h3>
-                <p>Check back later for new opportunities!</p>
+            <div class="p-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No available projects</h3>
+                <p class="mt-1 text-sm text-gray-500">Check back later for new opportunities!</p>
             </div>
         <?php endif; ?>
-    </section>
+    </div>
 
-    <section class="projects-section" id="past-projects">
-        <h2>Past Projects</h2>
-        <p class="section-subtitle">Projects whose deadline has passed</p>
+    <!-- Past Projects -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Past Projects</h3>
+            <p class="text-sm text-gray-500 mt-1">Projects whose deadline has passed</p>
+        </div>
+        
         <?php if ($pastProjects): ?>
-            <div class="projects-grid">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($pastProjects as $project):
                     $rewardTotal = (float)($project['reward_amount'] ?? 0);
                     $yswsLink = getYswsLink($project['requirements']);
@@ -316,53 +358,57 @@ foreach ($myProjects as $project) {
                     $formattedDesc = $isYswsDescription ? formatYswsDescription($project['description']) : null;
                     $deadline = $project['end_date'] ?? '';
                 ?>
-                <div class="project-card past-project<?= $yswsLink ? ' ysws-linked' : '' ?>">
-                    <div class="project-header">
-                        <h3><?= htmlspecialchars($project['title']) ?></h3>
-                        <div class="project-badges">
-                            <span class="status-badge status-past">Past</span>
-                        </div>
+                <div class="border border-gray-200 rounded-lg p-4 opacity-75 <?= $yswsLink ? 'border-green-200 bg-green-50' : '' ?>">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-medium text-gray-900"><?= htmlspecialchars($project['title']) ?></h4>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Past
+                        </span>
                     </div>
+                    
                     <?php if ($isYswsDescription && $formattedDesc): ?>
-                        <?= $formattedDesc['main'] ?>
+                        <div class="text-sm text-gray-700 mb-3">
+                            <?= $formattedDesc['main'] ?>
+                        </div>
                         <?php if ($formattedDesc['grant']): ?>
-                            <div class="ysws-section-heading">Grant Amounts:</div>
-                            <?= $formattedDesc['grant'] ?>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Grant Amounts:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['grant'] ?></div>
+                            </div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['deadline']): ?>
-                            <div class="ysws-deadline"><?= $formattedDesc['deadline'] ?></div>
+                            <div class="text-sm text-gray-600 mb-2"><?= $formattedDesc['deadline'] ?></div>
                         <?php endif; ?>
                         <?php if ($formattedDesc['discussion']): ?>
-                            <div class="ysws-section-heading">Discussion:</div>
-                            <div class="ysws-discussion"><?= $formattedDesc['discussion'] ?></div>
+                            <div class="mb-2">
+                                <h5 class="text-sm font-medium text-gray-900">Discussion:</h5>
+                                <div class="text-sm text-gray-700"><?= $formattedDesc['discussion'] ?></div>
+                            </div>
                         <?php endif; ?>
                     <?php else: ?>
-                        <div class="project-description"><?= htmlspecialchars($project['description'] ?? '') ?></div>
+                        <p class="text-sm text-gray-700 mb-3"><?= htmlspecialchars($project['description'] ?? '') ?></p>
                     <?php endif; ?>
-                    <div class="project-details">
-                        <div class="detail-item">
-                            <span class="detail-label">Reward:</span>
-                            <span class="detail-value">
+                    
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Reward:</span>
+                            <span class="text-gray-900">
                                 <?php if ($rewardTotal > 0): ?>
                                     $<?= number_format($rewardTotal, 2) ?>
                                 <?php endif; ?>
                                 <?= htmlspecialchars($project['reward_description'] ?? '') ?>
                             </span>
                         </div>
-                        <?php if (!empty($project['requirements'])): ?>
-                        <div class="detail-item">
-                            <span class="detail-label">Requirements:</span>
-                            <span class="detail-value"><?= nl2br(htmlspecialchars(trim(preg_replace('/YSWS:\s*https?:\/\/\S+/i', '', $project['requirements'])))) ?></span>
-                        </div>
-                        <?php endif; ?>
-                        <div class="detail-item">
-                            <span class="detail-label">Deadline:</span>
-                            <span class="detail-value"><?= $deadline ?: 'Indefinite' ?></span>
+                        <div class="flex justify-between">
+                            <span class="font-medium text-gray-500">Deadline:</span>
+                            <span class="text-gray-900"><?= $deadline ?: 'Indefinite' ?></span>
                         </div>
                         <?php if ($yswsLink): ?>
-                            <div class="ysws-link-row">
-                                <span class="detail-label">YSWS Link:</span>
-                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" class="ysws-link"><?= htmlspecialchars($yswsLink) ?></a>
+                            <div class="pt-2">
+                                <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" 
+                                   class="text-primary hover:text-red-600 text-sm">
+                                    View YSWS Project →
+                                </a>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -370,12 +416,15 @@ foreach ($myProjects as $project) {
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="empty-state">
-                <h3>No past projects</h3>
-                <p>All projects are currently open or you have joined all past projects.</p>
+            <div class="p-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No past projects</h3>
+                <p class="mt-1 text-sm text-gray-500">All projects are currently open or you have joined all past projects.</p>
             </div>
         <?php endif; ?>
-    </section>
+    </div>
 </div>
 
-<?php include '../components/layout/footer.php'; ?>
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

@@ -1,5 +1,6 @@
 <?php
 require_once 'core/init.php';
+checkMaintenanceMode();
 global $db;
 ?>
 <?php include 'components/layout/header.php'; ?>

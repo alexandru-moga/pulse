@@ -1,6 +1,14 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-include '../components/layout/header.php';
+checkLoggedIn();
+checkRole(['Leader', 'Co-leader']);
+
+global $db, $currentUser, $settings;
+
+$pageTitle = 'Import YSWS Projects';
+include __DIR__ . '/components/dashboard-header.php';
+
+$success = $error = null;
 
 $feed_url = "https://ysws.hackclub.com/feed.xml";
 $rss = @simplexml_load_file($feed_url);
@@ -104,7 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
 
     $stmt = $db->prepare("INSERT INTO projects (title, description, requirements, start_date, end_date, reward_amount, reward_description) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$title, $description, "YSWS: $ysws_link", $start_date, $end_date, $reward_amount, $reward_desc]);
-    echo "<div class='ysws-notice ysws-success'>Project imported successfully!</div>";
+    $success = "Project imported successfully!";
+    $local_projects = $db->query("SELECT id, title, requirements FROM projects ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['refresh_dates'])) {
@@ -141,7 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['refresh_dates'])) {
     if ($not_found > 0) {
         $message .= " $not_found project(s) not found in current feed (may be archived).";
     }
-    echo "<div class='ysws-notice ysws-success'>$message</div>";
+    $success = $message;
+    $local_projects = $db->query("SELECT id, title, requirements FROM projects ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['link_local'])) {
@@ -154,9 +164,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['link_local'])) {
         $new_requirements = $current_requirements ? $current_requirements . "\nYSWS: $ysws_link" : "YSWS: $ysws_link";
         $stmt = $db->prepare("UPDATE projects SET requirements = ? WHERE id = ?");
         $stmt->execute([$new_requirements, $local_id]);
-        echo "<div class='ysws-notice ysws-success'>Project linked to YSWS!</div>";
+        $success = "Project linked to YSWS!";
+        $local_projects = $db->query("SELECT id, title, requirements FROM projects ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        echo "<div class='ysws-notice ysws-warning'>Project is already linked to YSWS!</div>";
+        $error = "Project is already linked to YSWS!";
     }
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlink'])) {
@@ -168,7 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlink'])) {
     $new_requirements = trim($new_requirements);
     $stmt = $db->prepare("UPDATE projects SET requirements = ? WHERE id = ?");
     $stmt->execute([$new_requirements ?: null, $local_id]);
-    echo "<div class='ysws-notice ysws-success'>Project unlinked from YSWS!</div>";
+    $success = "Project unlinked from YSWS!";
+    $local_projects = $db->query("SELECT id, title, requirements FROM projects ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
 
 $local_projects = $db->query("SELECT id, title, requirements FROM projects ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -189,126 +201,222 @@ function getLinkedYswsUrl($requirements) {
 }
 ?>
 
-<link rel="stylesheet" href="/css/ysws-import.css">
-
-<div class="ysws-section">
-    <div class="ysws-header">
-        <h2>Import or Link Hack Club YSWS Projects</h2>
-        <p class="ysws-section-subtitle">Browse YSWS projects, import them into your dashboard, or link/unlink them to your existing projects.</p>
-        <form method="post" style="margin-bottom:2em;">
-            <button type="submit" name="refresh_dates" class="ysws-btn ysws-btn-link">🔄 Refresh Dates from Feed</button>
-        </form>
-    </div>
-    <div class="ysws-projects-list">
-        <?php foreach ($ysws_projects as $p):
-            $linkedProject = isLinkedToYsws($local_projects, $p['link']);
-            $end_date = extractDeadline($p['description']);
-            $start_date = $p['pubDate'] ? date('Y-m-d', strtotime($p['pubDate'])) : 'Indefinite';
-            list($reward_amount, $reward_desc) = extractReward($p['description']);
-            $info = formatYswsDescription($p['description']);
-            
-            $end_date_display = $end_date ? date('M j, Y', strtotime($end_date)) : 'No deadline specified';
-            
-            echo "<!-- DEBUG: " . htmlspecialchars($p['description']) . " -->";
-            echo "<!-- EXTRACTED DATE: " . ($end_date ?: 'NULL') . " -->";
-        ?>
-        <div class="ysws-project-card<?= $linkedProject ? ' ysws-linked' : '' ?>">
-            <div class="ysws-header">
-                <h3>
-                    <a href="<?= htmlspecialchars($p['link']) ?>" target="_blank"><?= htmlspecialchars($p['title']) ?></a>
-                </h3>
-                <div class="ysws-badges">
-                    <?php if ($linkedProject): ?>
-                        <span class="ysws-linked-badge">Linked to: <?= htmlspecialchars($linkedProject['title']) ?></span>
-                    <?php else: ?>
-                        <span class="ysws-available-badge">Available</span>
-                    <?php endif; ?>
+<div class="space-y-6">
+    <!-- Notifications -->
+    <?php if ($success): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700"><?= htmlspecialchars($success) ?></p>
                 </div>
-            </div>
-            <div class="ysws-pubdate"><?= date('F j, Y', strtotime($p['pubDate'])) ?></div>
-            <?= $info['main'] ?>
-            <?php if ($info['grant']): ?>
-                <div class="ysws-section-heading">Grant Amounts:</div>
-                <?= $info['grant'] ?>
-            <?php endif; ?>
-            <?php if ($info['discussion']): ?>
-                <div class="ysws-section-heading">Discussion:</div>
-                <div class="ysws-discussion"><?= $info['discussion'] ?></div>
-            <?php endif; ?>
-            <div class="ysws-meta">
-                <div><strong>Start date:</strong> <?= $start_date ?></div>
-                <div><strong>End date:</strong> <?= $end_date_display ?></div>
-                <div><strong>Reward amount:</strong> <?= $reward_amount ? '$' . $reward_amount : 'N/A' ?></div>
-                <div><strong>Reward description:</strong> <?= htmlspecialchars($reward_desc) ?></div>
-            </div>
-            <div class="ysws-actions">
-                <form method="post" class="ysws-action-form">
-                    <input type="hidden" name="title" value="<?= htmlspecialchars($p['title']) ?>">
-                    <input type="hidden" name="description" value="<?= htmlspecialchars($p['description']) ?>">
-                    <input type="hidden" name="link" value="<?= htmlspecialchars($p['link']) ?>">
-                    <input type="hidden" name="pubDate" value="<?= htmlspecialchars($p['pubDate']) ?>">
-                    <button type="submit" name="import" class="ysws-btn ysws-btn-import"<?= $linkedProject ? ' disabled' : '' ?>>
-                        <?= $linkedProject ? 'Already Imported' : 'Import as New' ?>
-                    </button>
-                </form>
-                <?php if ($linkedProject): ?>
-                    <form method="post" class="ysws-action-form">
-                        <input type="hidden" name="local_project_id" value="<?= $linkedProject['id'] ?>">
-                        <button type="submit" name="unlink" class="ysws-btn ysws-btn-unlink" onclick="return confirm('Are you sure you want to unlink this project?')">
-                            Unlink
-                        </button>
-                    </form>
-                <?php else: ?>
-                    <form method="post" class="ysws-action-form">
-                        <select name="local_project_id" class="ysws-select" required>
-                            <option value="">Select project to link...</option>
-                            <?php foreach ($local_projects as $lp): 
-                                $alreadyLinked = getLinkedYswsUrl($lp['requirements']);
-                            ?>
-                                <option value="<?= $lp['id'] ?>" <?= $alreadyLinked ? 'disabled' : '' ?>>
-                                    <?= htmlspecialchars($lp['title']) ?><?= $alreadyLinked ? ' (Already linked)' : '' ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="hidden" name="link" value="<?= htmlspecialchars($p['link']) ?>">
-                        <button type="submit" name="link_local" class="ysws-btn ysws-btn-link">Link</button>
-                    </form>
-                <?php endif; ?>
             </div>
         </div>
-        <?php endforeach; ?>
+    <?php endif; ?>
+
+    <?php if ($error): ?>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700"><?= htmlspecialchars($error) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Import YSWS Projects</h2>
+                <p class="text-gray-600 mt-1">Import projects from Hack Club's You Ship, We Ship program</p>
+            </div>
+            <form method="post">
+                <button type="submit" name="refresh_dates" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh Dates
+                </button>
+            </form>
+        </div>
     </div>
-    <div class="local-projects-section">
-        <h3>Your Local Projects</h3>
-        <div class="local-projects-grid">
-            <?php foreach ($local_projects as $project):
-                $yswsLink = getLinkedYswsUrl($project['requirements']);
+
+    <!-- YSWS Projects -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Available YSWS Projects</h3>
+            <p class="text-sm text-gray-500 mt-1">Import new projects or link to existing ones</p>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <?php foreach ($ysws_projects as $p):
+                $linkedProject = isLinkedToYsws($local_projects, $p['link']);
+                $end_date = extractDeadline($p['description']);
+                $start_date = $p['pubDate'] ? date('Y-m-d', strtotime($p['pubDate'])) : 'Indefinite';
+                list($reward_amount, $reward_desc) = extractReward($p['description']);
+                $info = formatYswsDescription($p['description']);
+                
+                $end_date_display = $end_date ? date('M j, Y', strtotime($end_date)) : 'No deadline specified';
             ?>
-                <div class="local-project-card<?= $yswsLink ? ' has-ysws-link' : '' ?>">
-                    <h4><?= htmlspecialchars($project['title']) ?></h4>
-                    <?php if ($yswsLink): ?>
-                        <div class="ysws-link-info">
-                            <span class="ysws-link-label">Linked to YSWS:</span>
-                            <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" class="ysws-link">
-                                <?= htmlspecialchars(parse_url($yswsLink, PHP_URL_HOST)) ?>
-                            </a>
-                            <form method="post" style="display: inline;">
-                                <input type="hidden" name="local_project_id" value="<?= $project['id'] ?>">
-                                <button type="submit" name="unlink" class="ysws-unlink-btn" onclick="return confirm('Unlink this project from YSWS?')" title="Unlink from YSWS">
-                                    ×
-                                </button>
-                            </form>
+            <div class="border border-gray-200 rounded-lg p-6 <?= $linkedProject ? 'bg-green-50 border-green-200' : '' ?>">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3">
+                            <h4 class="text-lg font-medium text-gray-900">
+                                <a href="<?= htmlspecialchars($p['link']) ?>" target="_blank" 
+                                   class="text-primary hover:text-red-600">
+                                    <?= htmlspecialchars($p['title']) ?>
+                                </a>
+                            </h4>
+                            <?php if ($linkedProject): ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Linked to: <?= htmlspecialchars($linkedProject['title']) ?>
+                                </span>
+                            <?php else: ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Available
+                                </span>
+                            <?php endif; ?>
                         </div>
+                        
+                        <p class="text-sm text-gray-500 mt-1">
+                            Published: <?= date('F j, Y', strtotime($p['pubDate'])) ?>
+                        </p>
+                        
+                        <div class="mt-3 text-sm text-gray-700">
+                            <?= $info['main'] ?>
+                        </div>
+                        
+                        <?php if ($info['grant']): ?>
+                            <div class="mt-3">
+                                <h5 class="text-sm font-medium text-gray-900">Grant Amounts:</h5>
+                                <div class="text-sm text-gray-700"><?= $info['grant'] ?></div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($info['discussion']): ?>
+                            <div class="mt-3">
+                                <h5 class="text-sm font-medium text-gray-900">Discussion:</h5>
+                                <div class="text-sm text-gray-700"><?= $info['discussion'] ?></div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-500">Start:</span>
+                                <div class="text-gray-900"><?= $start_date ?></div>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-500">Deadline:</span>
+                                <div class="text-gray-900"><?= $end_date_display ?></div>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-500">Reward:</span>
+                                <div class="text-gray-900"><?= $reward_amount ? '$' . $reward_amount : 'N/A' ?></div>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-500">Type:</span>
+                                <div class="text-gray-900"><?= htmlspecialchars($reward_desc ?: 'N/A') ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex items-center space-x-3">
+                    <form method="post" class="inline">
+                        <input type="hidden" name="title" value="<?= htmlspecialchars($p['title']) ?>">
+                        <input type="hidden" name="description" value="<?= htmlspecialchars($p['description']) ?>">
+                        <input type="hidden" name="link" value="<?= htmlspecialchars($p['link']) ?>">
+                        <input type="hidden" name="pubDate" value="<?= htmlspecialchars($p['pubDate']) ?>">
+                        <button type="submit" name="import" <?= $linkedProject ? 'disabled' : '' ?>
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-gray-300 disabled:cursor-not-allowed">
+                            <?= $linkedProject ? 'Already Imported' : 'Import as New' ?>
+                        </button>
+                    </form>
+                    
+                    <?php if ($linkedProject): ?>
+                        <form method="post" class="inline">
+                            <input type="hidden" name="local_project_id" value="<?= $linkedProject['id'] ?>">
+                            <button type="submit" name="unlink" 
+                                    onclick="return confirm('Are you sure you want to unlink this project?')"
+                                    class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Unlink
+                            </button>
+                        </form>
                     <?php else: ?>
-                        <p class="no-link">Not linked to any YSWS project</p>
+                        <form method="post" class="inline flex items-center space-x-2">
+                            <select name="local_project_id" required
+                                    class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <option value="">Select project to link...</option>
+                                <?php foreach ($local_projects as $lp): 
+                                    $alreadyLinked = getLinkedYswsUrl($lp['requirements']);
+                                ?>
+                                    <option value="<?= $lp['id'] ?>" <?= $alreadyLinked ? 'disabled' : '' ?>>
+                                        <?= htmlspecialchars($lp['title']) ?><?= $alreadyLinked ? ' (Already linked)' : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" name="link" value="<?= htmlspecialchars($p['link']) ?>">
+                            <button type="submit" name="link_local" 
+                                    class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Link
+                            </button>
+                        </form>
                     <?php endif; ?>
                 </div>
+            </div>
             <?php endforeach; ?>
         </div>
     </div>
+
+    <!-- Local Projects -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Your Local Projects</h3>
+            <p class="text-sm text-gray-500 mt-1">Manage YSWS links for your existing projects</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <?php foreach ($local_projects as $project):
+                    $yswsLink = getLinkedYswsUrl($project['requirements']);
+                ?>
+                    <div class="border border-gray-200 rounded-lg p-4 <?= $yswsLink ? 'bg-green-50 border-green-200' : '' ?>">
+                        <h4 class="font-medium text-gray-900"><?= htmlspecialchars($project['title']) ?></h4>
+                        
+                        <?php if ($yswsLink): ?>
+                            <div class="mt-2">
+                                <span class="text-xs font-medium text-green-600">Linked to YSWS:</span>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <a href="<?= htmlspecialchars($yswsLink) ?>" target="_blank" 
+                                       class="text-sm text-primary hover:text-red-600 truncate">
+                                        <?= htmlspecialchars(parse_url($yswsLink, PHP_URL_HOST)) ?>
+                                    </a>
+                                    <form method="post" class="inline">
+                                        <input type="hidden" name="local_project_id" value="<?= $project['id'] ?>">
+                                        <button type="submit" name="unlink" 
+                                                onclick="return confirm('Unlink this project from YSWS?')"
+                                                class="text-red-600 hover:text-red-800 text-sm" title="Unlink from YSWS">
+                                            ×
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-sm text-gray-500 mt-2">Not linked to any YSWS project</p>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
 </div>
-<?php 
-include '../components/effects/grid.php';
-include '../components/effects/mouse.php';
-include '../components/layout/footer.php';
-?>
+
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

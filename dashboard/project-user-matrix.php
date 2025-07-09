@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-include '../components/layout/header.php';
+checkLoggedIn();
+checkRole(['Leader', 'Co-leader']);
+
+global $db, $currentUser, $settings;
+
+$pageTitle = 'Project User Matrix';
+include __DIR__ . '/components/dashboard-header.php';
 
 $users = $db->query("SELECT id, first_name, last_name FROM users ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
 $projects = $db->query("SELECT id, title FROM projects ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
@@ -24,142 +30,178 @@ $statusOptions = [
 ];
 
 $statusClasses = [
-    'accepted_pizza' => 'status-accepted-pizza',
-    'accepted' => 'status-accepted',
-    'waiting' => 'status-waiting',
-    'rejected' => 'status-rejected',
-    'not_participating' => 'status-not-participating',
-    'not_sent' => 'status-not-sent'
+    'accepted_pizza' => 'bg-purple-100 text-purple-800',
+    'accepted' => 'bg-green-100 text-green-800',
+    'waiting' => 'bg-yellow-100 text-yellow-800',
+    'rejected' => 'bg-red-100 text-red-800',
+    'not_participating' => 'bg-gray-100 text-gray-800',
+    'not_sent' => 'bg-gray-100 text-gray-600'
 ];
 ?>
-<link rel="stylesheet" href="/css/project-user-matrix.css">
-<div class="project-matrix-section">
-    <h2>Project Assignment Matrix</h2>
-    <div class="table-responsive">
-        <table class="dashboard-table project-matrix-table">
-            <thead>
-                <tr>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <?php foreach ($projects as $project): ?>
-                        <th><?= htmlspecialchars($project['title']) ?></th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-<?php foreach ($users as $user): ?>
-    <tr>
-        <td><?= htmlspecialchars($user['last_name']) ?></td>
-        <td><?= htmlspecialchars($user['first_name']) ?></td>
-        <?php foreach ($projects as $project):
-            $cell = $assignments[$user['id']][$project['id']] ?? ['status' => 'not_sent', 'pizza_grant' => 'none'];
-            $virtualStatus = ($cell['status'] === 'accepted' && $cell['pizza_grant'] === 'received') ? 'accepted_pizza' : $cell['status'];
-            $badgeClass = $statusClasses[$virtualStatus] ?? 'status-not-sent';
-            $badgeText = $statusOptions[$virtualStatus] ?? ucfirst($virtualStatus);
-        ?>
-            <td>
-                <span class="status-badge <?= $badgeClass ?>"
-                      tabindex="0"
-                      data-user="<?= $user['id'] ?>"
-                      data-project="<?= $project['id'] ?>"
-                      data-status="<?= $virtualStatus ?>"
-                      onclick="showStatusMenu(this)">
-                    <?= htmlspecialchars($badgeText) ?>
-                </span>
-            </td>
-        <?php endforeach; ?>
-    </tr>
-<?php endforeach; ?>
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Project User Matrix</h2>
+                <p class="text-gray-600 mt-1">View assignment status for all users across all projects</p>
+            </div>
+            <a href="<?= $settings['site_url'] ?>/dashboard/projects-management.php" 
+               class="text-primary hover:text-red-600 text-sm font-medium">
+                ← Back to Projects
+            </a>
+        </div>
+    </div>
+
+    <!-- Matrix Table -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Assignment Matrix</h3>
+            <p class="text-sm text-gray-500 mt-1">Scroll horizontally to view all projects</p>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="sticky left-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                            User
+                        </th>
+                        <?php foreach ($projects as $project): ?>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
+                                <div class="truncate" title="<?= htmlspecialchars($project['title']) ?>">
+                                    <?= htmlspecialchars(mb_strimwidth($project['title'], 0, 15, '...')) ?>
+                                </div>
+                            </th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <?php foreach ($users as $user): ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="sticky left-0 bg-white px-6 py-4 whitespace-nowrap border-r border-gray-200">
+                            <div class="text-sm font-medium text-gray-900">
+                                <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                            </div>
+                        </td>
+                        <?php foreach ($projects as $project):
+                            $cell = $assignments[$user['id']][$project['id']] ?? ['status' => 'not_sent', 'pizza_grant' => 'none'];
+                            $virtualStatus = ($cell['status'] === 'accepted' && $cell['pizza_grant'] === 'received') ? 'accepted_pizza' : $cell['status'];
+                            $badgeClass = $statusClasses[$virtualStatus] ?? 'bg-gray-100 text-gray-600';
+                            $badgeText = $statusOptions[$virtualStatus] ?? ucfirst($virtualStatus);
+                        ?>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer <?= $badgeClass ?>"
+                                      tabindex="0"
+                                      data-user="<?= $user['id'] ?>"
+                                      data-project="<?= $project['id'] ?>"
+                                      data-status="<?= $virtualStatus ?>"
+                                      onclick="showStatusMenu(this)"
+                                      title="Click to change status">
+                                    <?= htmlspecialchars($badgeText) ?>
+                                </span>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Status Change Modal -->
+<div id="statusModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Change Status</h3>
+            <div class="space-y-2" id="statusOptions">
+                <!-- Status options will be populated by JavaScript -->
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeStatusModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-const statusOptions = [
-  {value: 'accepted_pizza', label: 'Accepted+Pizza', class: 'status-accepted-pizza'},
-  {value: 'accepted', label: 'Accepted', class: 'status-accepted'},
-  {value: 'waiting', label: 'Waiting', class: 'status-waiting'},
-  {value: 'rejected', label: 'Rejected', class: 'status-rejected'},
-  {value: 'not_participating', label: 'Not Participating', class: 'status-not-participating'},
-  {value: 'not_sent', label: 'Not Sent', class: 'status-not-sent'}
-];
-const statusClasses = {
-  'accepted_pizza': 'status-accepted-pizza',
-  'accepted': 'status-accepted',
-  'waiting': 'status-waiting',
-  'rejected': 'status-rejected',
-  'not_participating': 'status-not-participating',
-  'not_sent': 'status-not-sent'
+const statusOptions = {
+    'accepted_pizza': { label: 'Accepted + Pizza', class: 'bg-purple-100 text-purple-800' },
+    'accepted': { label: 'Accepted', class: 'bg-green-100 text-green-800' },
+    'waiting': { label: 'Waiting', class: 'bg-yellow-100 text-yellow-800' },
+    'rejected': { label: 'Rejected', class: 'bg-red-100 text-red-800' },
+    'not_participating': { label: 'Not Participating', class: 'bg-gray-100 text-gray-800' },
+    'not_sent': { label: 'Not Sent', class: 'bg-gray-100 text-gray-600' }
 };
 
+let currentUserId, currentProjectId, currentBadge;
+
 function showStatusMenu(badge) {
-  document.querySelectorAll('.status-menu').forEach(m => m.remove());
-  const rect = badge.getBoundingClientRect();
-  const menu = document.createElement('div');
-  menu.className = 'status-menu';
-  menu.style.position = 'fixed';
-  menu.style.left = (rect.left) + 'px';
-  menu.style.top = (rect.bottom + 4) + 'px';
-  menu.style.zIndex = 10000;
-  menu.style.background = 'var(--sheet, #404040)';
-  menu.style.border = '1px solid #222';
-  menu.style.borderRadius = '8px';
-  menu.style.boxShadow = '0 2px 12px rgba(0,0,0,0.16)';
-  menu.style.padding = '0.4em 0.6em';
-  menu.style.minWidth = '130px';
-
-  statusOptions.forEach(opt => {
-    const item = document.createElement('div');
-    item.className = 'status-badge ' + opt.class;
-    item.innerText = opt.label;
-    item.style.margin = '0.2em 0';
-    item.style.cursor = 'pointer';
-    item.onclick = () => {
-      updateStatus(
-        badge.dataset.user,
-        badge.dataset.project,
-        opt.value,
-        badge
-      );
-      menu.remove();
-    };
-    menu.appendChild(item);
-  });
-  document.body.appendChild(menu);
-  setTimeout(() => {
-    document.addEventListener('mousedown', function handler(e) {
-      if (!menu.contains(e.target)) {
-        menu.remove();
-        document.removeEventListener('mousedown', handler);
-      }
+    currentUserId = badge.dataset.user;
+    currentProjectId = badge.dataset.project;
+    currentBadge = badge;
+    
+    const modal = document.getElementById('statusModal');
+    const optionsContainer = document.getElementById('statusOptions');
+    
+    optionsContainer.innerHTML = '';
+    
+    Object.entries(statusOptions).forEach(([value, option]) => {
+        const button = document.createElement('button');
+        button.className = `w-full text-left px-3 py-2 rounded-md ${option.class} hover:opacity-80 transition-opacity`;
+        button.textContent = option.label;
+        button.onclick = () => updateStatus(value);
+        optionsContainer.appendChild(button);
     });
-  }, 10);
+    
+    modal.classList.remove('hidden');
 }
 
-function updateStatus(userId, projectId, newStatus, badge) {
-  let status = newStatus === 'accepted_pizza' ? 'accepted' : newStatus;
-  let pizza_grant = newStatus === 'accepted_pizza' ? 'received' : 'none';
-  fetch('update-assignment-status.php', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: `user_id=${userId}&project_id=${projectId}&status=${status}&pizza_grant=${pizza_grant}`
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      let badgeText = statusOptions.find(o => o.value === newStatus)?.label || newStatus;
-      let badgeClass = 'status-badge ' + (statusClasses[newStatus] || 'status-not-sent');
-      badge.className = badgeClass;
-      badge.dataset.status = newStatus;
-      badge.innerText = badgeText;
-    } else {
-      alert('Failed to update status.');
-    }
-  });
+function closeStatusModal() {
+    document.getElementById('statusModal').classList.add('hidden');
 }
+
+function updateStatus(newStatus) {
+    const status = newStatus === 'accepted_pizza' ? 'accepted' : newStatus;
+    const pizzaGrant = newStatus === 'accepted_pizza' ? 'received' : 'none';
+    
+    const formData = new FormData();
+    formData.append('user_id', currentUserId);
+    formData.append('project_id', currentProjectId);
+    formData.append('status', status);
+    formData.append('pizza_grant', pizzaGrant);
+    
+    fetch('<?= $settings['site_url'] ?>/dashboard/update-assignment-status.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const option = statusOptions[newStatus];
+            currentBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${option.class}`;
+            currentBadge.textContent = option.label;
+            currentBadge.dataset.status = newStatus;
+            closeStatusModal();
+        } else {
+            alert('Failed to update status: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update status. Please try again.');
+    });
+}
+
+document.getElementById('statusModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeStatusModal();
+    }
+});
 </script>
 
-<?php include '../components/layout/footer.php'; ?>
-<?php include '../components/effects/grid.php'; ?>
-<?php include '../components/effects/mouse.php'; ?>
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

@@ -1,8 +1,8 @@
 <?php
-require_once '../core/init.php';
+require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 
-global $db, $currentUser;
+global $db, $currentUser, $settings;
 
 $success = $error = null;
 
@@ -33,37 +33,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-include '../components/layout/header.php';
-include '../components/effects/mouse.php';
-include '../components/effects/grid.php';
+$pageTitle = 'Change Password';
+include __DIR__ . '/components/dashboard-header.php';
 ?>
 
-<head>
-        <link rel="stylesheet" href="../css/main.css">
-</head>
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Change Password</h2>
+                <p class="text-gray-600 mt-1">Update your account password for security</p>
+            </div>
+        </div>
+    </div>
 
-<main class="contact-form-section">
-    <h2>Change Password</h2>
+    <!-- Notification -->
     <?php if ($success): ?>
-        <div class="form-success"><?= htmlspecialchars($success) ?></div>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            <?= htmlspecialchars($success) ?>
+        </div>
     <?php elseif ($error): ?>
-        <div class="form-errors"><div class="error"><?= htmlspecialchars($error) ?></div></div>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <?= htmlspecialchars($error) ?>
+        </div>
     <?php endif; ?>
-    <form method="post" class="change-password-form" autocomplete="off">
-        <div class="form-group">
-            <label for="old_password">Old Password</label>
-            <input type="password" name="old_password" id="old_password" required autocomplete="current-password">
-        </div>
-        <div class="form-group">
-            <label for="new_password">New Password</label>
-            <input type="password" name="new_password" id="new_password" required minlength="6" autocomplete="new-password">
-        </div>
-        <div class="form-group">
-            <label for="confirm_password">Repeat New Password</label>
-            <input type="password" name="confirm_password" id="confirm_password" required minlength="6" autocomplete="new-password">
-        </div>
-        <button type="submit" class="cta-button">Change Password</button>
-    </form>
-</main>
 
-<?php include '../components/layout/footer.php'; ?>
+    <!-- Form -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
+        </div>
+        
+        <form method="post" class="p-6" autocomplete="off">
+            <div class="grid grid-cols-1 gap-6 max-w-lg">
+                <div>
+                    <label for="old_password" class="block text-sm font-medium text-gray-700">Current Password</label>
+                    <input type="password" 
+                           id="old_password" 
+                           name="old_password" 
+                           required 
+                           autocomplete="current-password"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                </div>
+
+                <div>
+                    <label for="new_password" class="block text-sm font-medium text-gray-700">New Password</label>
+                    <input type="password" 
+                           id="new_password" 
+                           name="new_password" 
+                           required 
+                           minlength="6"
+                           autocomplete="new-password"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <p class="mt-1 text-sm text-gray-500">Must be at least 6 characters long.</p>
+                </div>
+
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           required 
+                           minlength="6"
+                           autocomplete="new-password"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                </div>
+            </div>
+
+            <div class="flex justify-start mt-8 pt-6 border-t border-gray-200">
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Change Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

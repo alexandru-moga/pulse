@@ -1,12 +1,11 @@
 <?php
-require_once '../core/init.php';
+require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
-global $db;
+global $db, $currentUser, $settings;
 
 $pages = $db->query("SELECT id, title FROM pages ORDER BY title ASC")->fetchAll();
-
 $errors = [];
 $success = null;
 
@@ -22,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_id = !empty($_POST['parent_id']) ? intval($_POST['parent_id']) : null;
     $menu_enabled = isset($_POST['menu_enabled']) ? 1 : 0;
     $visibility = $_POST['visibility'] ?? [];
+    
     if (count($visibility) === 1 && $visibility[0] === 'everyone') {
         $visibility_db = null;
     } else {
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $stmt = $db->prepare("INSERT INTO pages (name, title, description, table_name, menu_enabled, parent_id, visibility) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $title, $description, $table_name, $menu_enabled, $parent_id, $visibility_str]);
+        $stmt->execute([$name, $title, $description, $table_name, $menu_enabled, $parent_id, $visibility_db]);
         $page_id = $db->lastInsertId();
 
         $sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `order_num` int(11) DEFAULT 0,
             `is_active` tinyint(1) DEFAULT 1
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+        
         try {
             $db->query($sql);
         } catch (Exception $e) {
@@ -76,7 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_file_content = str_replace(array_keys($replacements), array_values($replacements), $template_content);
 
             if (file_put_contents($public_path, $new_file_content) !== false) {
-                $success = "Page created successfully! File created at " . htmlspecialchars($public_path);
+                $_SESSION['notification'] = ['type' => 'success', 'message' => 'Page created successfully!'];
+                header("Location: page-settings.php");
+                exit;
             } else {
                 $errors[] = "Page added to database, but file creation failed. Please check permissions.";
             }
@@ -85,101 +88,177 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($errors)) {
+            $_SESSION['notification'] = ['type' => 'success', 'message' => 'Page created successfully!'];
             header("Location: page-settings.php");
-            exit();
+            exit;
         }
     }
 }
 
-include '../components/layout/header.php';
+$pageTitle = 'Create New Page';
+include __DIR__ . '/components/dashboard-header.php';
 ?>
 
-<head>
-    <link rel="stylesheet" href="../css/main.css">
-    <script>
-    function slugify(text) {
-        text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        text = text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-        return text;
-    }
-    function updateAutoFields() {
-        var title = document.getElementById('title').value;
-        var pageName = slugify(title);
-        document.getElementById('name').value = pageName;
-        document.getElementById('table_name').value = 'page_' + pageName;
-    }
-    window.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('title').addEventListener('input', updateAutoFields);
-        updateAutoFields();
-    });
-    </script>
-</head>
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Create New Page</h2>
+                <p class="text-gray-600 mt-1">Add a new page to your website</p>
+            </div>
+            <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
+               class="text-primary hover:text-red-600 text-sm font-medium">
+                ← Back to Page Settings
+            </a>
+        </div>
+    </div>
 
-<main class="contact-form-section" style="max-width:600px;margin:2rem auto;">
-    <h2>Create New Page</h2>
+    <!-- Errors -->
     <?php if ($errors): ?>
-        <div class="form-errors">
-            <?php foreach ($errors as $error): ?>
-                <div class="error"><?= htmlspecialchars($error) ?></div>
-            <?php endforeach; ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <ul class="list-disc list-inside">
+                <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
         </div>
     <?php endif; ?>
-    <?php if ($success): ?>
-        <div class="form-success"><?= htmlspecialchars($success) ?></div>
-    <?php endif; ?>
-    <form method="post" class="dashboard-form" autocomplete="off">
-        <div class="form-group">
-            <label for="title">Name</label>
-            <input type="text" id="title" name="title" value="<?= htmlspecialchars($_POST['title'] ?? '') ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="name">URL (view-only)</label>
-            <input type="text" id="name" name="name" class="readonly-field" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" readonly required>
-        </div>
-        <div class="form-group">
-            <label for="table_name">Database table (view-only)</label>
-            <input type="text" id="table_name" name="table_name" class="readonly-field" value="<?= htmlspecialchars($_POST['table_name'] ?? '') ?>" readonly required>
-        </div>
-        <div class="form-group">
-            <label for="description">Description (optional)</label>
-            <textarea id="description" name="description" rows="3"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
-        </div>
-        <div class="form-group">
-            <label>Show in Header Menu</label>
-            <label class="switch">
-                <input type="checkbox" name="menu_enabled" value="1" <?= isset($_POST['menu_enabled']) ? 'checked' : '' ?>>
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div class="form-group">
-            <label for="parent_id">Parent Page (optional)</label>
-            <select name="parent_id" id="parent_id">
-                <option value="">-- None --</option>
-                <?php foreach ($pages as $p): ?>
-                    <option value="<?= $p['id'] ?>" <?= (isset($_POST['parent_id']) && $_POST['parent_id'] == $p['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($p['title']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="visibility">Visibility (hold Ctrl/Cmd to select multiple)</label>
-            <select name="visibility[]" id="visibility" multiple required>
-                <?php
-                $all_roles = ['everyone', 'guest', 'Member', 'Co-leader', 'Leader'];
-                $selected_roles = $_POST['visibility'] ?? [];
-                foreach ($all_roles as $role): ?>
-                    <option value="<?= $role ?>" <?= in_array($role, $selected_roles) ? 'selected' : '' ?>><?= $role ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <button type="submit" class="cta-button">Create Page</button>
-        <a href="page-settings.php" class="cta-button">Back</a>
-    </form>
-</main>
 
-<?php
-include '../components/layout/footer.php';
-include '../components/effects/mouse.php';
-include '../components/effects/grid.php';
-?>
+    <!-- Form -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Page Configuration</h3>
+        </div>
+        
+        <form method="post" class="p-6" autocomplete="off">
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700">Page Title</label>
+                    <input type="text" 
+                           id="title" 
+                           name="title" 
+                           required 
+                           value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                           placeholder="Enter page title">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">URL Slug (auto-generated)</label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               readonly 
+                               value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-sm text-gray-500">This will be the page URL</p>
+                    </div>
+
+                    <div>
+                        <label for="table_name" class="block text-sm font-medium text-gray-700">Database Table (auto-generated)</label>
+                        <input type="text" 
+                               id="table_name" 
+                               name="table_name" 
+                               readonly 
+                               value="<?= htmlspecialchars($_POST['table_name'] ?? '') ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-sm text-gray-500">Database table for page content</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description (optional)</label>
+                    <textarea id="description" 
+                              name="description" 
+                              rows="3"
+                              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                              placeholder="Brief description of the page"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="parent_id" class="block text-sm font-medium text-gray-700">Parent Page</label>
+                        <select name="parent_id" 
+                                id="parent_id"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                            <option value="">-- None (Top Level) --</option>
+                            <?php foreach ($pages as $p): ?>
+                                <option value="<?= $p['id'] ?>" <?= (isset($_POST['parent_id']) && $_POST['parent_id'] == $p['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($p['title']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Menu Options</label>
+                        <div class="mt-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" 
+                                       name="menu_enabled" 
+                                       value="1" 
+                                       <?= isset($_POST['menu_enabled']) ? 'checked' : '' ?>
+                                       class="rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-gray-900">Show in header menu</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="visibility" class="block text-sm font-medium text-gray-700">Page Visibility</label>
+                    <select name="visibility[]" 
+                            id="visibility" 
+                            multiple 
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                        <?php
+                        $all_roles = ['everyone', 'guest', 'Member', 'Co-leader', 'Leader'];
+                        $selected_roles = $_POST['visibility'] ?? ['everyone'];
+                        foreach ($all_roles as $role): ?>
+                            <option value="<?= $role ?>" <?= in_array($role, $selected_roles) ? 'selected' : '' ?>>
+                                <?= $role ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Hold Ctrl/Cmd to select multiple roles. Select "everyone" for public pages.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+                <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Create Page
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function slugify(text) {
+    text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    text = text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    return text;
+}
+
+function updateAutoFields() {
+    var title = document.getElementById('title').value;
+    var pageName = slugify(title);
+    document.getElementById('name').value = pageName;
+    document.getElementById('table_name').value = 'page_' + pageName;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('title').addEventListener('input', updateAutoFields);
+    updateAutoFields();
+});
+</script>
+
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

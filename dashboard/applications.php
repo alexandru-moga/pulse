@@ -1,9 +1,9 @@
 <?php
-require_once '../core/init.php';
+require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
-global $db, $currentUser;
+global $db, $currentUser, $settings;
 
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
@@ -11,9 +11,8 @@ require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$pageTitle = "All Applications";
-include '../components/layout/header.php';
-include '../components/effects/grid.php';
+$pageTitle = "Applications";
+include __DIR__ . '/components/dashboard-header.php';
 $success = $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status_update_id'])) {
@@ -97,61 +96,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
 $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetchAll();
 ?>
 
-<head>
-    <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/applications.css">
-</head>
-<main class="applications-section">
-    <h2>All Applications</h2>
-    <?php if ($success): ?><div class="form-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
-    <?php if ($error): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($error) ?></div></div><?php endif; ?>
-    <?php if (empty($applications)): ?>
-        <div class="form-errors"><div class="error">No applications found.</div></div>
-    <?php else: ?>
-        <div style="overflow-x:auto;">
-        <table class="applications-table">
-            <tr>
-                <?php foreach (array_keys($applications[0]) as $col): ?>
-                    <th><?= htmlspecialchars(ucwords(str_replace('_', ' ', $col))) ?></th>
-                <?php endforeach; ?>
-                <th>Actions</th>
-            </tr>
-<?php foreach ($applications as $app): ?>
-    <tr>
-        <?php foreach ($app as $col => $val): ?>
-            <?php if ($col !== 'status'): ?>
-                <td><?= htmlspecialchars($val) ?></td>
-            <?php endif; ?>
-        <?php endforeach; ?>
-        <td>
-            <form method="post" style="display:inline;">
-                <input type="hidden" name="status_update_id" value="<?= $app['id'] ?>">
-                <select name="status" onchange="this.form.submit()" style="padding:2px 8px;">
-                    <option value="waiting" <?= $app['status']=='waiting'?'selected':'' ?>>Waiting</option>
-                    <option value="accepted" <?= $app['status']=='accepted'?'selected':'' ?>>Accepted</option>
-                    <option value="rejected" <?= $app['status']=='rejected'?'selected':'' ?>>Rejected</option>
-                </select>
-            </form>
-        </td>
-                    <td>
-                        <?php if ($app['status'] == 'accepted'): ?>
-                        <form method="post" style="display:inline;">
-                            <input type="hidden" name="send_accept_id" value="<?= $app['id'] ?>">
-                            <button type="submit" class="add-member-btn">Send Accepted Email</button>
-                        </form>
-                        <form method="post" style="display:inline;">
-                            <input type="hidden" name="add_member_id" value="<?= $app['id'] ?>">
-                            <button type="submit" class="add-member-btn">Add as Member</button>
-                        </form>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Applications Management</h2>
+                <p class="text-gray-600 mt-1">Review and manage membership applications</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                Total Applications: <?= count($applications) ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <?php if ($success): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700"><?= htmlspecialchars($success) ?></p>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
-</main>
-<?php
-include '../components/layout/footer.php';
-include '../components/effects/mouse.php';
-?>
+
+    <?php if ($error): ?>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700"><?= htmlspecialchars($error) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Applications Table -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Applications List</h3>
+        </div>
+        
+        <?php if (empty($applications)): ?>
+            <div class="p-6 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No applications</h3>
+                <p class="mt-1 text-sm text-gray-500">No membership applications have been submitted yet.</p>
+            </div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <?php foreach (array_keys($applications[0]) as $col): ?>
+                                <?php if ($col !== 'status'): ?>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <?= htmlspecialchars(ucwords(str_replace('_', ' ', $col))) ?>
+                                    </th>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php foreach ($applications as $app): ?>
+                            <tr class="hover:bg-gray-50">
+                                <?php foreach ($app as $col => $val): ?>
+                                    <?php if ($col !== 'status'): ?>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= htmlspecialchars($val ?? '') ?>
+                                        </td>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <form method="post" class="inline">
+                                        <input type="hidden" name="status_update_id" value="<?= $app['id'] ?>">
+                                        <select name="status" onchange="this.form.submit()" 
+                                                class="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary <?php
+                                                    if ($app['status'] === 'waiting') echo 'bg-yellow-50 text-yellow-800';
+                                                    elseif ($app['status'] === 'accepted') echo 'bg-green-50 text-green-800';
+                                                    elseif ($app['status'] === 'rejected') echo 'bg-red-50 text-red-800';
+                                                ?>">
+                                            <option value="waiting" <?= $app['status']=='waiting'?'selected':'' ?>>Waiting</option>
+                                            <option value="accepted" <?= $app['status']=='accepted'?'selected':'' ?>>Accepted</option>
+                                            <option value="rejected" <?= $app['status']=='rejected'?'selected':'' ?>>Rejected</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <?php if ($app['status'] == 'accepted'): ?>
+                                        <div class="flex space-x-2">
+                                            <form method="post" class="inline">
+                                                <input type="hidden" name="send_accept_id" value="<?= $app['id'] ?>">
+                                                <button type="submit" 
+                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                    Send Email
+                                                </button>
+                                            </form>
+                                            <form method="post" class="inline">
+                                                <input type="hidden" name="add_member_id" value="<?= $app['id'] ?>">
+                                                <button type="submit" 
+                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                                    Add Member
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

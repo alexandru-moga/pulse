@@ -1,9 +1,9 @@
 <?php
-require_once '../core/init.php';
+require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
-global $db, $currentUser;
+global $db, $currentUser, $settings;
 
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
@@ -131,61 +131,208 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
 $users = $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
 
 $pageTitle = "Manage Users";
-include '../components/layout/header.php';
-include '../components/effects/grid.php';
+include __DIR__ . '/components/dashboard-header.php';
 ?>
 
-<head>
-        <link rel="stylesheet" href="../css/main.css">
-</head>
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">User Management</h2>
+                <p class="text-gray-600 mt-1">Manage members, co-leaders, and leaders</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                Total Users: <?= count($users) ?>
+            </div>
+        </div>
+    </div>
 
-<main class="contact-form-section">
-    <h2>Manage Users</h2>
-    <?php if ($createSuccess): ?><div class="form-success"><?= htmlspecialchars($createSuccess) ?></div><?php endif; ?>
-    <?php if ($createError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($createError) ?></div></div><?php endif; ?>
-    <?php if (isset($_GET['deleted'])): ?><div class="form-success">User deleted.</div><?php endif; ?>
-    <?php if ($editSuccess): ?><div class="form-success"><?= htmlspecialchars($editSuccess) ?></div><?php endif; ?>
-    <?php if ($editError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($editError) ?></div></div><?php endif; ?>
-    <?php if ($resetSuccess): ?><div class="form-success"><?= htmlspecialchars($resetSuccess) ?></div><?php endif; ?>
-    <?php if ($resetError): ?><div class="form-errors"><div class="error"><?= htmlspecialchars($resetError) ?></div></div><?php endif; ?>
-
-    <?php
-    if (isset($_GET['add'])): ?>
-        <a href="users.php" class="cta-button" style="margin-bottom:1.5rem;display:inline-block;">&larr; Back to all users</a>
-        <form method="post" class="manage-user-form">
-            <div class="form-group"><label>First Name</label><input type="text" name="first_name"></div>
-            <div class="form-group"><label>Last Name</label><input type="text" name="last_name"></div>
-            <div class="form-group"><label>Email</label><input type="email" name="email"></div>
-            <div class="form-group"><label>Password</label><input type="password" name="password"></div>
-            <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id"></div>
-            <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id"></div>
-            <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username"></div>
-            <div class="form-group"><label>School</label><input type="text" name="school"></div>
-            <div class="toggles-row" style="gap:2rem;">
-                <div>
-                    <span class="switch-label">Hcb Member</span>
-                    <label class="switch">
-                        <input type="checkbox" name="hcb_member" value="1">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div>
-                    <span class="switch-label">Active Member</span>
-                    <label class="switch">
-                        <input type="checkbox" name="active_member" value="1">
-                        <span class="slider"></span>
-                    </label>
+    <!-- Notifications -->
+    <?php if ($createSuccess || isset($_GET['created'])): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700">
+                        <?= $createSuccess ?? 'User created successfully!' ?>
+                    </p>
                 </div>
             </div>
-            <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate"></div>
-            <div class="form-group"><label>Class</label><input type="text" name="class"></div>
-            <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
-            <div class="form-group"><label>Role</label><input type="text" name="role"></div>
-            <div class="form-group"><label>Description</label><textarea name="description"></textarea></div>
-            <button type="submit" name="create_user" class="cta-button">Create User</button>
-        </form>
-    <?php
-    elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
+        </div>
+    <?php endif; ?>
+
+    <?php if ($createError): ?>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700"><?= htmlspecialchars($createError) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['deleted'])): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700">User deleted successfully!</p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($editSuccess): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700"><?= htmlspecialchars($editSuccess) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($resetSuccess): ?>
+        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-green-700"><?= htmlspecialchars($resetSuccess) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($resetError): ?>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700"><?= htmlspecialchars($resetError) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['add'])): ?>
+        <!-- Add User Form -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Add New User</h3>
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    ← Back to Users
+                </a>
+            </div>
+            <div class="p-6">
+                <form method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                            <input type="text" name="first_name" id="first_name" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <input type="text" name="last_name" id="last_name" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" name="email" id="email" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" name="password" id="password" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                            <input type="text" name="discord_id" id="discord_id"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                            <input type="text" name="github_username" id="github_username"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="school" class="block text-sm font-medium text-gray-700">School</label>
+                            <input type="text" name="school" id="school"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                            <input type="date" name="birthdate" id="birthdate"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                            <input type="text" name="class" id="class"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="text" name="phone" id="phone"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                            <select name="role" id="role"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <option value="Member">Member</option>
+                                <option value="Co-leader">Co-leader</option>
+                                <option value="Leader">Leader</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="hcb_member" value="1" id="hcb_member"
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="active_member" value="1" id="active_member" checked
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" id="description" rows="3"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" name="create_user"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Create User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    <?php elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
         $editId = intval($_GET['edit']);
         $editUser = null;
         foreach ($users as $u) {
@@ -195,84 +342,244 @@ include '../components/effects/grid.php';
             }
         }
         if ($editUser): ?>
-            <a href="users.php" class="cta-button" style="margin-bottom:1.5rem;display:inline-block;">&larr; Back to all users</a>
-            <form method="post" class="manage-user-form">
-                <input type="hidden" name="user_id" value="<?= $editUser['id'] ?>">
-                <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="<?= htmlspecialchars($editUser['first_name']) ?>"></div>
-                <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="<?= htmlspecialchars($editUser['last_name']) ?>"></div>
-                <div class="form-group"><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars($editUser['email']) ?>"></div>
-                <div class="form-group"><label>Password <span style="font-weight:400;color:#bfc9d1">(leave blank to keep unchanged)</span></label><input type="password" name="password"></div>
-                <div class="form-group"><label>Discord ID</label><input type="text" name="discord_id" value="<?= htmlspecialchars($editUser['discord_id']) ?>"></div>
-                <div class="form-group"><label>Slack ID</label><input type="text" name="slack_id" value="<?= htmlspecialchars($editUser['slack_id']) ?>"></div>
-                <div class="form-group"><label>GitHub Username</label><input type="text" name="github_username" value="<?= htmlspecialchars($editUser['github_username']) ?>"></div>
-                <div class="form-group"><label>School</label><input type="text" name="school" value="<?= htmlspecialchars($editUser['school']) ?>"></div>
-                <div class="toggles-row" style="gap:2rem;">
-                    <div>
-                        <span class="switch-label">Hcb Member</span>
-                        <label class="switch">
-                            <input type="checkbox" name="hcb_member" value="1" <?= $editUser['hcb_member']?'checked':'' ?>>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <span class="switch-label">Active Member</span>
-                        <label class="switch">
-                            <input type="checkbox" name="active_member" value="1" <?= $editUser['active_member']?'checked':'' ?>>
-                            <span class="slider"></span>
-                        </label>
+            <!-- Edit User Form -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
+                    <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        ← Back to Users
+                    </a>
+                </div>
+                <div class="p-6">
+                    <form method="post" class="space-y-6">
+                        <input type="hidden" name="user_id" value="<?= $editUser['id'] ?>">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                                <input type="text" name="first_name" id="first_name" value="<?= htmlspecialchars($editUser['first_name']) ?>" required
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($editUser['last_name']) ?>" required
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" name="email" id="email" value="<?= htmlspecialchars($editUser['email']) ?>" required
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                                <p class="text-xs text-gray-500 mb-1">Leave blank to keep current password</p>
+                                <input type="password" name="password" id="password"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                                <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                                <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="school" class="block text-sm font-medium text-gray-700">School</label>
+                                <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                                <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                                <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                                <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                                <select name="role" id="role"
+                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
+                                    <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
+                                    <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-6">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="hcb_member" value="1" id="hcb_member" <?= $editUser['hcb_member'] ? 'checked' : '' ?>
+                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
+                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea name="description" id="description" rows="3"
+                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" name="edit_user"
+                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">User not found.</p>
                     </div>
                 </div>
-                <div class="form-group"><label>Birth Date</label><input type="date" name="birthdate" value="<?= htmlspecialchars($editUser['birthdate']) ?>"></div>
-                <div class="form-group"><label>Class</label><input type="text" name="class" value="<?= htmlspecialchars($editUser['class']) ?>"></div>
-                <div class="form-group"><label>Phone</label><input type="text" name="phone" value="<?= htmlspecialchars($editUser['phone']) ?>"></div>
-                <div class="form-group"><label>Role</label><input type="text" name="role" value="<?= htmlspecialchars($editUser['role']) ?>"></div>
-                <div class="form-group"><label>Description</label><textarea name="description"><?= htmlspecialchars($editUser['description']) ?></textarea></div>
-                <button type="submit" name="edit_user" class="cta-button">Save Changes</button>
-            </form>
-        <?php else: ?>
-            <div class="form-errors"><div class="error">User not found.</div></div>
-            <a href="users.php" class="cta-button">&larr; Back to all users</a>
+            </div>
+            <div class="mt-4">
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    ← Back to Users
+                </a>
+            </div>
         <?php endif; ?>
-    <?php
-    else: ?>
-        <h3>All Users</h3>
-        <table>
-            <tr>
-                <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
-                <th colspan="1" style="text-align:center;">Active</th>
-                <th>Actions</th>
-            </tr>
-            <?php foreach ($users as $u): ?>
-                <tr>
-                    <td><?= $u['id'] ?></td>
-                    <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
-                    <td><?= htmlspecialchars($u['email']) ?></td>
-                    <td><?= htmlspecialchars($u['role']) ?></td>
-                    <td>
-                        <div class="toggles-row">
-                            <form method="post" class="inline-form" onsubmit="return false;">
-                                <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
-                                <label class="switch">
-                                    <input type="checkbox" name="active_member" value="1"
-                                        <?= $u['active_member'] ? 'checked' : '' ?>
-                                        onchange="toggleActive(this, <?= $u['id'] ?>)">
-                                    <span class="slider"></span>
-                                </label>
-                            </form>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="?edit=<?= $u['id'] ?>">Edit</a>
-                        <a href="?delete=<?= $u['id'] ?>" onclick="return confirm('Delete user?')">Delete</a>
-                        <a href="?reset=<?= $u['id'] ?>" onclick="return confirm('Send password reset email?')">Send Reset</a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
 
-        <a href="users.php?add=1" class="add-user-btn cta-button">Add User</a>
+    <?php else: ?>
+        <!-- Users Table -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">All Users</h3>
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Add User
+                </a>
+            </div>
+            
+            <?php if (empty($users)): ?>
+                <div class="p-6 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No users</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by creating a new user.</p>
+                    <div class="mt-6">
+                        <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Add User
+                        </a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($users as $u): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <span class="text-sm font-medium text-gray-700">
+                                                        <?= strtoupper(substr($u['first_name'], 0, 1) . substr($u['last_name'], 0, 1)) ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>
+                                                </div>
+                                                <?php if ($u['discord_id']): ?>
+                                                    <div class="text-sm text-gray-500">
+                                                        Discord: <?= htmlspecialchars($u['discord_id']) ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <a href="mailto:<?= htmlspecialchars($u['email']) ?>" class="text-primary hover:text-red-600 break-all">
+                                            <?= htmlspecialchars($u['email']) ?>
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <?php
+                                        $roleColor = '';
+                                        switch($u['role']) {
+                                            case 'Leader': $roleColor = 'bg-purple-100 text-purple-800'; break;
+                                            case 'Co-leader': $roleColor = 'bg-blue-100 text-blue-800'; break;
+                                            case 'Member': $roleColor = 'bg-green-100 text-green-800'; break;
+                                            default: $roleColor = 'bg-gray-100 text-gray-800';
+                                        }
+                                        ?>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?>">
+                                            <?= htmlspecialchars($u['role']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        <span class="break-all"><?= htmlspecialchars($u['school'] ?? 'N/A') ?></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" <?= $u['active_member'] ? 'checked' : '' ?>
+                                                   onchange="toggleActive(this, <?= $u['id'] ?>)"
+                                                   class="sr-only">
+                                            <div class="relative">
+                                                <div class="block bg-gray-600 w-14 h-8 rounded-full <?= $u['active_member'] ? 'bg-primary' : '' ?>"></div>
+                                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition <?= $u['active_member'] ? 'transform translate-x-6' : '' ?>"></div>
+                                            </div>
+                                        </label>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-medium">
+                                        <div class="flex flex-col space-y-1">
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?edit=<?= $u['id'] ?>" 
+                                               class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?reset=<?= $u['id'] ?>" 
+                                               onclick="return confirm('Send password reset email?')"
+                                               class="text-blue-600 hover:text-blue-900">Send Reset</a>
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?delete=<?= $u['id'] ?>" 
+                                               onclick="return confirm('Delete user? This action cannot be undone.')"
+                                               class="text-red-600 hover:text-red-900">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
-</main>
+</div>
 
 <script>
 function toggleActive(checkbox, userId) {
@@ -284,7 +591,4 @@ function toggleActive(checkbox, userId) {
 }
 </script>
 
-<?php
-include '../components/layout/footer.php';
-include '../components/effects/mouse.php';
-?>
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>

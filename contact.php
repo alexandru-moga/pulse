@@ -1,5 +1,6 @@
 <?php
 require_once 'core/init.php';
+checkMaintenanceMode();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fields = $_POST;

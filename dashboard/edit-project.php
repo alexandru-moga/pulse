@@ -5,9 +5,24 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser, $settings;
 
+$projectId = $_GET['id'] ?? null;
+if (!$projectId) {
+    header('Location: projects-management.php');
+    exit;
+}
+
+$stmt = $db->prepare("SELECT * FROM projects WHERE id = ?");
+$stmt->execute([$projectId]);
+$project = $stmt->fetch();
+
+if (!$project) {
+    $_SESSION['notification'] = ['type' => 'error', 'message' => 'Project not found.'];
+    header('Location: projects-management.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $db->prepare("INSERT INTO projects (title, description, reward_amount, reward_description, requirements, start_date, end_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $db->prepare("UPDATE projects SET title = ?, description = ?, reward_amount = ?, reward_description = ?, requirements = ?, start_date = ?, end_date = ? WHERE id = ?");
     $stmt->execute([
         $_POST['title'],
         $_POST['description'],
@@ -15,14 +30,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['reward_description'],
         $_POST['requirements'],
         $_POST['start_date'] ?: null,
-        $_POST['end_date'] ?: null
+        $_POST['end_date'] ?: null,
+        $projectId
     ]);
-    $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project created successfully.'];
-    header("Location: projects-management.php");
+    $_SESSION['notification'] = ['type' => 'success', 'message' => 'Project updated successfully.'];
+    header('Location: projects-management.php');
     exit;
 }
 
-$pageTitle = 'Create New Project';
+$pageTitle = 'Edit Project';
 include __DIR__ . '/components/dashboard-header.php';
 ?>
 
@@ -31,8 +47,8 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900">Create New Project</h2>
-                <p class="text-gray-600 mt-1">Add a new project for members to participate in</p>
+                <h2 class="text-xl font-semibold text-gray-900">Edit Project</h2>
+                <p class="text-gray-600 mt-1">Update project details and settings</p>
             </div>
             <a href="<?= $settings['site_url'] ?>/dashboard/projects-management.php" 
                class="text-primary hover:text-red-600 text-sm font-medium">
@@ -55,6 +71,7 @@ include __DIR__ . '/components/dashboard-header.php';
                            id="title" 
                            name="title" 
                            required 
+                           value="<?= htmlspecialchars($project['title']) ?>"
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
 
@@ -64,7 +81,7 @@ include __DIR__ . '/components/dashboard-header.php';
                               name="description" 
                               rows="4"
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                              placeholder="Describe what this project involves..."></textarea>
+                              placeholder="Describe what this project involves..."><?= htmlspecialchars($project['description']) ?></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -73,6 +90,7 @@ include __DIR__ . '/components/dashboard-header.php';
                         <input type="date" 
                                id="start_date" 
                                name="start_date"
+                               value="<?= htmlspecialchars($project['start_date']) ?>"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
 
@@ -81,6 +99,7 @@ include __DIR__ . '/components/dashboard-header.php';
                         <input type="date" 
                                id="end_date" 
                                name="end_date"
+                               value="<?= htmlspecialchars($project['end_date']) ?>"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
                 </div>
@@ -91,7 +110,7 @@ include __DIR__ . '/components/dashboard-header.php';
                               name="requirements" 
                               rows="3"
                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                              placeholder="What skills or qualifications are needed?"></textarea>
+                              placeholder="What skills or qualifications are needed?"><?= htmlspecialchars($project['requirements']) ?></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -102,6 +121,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                name="reward_amount" 
                                step="0.01" 
                                min="0"
+                               value="<?= htmlspecialchars($project['reward_amount']) ?>"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                                placeholder="0.00">
                     </div>
@@ -112,7 +132,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                   name="reward_description" 
                                   rows="2"
                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                                  placeholder="Certificates, recognition, etc."></textarea>
+                                  placeholder="Certificates, recognition, etc."><?= htmlspecialchars($project['reward_description']) ?></textarea>
                     </div>
                 </div>
             </div>
@@ -124,7 +144,7 @@ include __DIR__ . '/components/dashboard-header.php';
                 </a>
                 <button type="submit" 
                         class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    Create Project
+                    Update Project
                 </button>
             </div>
         </form>

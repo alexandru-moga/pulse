@@ -97,3 +97,80 @@ function checkRole($allowedRoles) {
         exit("Access denied");
     }
 }
+
+function checkMaintenanceMode() {
+    global $settings, $currentUser;
+    
+    if (!isset($settings['maintenance_mode']) || $settings['maintenance_mode'] !== '1') {
+        return;
+    }
+    
+    if ($currentUser && in_array($currentUser->role, ['Leader', 'Co-leader'])) {
+        return;
+    }
+    
+    http_response_code(503);
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Maintenance Mode - <?= htmlspecialchars($settings['site_title'] ?? 'PULSE') ?></title>
+        <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#ef4444'
+                        }
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="bg-gray-50">
+        <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full space-y-8 text-center">
+                <div>
+                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="PULSE" class="mx-auto h-16 w-16">
+                    <h1 class="mt-6 text-3xl font-extrabold text-gray-900">Maintenance Mode</h1>
+                    <p class="mt-2 text-sm text-gray-600">
+                        We're currently performing scheduled maintenance to improve your experience.
+                    </p>
+                </div>
+                
+                <div class="bg-white shadow rounded-lg p-6">
+                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-100 rounded-full mb-4">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Site Under Maintenance</h3>
+                    <p class="text-gray-600 mb-4">
+                        Our website is temporarily unavailable while we make some improvements. 
+                        Please check back shortly.
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Expected completion: Shortly
+                    </p>
+                </div>
+                
+                <div class="text-center">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Admin Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit();
+}
