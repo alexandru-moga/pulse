@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
             'first_name'    => $app['first_name'] ?? '',
             'last_name'     => $app['last_name'] ?? '',
             'email'         => $app['email'] ?? '',
-            'discord_id'    => $app['discord_id'] ?? '',
             'school'        => $app['school'] ?? '',
             'birthdate'     => $app['birthdate'] ?? '',
             'class'         => $app['class'] ?? '',
@@ -79,11 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
             $error = "A user with this email already exists.";
         } else {
             $stmt = $db->prepare("INSERT INTO users
-                (first_name, last_name, email, password, discord_id, school, birthdate, class, phone, role, description, active_member, hcb_member)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (first_name, last_name, email, password, school, birthdate, class, phone, role, description, active_member, hcb_member)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $fields['first_name'], $fields['last_name'], $fields['email'], $fields['password'],
-                $fields['discord_id'], $fields['school'], $fields['birthdate'], $fields['class'],
+                $fields['school'], $fields['birthdate'], $fields['class'],
                 $fields['phone'], $fields['role'], $fields['description'], $fields['active_member'], $fields['hcb_member']
             ]);
             $success = "User added as member!";
@@ -97,7 +96,6 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -109,8 +107,6 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
             </div>
         </div>
     </div>
-
-    <!-- Notifications -->
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -136,8 +132,6 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Applications Table -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Applications List</h3>
@@ -152,70 +146,72 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
                 <p class="mt-1 text-sm text-gray-500">No membership applications have been submitted yet.</p>
             </div>
         <?php else: ?>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <?php foreach (array_keys($applications[0]) as $col): ?>
-                                <?php if ($col !== 'status'): ?>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <?= htmlspecialchars(ucwords(str_replace('_', ' ', $col))) ?>
-                                    </th>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($applications as $app): ?>
-                            <tr class="hover:bg-gray-50">
-                                <?php foreach ($app as $col => $val): ?>
+            <div class="overflow-hidden">
+                <div class="overflow-x-auto max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <?php foreach (array_keys($applications[0]) as $col): ?>
                                     <?php if ($col !== 'status'): ?>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?= htmlspecialchars($val ?? '') ?>
-                                        </td>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <?= htmlspecialchars(ucwords(str_replace('_', ' ', $col))) ?>
+                                        </th>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <form method="post" class="inline">
-                                        <input type="hidden" name="status_update_id" value="<?= $app['id'] ?>">
-                                        <select name="status" onchange="this.form.submit()" 
-                                                class="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary <?php
-                                                    if ($app['status'] === 'waiting') echo 'bg-yellow-50 text-yellow-800';
-                                                    elseif ($app['status'] === 'accepted') echo 'bg-green-50 text-green-800';
-                                                    elseif ($app['status'] === 'rejected') echo 'bg-red-50 text-red-800';
-                                                ?>">
-                                            <option value="waiting" <?= $app['status']=='waiting'?'selected':'' ?>>Waiting</option>
-                                            <option value="accepted" <?= $app['status']=='accepted'?'selected':'' ?>>Accepted</option>
-                                            <option value="rejected" <?= $app['status']=='rejected'?'selected':'' ?>>Rejected</option>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <?php if ($app['status'] == 'accepted'): ?>
-                                        <div class="flex space-x-2">
-                                            <form method="post" class="inline">
-                                                <input type="hidden" name="send_accept_id" value="<?= $app['id'] ?>">
-                                                <button type="submit" 
-                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                    Send Email
-                                                </button>
-                                            </form>
-                                            <form method="post" class="inline">
-                                                <input type="hidden" name="add_member_id" value="<?= $app['id'] ?>">
-                                                <button type="submit" 
-                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                                    Add Member
-                                                </button>
-                                            </form>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($applications as $app): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <?php foreach ($app as $col => $val): ?>
+                                        <?php if ($col !== 'status'): ?>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <?= htmlspecialchars($val ?? '') ?>
+                                            </td>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <form method="post" class="inline">
+                                            <input type="hidden" name="status_update_id" value="<?= $app['id'] ?>">
+                                            <select name="status" onchange="this.form.submit()" 
+                                                    class="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary <?php
+                                                        if ($app['status'] === 'waiting') echo 'bg-yellow-50 text-yellow-800';
+                                                        elseif ($app['status'] === 'accepted') echo 'bg-green-50 text-green-800';
+                                                        elseif ($app['status'] === 'rejected') echo 'bg-red-50 text-red-800';
+                                                    ?>">
+                                                <option value="waiting" <?= $app['status']=='waiting'?'selected':'' ?>>Waiting</option>
+                                                <option value="accepted" <?= $app['status']=='accepted'?'selected':'' ?>>Accepted</option>
+                                                <option value="rejected" <?= $app['status']=='rejected'?'selected':'' ?>>Rejected</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <?php if ($app['status'] == 'accepted'): ?>
+                                            <div class="flex space-x-2">
+                                                <form method="post" class="inline">
+                                                    <input type="hidden" name="send_accept_id" value="<?= $app['id'] ?>">
+                                                    <button type="submit" 
+                                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                        Send Email
+                                                    </button>
+                                                </form>
+                                                <form method="post" class="inline">
+                                                    <input type="hidden" name="add_member_id" value="<?= $app['id'] ?>">
+                                                    <button type="submit" 
+                                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                                        Add Member
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         <?php endif; ?>
     </div>

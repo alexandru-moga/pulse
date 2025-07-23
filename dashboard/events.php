@@ -18,7 +18,6 @@ function getAssignedYsws($db, $event_id) {
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -42,8 +41,6 @@ function getAssignedYsws($db, $event_id) {
             <?php endif; ?>
         </div>
     </div>
-
-    <!-- Events List -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">All Events</h3>
@@ -159,8 +156,6 @@ function getAssignedYsws($db, $event_id) {
                             </div>
                         </div>
                         <?php endif; ?>
-                        
-                        <!-- Add to Calendar Button -->
                         <div class="mt-4">
                             <button class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary add-to-calendar-btn"
                                 data-title="<?= htmlspecialchars($event['title']) ?>"

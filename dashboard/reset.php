@@ -24,7 +24,7 @@ if ($token) {
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             $db->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $reset['user_id']]);
             $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$reset['user_id']]);
-            $success = "Password has been reset. You can now log in.";
+            $success = "Password has been reset successfully.";
         }
     }
 } else {

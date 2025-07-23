@@ -69,7 +69,6 @@ function getAssignedYsws($db, $event_id) {
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -81,8 +80,6 @@ function getAssignedYsws($db, $event_id) {
             </div>
         </div>
     </div>
-
-    <!-- Notifications -->
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -95,8 +92,6 @@ function getAssignedYsws($db, $event_id) {
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Create New Event -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Create New Event</h3>
@@ -167,8 +162,6 @@ function getAssignedYsws($db, $event_id) {
             </form>
         </div>
     </div>
-
-    <!-- Events List -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">All Events</h3>
@@ -204,8 +197,6 @@ function getAssignedYsws($db, $event_id) {
                                 <?php endif; ?>
                             </div>
                         </div>
-                        
-                        <!-- Edit Form (initially hidden) -->
                         <div class="mt-6 border-t border-gray-200 pt-6">
                             <details>
                                 <summary class="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">Edit Event</summary>

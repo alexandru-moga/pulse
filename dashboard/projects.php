@@ -102,7 +102,7 @@ $statusLabels = [
     'accepted_pizza' => 'Accepted+Pizza',
     'waiting' => 'Waiting',
     'rejected' => 'Rejected',
-    'not_participating' => 'Not Participating',
+    'not_sent' => 'Not Sent',
     'not_sent' => 'Not Sent',
     'completed' => 'Completed'
 ];
@@ -111,7 +111,7 @@ $statusClasses = [
     'accepted_pizza' => 'status-accepted-pizza',
     'waiting' => 'status-waiting',
     'rejected' => 'status-rejected',
-    'not_participating' => 'status-not-participating',
+    'not_sent' => 'status-not-sent',
     'not_sent' => 'status-not-sent',
     'completed' => 'status-completed'
 ];
@@ -129,7 +129,6 @@ foreach ($myProjects as $project) {
 ?>
 
 <div class="space-y-6">
-    <!-- Hero Section -->
     <div class="bg-gradient-to-r from-primary to-red-600 rounded-lg shadow-lg p-8 text-white">
         <div class="max-w-4xl">
             <h1 class="text-3xl font-bold mb-2">You Build, We Reward.</h1>
@@ -150,8 +149,6 @@ foreach ($myProjects as $project) {
             </div>
         </div>
     </div>
-
-    <!-- My Projects -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">My Projects</h3>
@@ -175,12 +172,12 @@ foreach ($myProjects as $project) {
                         'waiting' => 'bg-yellow-100 text-yellow-800',
                         'rejected' => 'bg-red-100 text-red-800',
                         'completed' => 'bg-blue-100 text-blue-800',
-                        'not_participating' => 'bg-gray-100 text-gray-800',
+                        'not_sent' => 'bg-gray-100 text-gray-800',
                         'not_sent' => 'bg-gray-100 text-gray-800'
                     ];
                     $statusColor = $statusColors[$virtualStatus] ?? 'bg-gray-100 text-gray-800';
                 ?>
-                <div class="border border-gray-200 rounded-lg p-4 <?= $yswsLink ? 'border-green-200 bg-green-50' : '' ?>">
+                <div class="border border-gray-200 rounded-lg p-4">
                     <div class="flex items-start justify-between mb-3">
                         <h4 class="text-lg font-medium text-gray-900"><?= htmlspecialchars($project['title']) ?></h4>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
@@ -247,12 +244,10 @@ foreach ($myProjects as $project) {
             </div>
         <?php endif; ?>
     </div>
-
-    <!-- Available Projects -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Available Projects</h3>
-            <p class="text-sm text-gray-500 mt-1">Projects you can join now</p>
+            <p class="text-sm text-gray-500 mt-1">Available projects</p>
         </div>
         
         <?php if ($availableProjects): ?>
@@ -341,8 +336,6 @@ foreach ($myProjects as $project) {
             </div>
         <?php endif; ?>
     </div>
-
-    <!-- Past Projects -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Past Projects</h3>

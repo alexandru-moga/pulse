@@ -38,7 +38,6 @@ include __DIR__ . '/components/dashboard-header.php';
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -47,8 +46,6 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
         </div>
     </div>
-
-    <!-- Notification -->
     <?php if ($success): ?>
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
             <?= htmlspecialchars($success) ?>
@@ -58,8 +55,6 @@ include __DIR__ . '/components/dashboard-header.php';
             <?= htmlspecialchars($error) ?>
         </div>
     <?php endif; ?>
-
-    <!-- Form -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>

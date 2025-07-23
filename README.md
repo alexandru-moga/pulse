@@ -1,6 +1,7 @@
 # Pulse
 
-Pulse is a modular PHP web application for building and managing dynamic websites, dashboards, and member portals. It is designed for easy deployment on shared hosting or webhost tools like Plesk, cPanel, or DirectAdmin.
+Pulse is a modular PHP web application for building and managing dynamic websites, dashboards, and member portals. - **GitHub Avatars not showing:**  
+  Ensure the user has linked their GitHub account through the dashboard integrations page. is designed for easy deployment on shared hosting or webhost tools like Plesk, cPanel, or DirectAdmin.
 
 ---
 
@@ -8,9 +9,10 @@ Pulse is a modular PHP web application for building and managing dynamic website
 
 - **Dynamic Pages:** Create, edit, and delete pages from the admin dashboard. Each page can have its own content blocks stored in a dedicated MySQL table.
 - **Block Management:** Add, edit, and delete content blocks for each page via the dashboard.
-- **User Management:** Role-based access (Leader, Co-leader, Member, Guest), user profiles, GitHub avatar integration.
+- **User Management:** Role-based access (Leader, Co-leader, Member, Guest), user profiles, GitHub, Discord, Google, and Slack integration.
 - **Header/Menu Management:** Header menu is generated from the `pages` table, supports parent/child menus and role-based visibility.
-- **GitHub Avatars:** Member profile photos are loaded directly from GitHub using their username.
+- **GitHub Integration:** Member profile photos and links loaded from GitHub, OAuth login and account linking.
+- **Discord Integration:** OAuth login and account linking for community features.
 - **Responsive Design:** Modern CSS for a clean, responsive interface.
 - **No vendor lock-in:** Runs on any PHP/MySQL host, no Composer or Node.js dependencies.
 
@@ -148,3 +150,53 @@ This project is licensed under the Apache 2.0 License.
 
 **Maintainer:**  
 Alexandru Moga
+
+---
+
+## OAuth Integration Setup
+
+### Google OAuth Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials:
+   - Application type: Web application
+   - Authorized JavaScript origins: `http://localhost/pulse`
+   - Authorized redirect URIs: `http://localhost/pulse/auth/google/`
+5. Configure in Dashboard → Settings → Google Settings
+
+### Discord OAuth Setup
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create New Application
+3. Go to OAuth2 settings:
+   - Redirect URLs: `http://localhost/pulse/auth/discord/`
+   - Scopes: identify, email
+4. Configure in Dashboard → Settings → Discord Settings
+
+### GitHub OAuth Setup
+1. Go to [GitHub Developer Settings](https://github.com/settings/applications/new)
+2. Create OAuth App:
+   - Homepage URL: `http://localhost/pulse`
+   - Authorization callback URL: `http://localhost/pulse/auth/github/`
+3. Configure in Dashboard → Settings → GitHub Settings
+
+### Slack OAuth Setup
+1. Go to [Slack API Apps](https://api.slack.com/apps)
+2. Create New App
+3. Configure OAuth & Permissions:
+   - Redirect URLs: `http://localhost/pulse/auth/slack/`
+   - Scopes: identity.basic, identity.email, identity.team
+4. Configure in Dashboard → Settings → Slack Settings
+
+## File Structure
+```
+auth/
+├── google/
+│   └── index.php          # Google OAuth handler
+├── discord/
+│   └── index.php          # Discord OAuth handler  
+├── github/
+│   └── index.php          # GitHub OAuth handler
+└── slack/
+    └── index.php          # Slack OAuth handler
+```

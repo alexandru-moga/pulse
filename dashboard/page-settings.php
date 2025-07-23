@@ -32,16 +32,15 @@ if ($pageId) {
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
                 <?php if ($pageId && $page): ?>
-                    <h2 class="text-xl font-semibold text-gray-900"><?= htmlspecialchars($page['title']) ?> Page Elements</h2>
-                    <p class="text-gray-600 mt-1">Manage blocks and content for this page</p>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white"><?= htmlspecialchars($page['title']) ?> Page Settings</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mt-1">Manage content and structure for this page</p>
                 <?php else: ?>
-                    <h2 class="text-xl font-semibold text-gray-900">Page Management</h2>
-                    <p class="text-gray-600 mt-1">Manage your website pages and their content</p>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Page Management</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mt-1">Manage your website pages and their content</p>
                 <?php endif; ?>
             </div>
             <a href="<?= $settings['site_url'] ?>/dashboard/settings.php" 
@@ -52,41 +51,65 @@ if ($pageId) {
     </div>
 
     <?php if ($pageId && $page): ?>
-        <!-- Single Page View -->
         <?php if ($tableName === ''): ?>
-            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md p-4">
                 <div class="flex">
                     <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700">No table name set for this page.</p>
+                        <p class="text-sm text-red-700 dark:text-red-300">No table name set for this page.</p>
                     </div>
                 </div>
             </div>
         <?php elseif (!$tableExists): ?>
-            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md p-4">
                 <div class="flex">
                     <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700">The table <strong><?= htmlspecialchars($tableName) ?></strong> does not exist in the database.</p>
+                        <p class="text-sm text-red-700 dark:text-red-300">The table <strong><?= htmlspecialchars($tableName) ?></strong> does not exist in the database.</p>
                     </div>
                 </div>
             </div>
         <?php else: ?>
-            <!-- Page Blocks Table -->
-            <div class="bg-white rounded-lg shadow">
-                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">Page Blocks</h3>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/add-block.php?id=<?= $pageId ?>" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <!-- Visual Editor Call-to-Action -->
+            <div class="bg-gradient-to-r from-primary to-red-600 rounded-lg shadow p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium">Visual Page Editor</h3>
+                        <p class="mt-1 opacity-90">Use our drag-and-drop editor to build your page with pre-designed components</p>
+                    </div>
+                    <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                       class="inline-flex items-center px-4 py-2 border border-white rounded-md text-sm font-medium text-primary bg-white hover:bg-gray-50 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
-                        Add New Block
+                        Edit Page Visually
                     </a>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Components</h3>
+                    <div class="flex space-x-3">
+                        <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                           class="inline-flex items-center px-3 py-2 border border-primary text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                            </svg>
+                            Visual Editor
+                        </a>
+                        <a href="<?= $settings['site_url'] ?>/dashboard/add-block.php?id=<?= $pageId ?>" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Block (Advanced)
+                        </a>
+                    </div>
                 </div>
                 
                 <?php if (empty($blocks)): ?>
@@ -94,67 +117,77 @@ if ($pageId) {
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No blocks</h3>
-                        <p class="mt-1 text-sm text-gray-500">Get started by adding a new block to this page.</p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No components</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by using the visual editor or adding a block.</p>
+                        <div class="mt-6">
+                            <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                                Start with Visual Editor
+                            </a>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Block Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Preview</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($blocks as $block): ?>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['id'] ?? '') ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($block['block_name'] ?? '') ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['block_type'] ?? '') ?></td>
-                                        <td class="px-6 py-4 text-sm text-gray-900">
-                                            <div class="max-w-xs">
-                                                <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($block['content'] ?? '', 0, 120, '...')) ?></pre>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['order_num'] ?? '') ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?php
-                                            $statusColor = ($block['is_active'] ?? 0) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
-                                            $statusText = ($block['is_active'] ?? 0) ? 'Active' : 'Inactive';
-                                            ?>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
-                                                <?= $statusText ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex items-center space-x-2">
-                                                <a href="<?= $settings['site_url'] ?>/dashboard/edit-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
-                                                   class="text-primary hover:text-red-600">
-                                                    Edit
-                                                </a>
-                                                <a href="<?= $settings['site_url'] ?>/dashboard/delete-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
-                                                   onclick="return confirm('Delete this block?')"
-                                                   class="text-red-600 hover:text-red-800">
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </td>
+                    <div class="overflow-hidden">
+                        <div class="overflow-x-auto max-h-96">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Component Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Content Preview</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Order</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <?php foreach ($blocks as $block): ?>
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['id'] ?? '') ?></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($block['block_name'] ?? '') ?></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['block_type'] ?? '') ?></td>
+                                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                                                <div class="max-w-xs">
+                                                    <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($block['content'] ?? '', 0, 120, '...')) ?></pre>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['order_num'] ?? '') ?></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                                <?php
+                                                $statusColor = ($block['is_active'] ?? 0) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                                                $statusText = ($block['is_active'] ?? 0) ? 'Active' : 'Inactive';
+                                                ?>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
+                                                    <?= $statusText ?>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="<?= $settings['site_url'] ?>/dashboard/edit-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
+                                                       class="text-primary hover:text-red-600">
+                                                        Edit
+                                                    </a>
+                                                    <a href="<?= $settings['site_url'] ?>/dashboard/delete-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
+                                                       onclick="return confirm('Delete this block?')"
+                                                       class="text-red-600 hover:text-red-800">
+                                                        Delete
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
     <?php else: ?>
-        <!-- All Pages View -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">Available Pages</h3>

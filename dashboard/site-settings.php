@@ -30,7 +30,6 @@ $site_settings = $stmt->fetchAll();
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -43,8 +42,6 @@ $site_settings = $stmt->fetchAll();
             </a>
         </div>
     </div>
-
-    <!-- Notifications -->
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -57,8 +54,6 @@ $site_settings = $stmt->fetchAll();
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Settings Form -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Website Configuration</h3>

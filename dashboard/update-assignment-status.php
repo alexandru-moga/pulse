@@ -20,7 +20,7 @@ if (!$userId || !$projectId || !$status) {
     exit;
 }
 
-$validStatuses = ['accepted', 'waiting', 'rejected', 'not_participating', 'not_sent', 'completed'];
+$validStatuses = ['accepted', 'waiting', 'rejected', 'not_sent', 'completed'];
 if (!in_array($status, $validStatuses)) {
     echo json_encode(['success' => false, 'error' => 'Invalid status']);
     exit;

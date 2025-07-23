@@ -155,7 +155,23 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (6, 'smtp_from_name', 'PULSE Team'),
 (7, 'site_title', 'Pulse'),
 (8, 'site_url', 'http://localhost/pulse'),
-(9, 'maintenance_mode', '0');
+(9, 'maintenance_mode', '0'),
+(10, 'github_client_id', ''),
+(11, 'github_client_secret', ''),
+(12, 'github_redirect_uri', ''),
+(13, 'slack_client_id', ''),
+(14, 'slack_client_secret', ''),
+(15, 'slack_redirect_uri', ''),
+(16, 'slack_bot_token', ''),
+(17, 'slack_webhook_url', ''),
+(18, 'google_client_id', ''),
+(19, 'google_client_secret', ''),
+(20, 'google_redirect_uri', '');
+(21, 'discord_client_id', ''),
+(22, 'discord_client_secret', ''),
+(23, 'discord_redirect_uri', ''),
+(24, 'discord_bot_token', ''),
+(25, 'discord_guild_id', ''),
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
@@ -220,3 +236,58 @@ CREATE TABLE event_ysws (
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `discord_id`, `school`, `ysws_projects`, `hcb_member`, `birthdate`, `class`, `phone`, `role`, `join_date`, `description`, `slack_id`, `github_username`, `active_member`, `password`) VALUES
 (1, 'Admin', 'User', 'admin@example.com', '', '', NULL, '0', '2025-01-31', '', '', 'Leader', '2025-06-13 21:54:39', '', '', '', 1, '$2y$10$hipuKxGAeivbuRBymienKOcmjqehGnOL5LEKG9eRtr9yJsbu5yZVW');
+
+CREATE TABLE IF NOT EXISTS discord_login_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    state_token VARCHAR(255) NOT NULL UNIQUE,
+    csrf_token VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    INDEX idx_state_token (state_token),
+    INDEX idx_expires_at (expires_at)
+);
+
+CREATE TABLE IF NOT EXISTS `slack_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `slack_user_id` varchar(50) NOT NULL,
+  `slack_username` varchar(100) DEFAULT NULL,
+  `slack_email` varchar(255) DEFAULT NULL,
+  `team_id` varchar(50) DEFAULT NULL,
+  `team_name` varchar(255) DEFAULT NULL,
+  `linked_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `slack_user_id` (`slack_user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `github_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `github_id` varchar(50) NOT NULL,
+  `github_username` varchar(100) NOT NULL,
+  `github_name` varchar(255) DEFAULT NULL,
+  `github_email` varchar(255) DEFAULT NULL,
+  `github_avatar_url` text DEFAULT NULL,
+  `linked_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `github_id` (`github_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `google_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `google_id` varchar(50) NOT NULL,
+  `google_email` varchar(255) NOT NULL,
+  `google_name` varchar(255) DEFAULT NULL,
+  `google_picture` text DEFAULT NULL,
+  `linked_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `google_id` (`google_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

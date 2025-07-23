@@ -29,7 +29,6 @@ include __DIR__ . '/components/dashboard-header.php';
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -42,8 +41,6 @@ include __DIR__ . '/components/dashboard-header.php';
             </a>
         </div>
     </div>
-
-    <!-- Errors -->
     <?php if ($errors): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <ul class="list-disc list-inside">
@@ -53,8 +50,6 @@ include __DIR__ . '/components/dashboard-header.php';
             </ul>
         </div>
     <?php endif; ?>
-
-    <!-- Form -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Footer Block Details</h3>

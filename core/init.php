@@ -98,6 +98,25 @@ function checkRole($allowedRoles) {
     }
 }
 
+function getRequestScheme() {
+    if (
+        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+        (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
+        (isset($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false) ||
+        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+        (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https') ||
+        (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+    ) {
+        return 'https';
+    }
+    
+    if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'dev.alexandru-moga.me') !== false) {
+        return 'https';
+    }
+    
+    return 'http';
+}
+
 function checkMaintenanceMode() {
     global $settings, $currentUser;
     
@@ -142,18 +161,18 @@ function checkMaintenanceMode() {
                     </p>
                 </div>
                 
-                <div class="bg-white shadow rounded-lg p-6">
-                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-100 rounded-full mb-4">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900 rounded-full mb-4">
+                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Site Under Maintenance</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Site Under Maintenance</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">
                         Our website is temporarily unavailable while we make some improvements. 
                         Please check back shortly.
                     </p>
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
                         Expected completion: Shortly
                     </p>
                 </div>

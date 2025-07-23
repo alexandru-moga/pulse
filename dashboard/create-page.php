@@ -100,7 +100,6 @@ include __DIR__ . '/components/dashboard-header.php';
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -113,8 +112,6 @@ include __DIR__ . '/components/dashboard-header.php';
             </a>
         </div>
     </div>
-
-    <!-- Errors -->
     <?php if ($errors): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <ul class="list-disc list-inside">
@@ -124,8 +121,6 @@ include __DIR__ . '/components/dashboard-header.php';
             </ul>
         </div>
     <?php endif; ?>
-
-    <!-- Form -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Page Configuration</h3>
@@ -146,18 +141,18 @@ include __DIR__ . '/components/dashboard-header.php';
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">URL Slug (auto-generated)</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700">URL Slug</label>
                         <input type="text" 
                                id="name" 
                                name="name" 
                                readonly 
                                value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
-                        <p class="mt-1 text-sm text-gray-500">This will be the page URL</p>
+                        <p class="mt-1 text-sm text-gray-500">Page URL slug</p>
                     </div>
 
                     <div>
-                        <label for="table_name" class="block text-sm font-medium text-gray-700">Database Table (auto-generated)</label>
+                        <label for="table_name" class="block text-sm font-medium text-gray-700">Database Table</label>
                         <input type="text" 
                                id="table_name" 
                                name="table_name" 

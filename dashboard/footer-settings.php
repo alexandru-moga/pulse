@@ -22,7 +22,6 @@ $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY order_num ASC")->fetch
 ?>
 
 <div class="space-y-6">
-    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -35,8 +34,6 @@ $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY order_num ASC")->fetch
             </a>
         </div>
     </div>
-
-    <!-- Notifications -->
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -49,8 +46,6 @@ $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY order_num ASC")->fetch
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Footer Blocks -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">Footer Elements</h3>
@@ -72,59 +67,61 @@ $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY order_num ASC")->fetch
                 <p class="mt-1 text-sm text-gray-500">Get started by adding a new footer block.</p>
             </div>
         <?php else: ?>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Preview</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($blocks as $block): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['id'] ?? '') ?></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($block['section_type'] ?? '') ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-900">
-                                    <div class="max-w-xs">
-                                        <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($block['content'] ?? '', 0, 120, '...')) ?></pre>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['order_num'] ?? '') ?></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?php
-                                    $statusColor = ($block['is_active'] ?? 0) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
-                                    $statusText = ($block['is_active'] ?? 0) ? 'Active' : 'Inactive';
-                                    ?>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
-                                        <?= $statusText ?>
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <?= $block['created_at'] ? date('M j, Y', strtotime($block['created_at'])) : 'N/A' ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center space-x-2">
-                                        <a href="<?= $settings['site_url'] ?>/dashboard/edit-footer-block.php?id=<?= $block['id'] ?>" 
-                                           class="text-primary hover:text-red-600">
-                                            Edit
-                                        </a>
-                                        <a href="<?= $settings['site_url'] ?>/dashboard/footer-settings.php?delete=<?= $block['id'] ?>" 
-                                           onclick="return confirm('Delete this block?')"
-                                           class="text-red-600 hover:text-red-800">
-                                            Delete
-                                        </a>
-                                    </div>
-                                </td>
+            <div class="overflow-hidden">
+                <div class="overflow-x-auto max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Preview</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($blocks as $block): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['id'] ?? '') ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($block['section_type'] ?? '') ?></td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <div class="max-w-xs">
+                                            <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($block['content'] ?? '', 0, 120, '...')) ?></pre>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?= htmlspecialchars($block['order_num'] ?? '') ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <?php
+                                        $statusColor = ($block['is_active'] ?? 0) ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                                        $statusText = ($block['is_active'] ?? 0) ? 'Active' : 'Inactive';
+                                        ?>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusColor ?>">
+                                            <?= $statusText ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?= $block['created_at'] ? date('M j, Y', strtotime($block['created_at'])) : 'N/A' ?>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/edit-footer-block.php?id=<?= $block['id'] ?>" 
+                                               class="text-primary hover:text-red-600">
+                                                Edit
+                                            </a>
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/footer-settings.php?delete=<?= $block['id'] ?>" 
+                                               onclick="return confirm('Delete this block?')"
+                                               class="text-red-600 hover:text-red-800">
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         <?php endif; ?>
     </div>

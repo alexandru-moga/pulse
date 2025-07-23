@@ -83,6 +83,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </script>
+    <style>
+        /* Prevent element overlap and ensure proper spacing */
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* Ensure proper spacing between form elements */
+        .form-spacing > * + * {
+            margin-top: 1.5rem;
+        }
+        
+        /* Prevent button overlap */
+        button[type="submit"] {
+            margin-top: 1rem;
+        }
+        
+        /* Ensure proper spacing for dividers */
+        .divider-section {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -95,12 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Reset your password
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a reset link
+            Enter your email address to receive a password reset link
         </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 form-container">
             <?php if ($error): ?>
                 <div class="rounded-md bg-red-50 p-4 mb-6">
                     <div class="flex">
@@ -119,7 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 </div>
-            <?php elseif ($success): ?>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
                 <div class="rounded-md bg-green-50 p-4 mb-6">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -139,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form class="space-y-6" method="POST" action="">
+            <form class="space-y-6 form-spacing" method="POST" action="">
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">
                         Email address
@@ -164,10 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </form>
 
-            <div class="mt-6">
+            <div class="mt-6 divider-section">
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300" />
+                        <div class="w-full border-t border-gray-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
                         <span class="px-2 bg-white text-gray-500">

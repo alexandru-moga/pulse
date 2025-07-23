@@ -42,7 +42,7 @@ $currentPath = $_SERVER['REQUEST_URI'];
 $currentFile = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,6 +51,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -76,17 +77,91 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Ensure all backgrounds are properly themed */
+        .dark .bg-white {
+            background-color: #1f2937 !important;
+        }
+        .dark .text-gray-900 {
+            color: #f9fafb !important;
+        }
+        .dark .text-gray-600 {
+            color: #d1d5db !important;
+        }
+        .dark .text-gray-500 {
+            color: #9ca3af !important;
+        }
+        .dark .border-gray-200 {
+            border-color: #374151 !important;
+        }
+        .dark .bg-gray-50 {
+            background-color: #111827 !important;
+        }
+        .dark .bg-gray-100 {
+            background-color: #1f2937 !important;
+        }
+        .dark .hover\:bg-gray-50:hover {
+            background-color: #374151 !important;
+        }
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #374151 !important;
+        }
+        .dark .bg-green-50 {
+            background-color: #064e3b !important;
+        }
+        .dark .bg-red-50 {
+            background-color: #7f1d1d !important;
+        }
+        .dark .bg-yellow-50 {
+            background-color: #78350f !important;
+        }
+        .dark .bg-blue-50 {
+            background-color: #1e3a8a !important;
+        }
+        .dark .text-green-800 {
+            color: #10b981 !important;
+        }
+        .dark .text-red-800 {
+            color: #f87171 !important;
+        }
+        .dark .text-yellow-800 {
+            color: #fbbf24 !important;
+        }
+        .dark .text-blue-800 {
+            color: #60a5fa !important;
+        }
+        .dark .border-green-200 {
+            border-color: #065f46 !important;
+        }
+        .dark .border-red-200 {
+            border-color: #991b1b !important;
+        }
+        .dark .border-yellow-200 {
+            border-color: #92400e !important;
+        }
+        .dark .border-blue-200 {
+            border-color: #1d4ed8 !important;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-900 h-full">
     <div class="flex h-screen">
-        <div class="w-64 bg-white shadow-lg flex flex-col">
-            <div class="p-6 border-b border-gray-200">
+        <div class="w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3">
                     <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="PULSE" class="h-8 w-8">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">PULSE</h1>
-                        <p class="text-sm text-gray-500">Dashboard</p>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">PULSE</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Dashboard</p>
                     </div>
                 </div>
             </div>
@@ -95,7 +170,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                 <ul class="space-y-2">
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'index.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'index.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6a2 2 0 01-2 2H10a2 2 0 01-2-2V5z"></path>
@@ -106,7 +181,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/projects.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'projects.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'projects.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
@@ -116,7 +191,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/events.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'events.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'events.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
@@ -124,16 +199,36 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
 
+                    <li>
+                        <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php" 
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'profile-edit.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Edit Profile
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= $settings['site_url'] ?>/dashboard/edit-integrations.php" 
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'edit-integrations.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                            Edit Integrations
+                        </a>
+                    </li>
+
                     <?php if (in_array($role, ['Leader', 'Co-leader'])): ?>
                     <li class="pt-4">
                         <div class="px-4 py-2">
-                            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</h3>
+                            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Administration</h3>
                         </div>
                     </li>
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/projects-management.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= (in_array($currentFile, ['projects-management.php', 'create-project.php', 'edit-project.php', 'project-user-matrix.php'])) ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= (in_array($currentFile, ['projects-management.php', 'create-project.php', 'edit-project.php', 'project-user-matrix.php'])) ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                             </svg>
@@ -142,18 +237,8 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     </li>
                     
                     <li>
-                        <a href="<?= $settings['site_url'] ?>/dashboard/import-projects.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'import-projects.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                            </svg>
-                            Import YSWS
-                        </a>
-                    </li>
-                    
-                    <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'users.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'users.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                             </svg>
@@ -163,7 +248,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/applications.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'applications.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'applications.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -173,7 +258,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/contact_messages.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'contact_messages.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'contact_messages.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
@@ -183,7 +268,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/manage-events.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'manage-events.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'manage-events.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
@@ -193,7 +278,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     
                     <li>
                         <a href="<?= $settings['site_url'] ?>/dashboard/settings.php" 
-                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'settings.php') ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                           class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'settings.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
@@ -203,12 +288,12 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                     <?php endif; ?>
                 </ul>
 
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quick Actions</h3>
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quick Actions</h3>
                     <ul class="mt-3 space-y-2">
                         <li>
                             <a href="<?= $settings['site_url'] ?>/" target="_blank"
-                               class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100">
+                               class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                 </svg>
@@ -219,7 +304,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                 </div>
             </nav>
 
-            <div class="p-4 border-t border-gray-200">
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3 mb-3">
                     <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                         <span class="text-white text-sm font-medium">
@@ -227,16 +312,16 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                             <?= htmlspecialchars($currentUser->first_name ?? 'User') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>
                         </p>
-                        <p class="text-xs text-gray-500 truncate">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                             <?= htmlspecialchars($currentUser->role ?? 'Member') ?>
                         </p>
                     </div>
                 </div>
                 <a href="<?= $settings['site_url'] ?>/dashboard/logout.php" 
-                   class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100">
+                   class="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                     </svg>
@@ -246,17 +331,19 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         </div>
 
         <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow-sm border-b border-gray-200">
+            <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-gray-900">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                             <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
                         </h1>
                         <div class="flex items-center space-x-4">
-                            <button class="p-2 text-gray-400 hover:text-gray-500">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
+                            <button id="darkModeToggle" class="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-100 transition-colors">
+                                <svg id="lightIcon" class="w-6 h-6 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                                <svg id="darkIcon" class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                                 </svg>
                             </button>
                         </div>
@@ -265,7 +352,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
             </header>
 
             <?php if (isset($settings['maintenance_mode']) && $settings['maintenance_mode'] === '1'): ?>
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,9 +360,9 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-yellow-700">
+                            <p class="text-sm text-yellow-700 dark:text-yellow-200">
                                 <strong>Maintenance Mode Active:</strong> The website is currently in maintenance mode. Only Leaders and Co-leaders can access the site.
-                                <a href="<?= $settings['site_url'] ?>/dashboard/site-settings.php" class="font-medium underline hover:text-yellow-800">
+                                <a href="<?= $settings['site_url'] ?>/dashboard/site-settings.php" class="font-medium underline hover:text-yellow-800 dark:hover:text-yellow-100">
                                     Disable maintenance mode
                                 </a>
                             </p>
@@ -284,5 +371,5 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                 </div>
             <?php endif; ?>
 
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

@@ -202,7 +202,27 @@ function getLinkedYswsUrl($requirements) {
 ?>
 
 <div class="space-y-6">
-    <!-- Notifications -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="<?= $settings['site_url'] ?>/dashboard/projects-management.php" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Projects
+                </a>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Import YSWS Projects</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mt-1">Import projects from YSWS or link existing projects</p>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <form method="post" class="inline">
+                </form>
+            </div>
+        </div>
+    </div>
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -228,27 +248,6 @@ function getLinkedYswsUrl($requirements) {
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Page Header -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-xl font-semibold text-gray-900">Import YSWS Projects</h2>
-                <p class="text-gray-600 mt-1">Import projects from Hack Club's You Ship, We Ship program</p>
-            </div>
-            <form method="post">
-                <button type="submit" name="refresh_dates" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Refresh Dates
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- YSWS Projects -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Available YSWS Projects</h3>
@@ -375,8 +374,6 @@ function getLinkedYswsUrl($requirements) {
             <?php endforeach; ?>
         </div>
     </div>
-
-    <!-- Local Projects -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Your Local Projects</h3>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Authentication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Connecting your Discord account...</h2>
+        <p class="text-gray-600">Please wait while we complete the authentication.</p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        
+        if (error) {
+            window.opener.postMessage({
+                type: 'discord-oauth-error',
+                error: error
+            }, window.location.origin);
+        } else if (code && state) {
+            // In a real app, you'd exchange the code for an access token on your backend
+            // For demo purposes, we'll simulate this
+            setTimeout(() => {
+                const mockUser = {
+                    id: '123456789012345678',
+                    username: 'User',
+                    discriminator: '1234',
+                    avatar: 'a1b2c3d4e5f6g7h8i9j0'
+                };
+                
+                window.opener.postMessage({
+                    type: 'discord-oauth-success',
+                    user: mockUser
+                }, window.location.origin);
+            }, 1000);
+        } else {
+            window.opener.postMessage({
+                type: 'discord-oauth-error',
+                error: 'Missing authorization code'
+            }, window.location.origin);
+        }
+    </script>
+</body>
+</html>
+                    type: 'discord-oauth-success',
+                    user: mockUser
+                }, window.location.origin);
+            }, 1000);
+        } else {
+            window.opener.postMessage({
+                type: 'discord-oauth-error',
+                error: 'Missing authorization code'
+            }, window.location.origin);
+        }
+    </script>
+</body>
+</html>

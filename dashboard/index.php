@@ -24,58 +24,31 @@ $recentProjects = $db->query("SELECT title, id FROM projects ORDER BY id DESC LI
 $success = $_SESSION['profile_success'] ?? null;
 $errors = $_SESSION['profile_errors'] ?? [];
 unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_profile_update'])) {
-    $newFirst = trim($_POST['first_name'] ?? '');
-    $newLast = trim($_POST['last_name'] ?? '');
-    $newDesc = trim($_POST['description'] ?? '');
-    $newGithub = trim($_POST['github_username'] ?? '');
-
-    $updateErrors = [];
-    if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
-    if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
-
-    if (empty($updateErrors)) {
-        $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, github_username = ? WHERE id = ?");
-        $stmt->execute([$newFirst, $newLast, $newDesc, $newGithub, $currentUser->id]);
-        $_SESSION['profile_success'] = "Profile updated successfully!";
-        header("Location: index.php");
-        exit();
-    } else {
-        $_SESSION['profile_errors'] = $updateErrors;
-        header("Location: index.php");
-        exit();
-    }
-}
 ?>
 
 <div class="space-y-6">
-    <!-- Welcome Header -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                     Welcome back, <?= htmlspecialchars($currentUser->first_name) ?>!
                 </h1>
-                <p class="text-gray-600 mt-1">Here's what's happening with your community</p>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Dashboard overview and statistics</p>
             </div>
             <div class="flex space-x-3">
                 <a href="<?= $settings['site_url'] ?>/dashboard/projects.php" 
                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600">
                     View Projects
                 </a>
-                <a href="<?= $settings['site_url'] ?>/dashboard/import-projects.php" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    Import YSWS
+                <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    Edit Profile
                 </a>
             </div>
         </div>
     </div>
-
-    <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Total Projects -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
@@ -86,15 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_profile_upd
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Projects</dt>
-                        <dd class="text-lg font-medium text-gray-900"><?= $totalProjects ?></dd>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Projects</dt>
+                        <dd class="text-lg font-medium text-gray-900 dark:text-white"><?= $totalProjects ?></dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <!-- My Projects -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
@@ -105,15 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_profile_upd
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">My Projects</dt>
-                        <dd class="text-lg font-medium text-gray-900"><?= $myProjectsCount ?></dd>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">My Projects</dt>
+                        <dd class="text-lg font-medium text-gray-900 dark:text-white"><?= $myProjectsCount ?></dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <!-- Active Members -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
@@ -124,15 +93,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_profile_upd
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Active Members</dt>
-                        <dd class="text-lg font-medium text-gray-900"><?= $totalUsers ?></dd>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Active Members</dt>
+                        <dd class="text-lg font-medium text-gray-900 dark:text-white"><?= $totalUsers ?></dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <!-- Pending Items -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
@@ -143,124 +110,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dashboard_profile_upd
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Reviews</dt>
-                        <dd class="text-lg font-medium text-gray-900"><?= $totalApplications + $totalMessages ?></dd>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Pending Reviews</dt>
+                        <dd class="text-lg font-medium text-gray-900 dark:text-white"><?= $totalApplications + $totalMessages ?></dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Profile Management -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">My Profile</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">My Profile</h3>
             </div>
             <div class="p-6">
                 <?php if ($success): ?>
-                    <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded"><?= htmlspecialchars($success) ?></div>
+                    <div class="mb-4 bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded"><?= htmlspecialchars($success) ?></div>
                 <?php endif; ?>
                 <?php if ($errors): ?>
-                    <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    <div class="mb-4 bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded">
                         <?php foreach ($errors as $error): ?>
                             <div><?= htmlspecialchars($error) ?></div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="index.php" class="space-y-4">
-                    <div>
-                        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name *</label>
-                        <input type="text" id="first_name" name="first_name"
-                               value="<?= htmlspecialchars($currentUser->first_name ?? '') ?>" required
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                            <span class="text-white text-xl font-medium">
+                                <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?><?= strtoupper(substr($currentUser->last_name ?? '', 0, 1)) ?>
+                            </span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                                <?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>
+                            </h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($currentUser->role ?? 'Member') ?></p>
+                        </div>
                     </div>
-                    <div>
-                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name *</label>
-                        <input type="text" id="last_name" name="last_name"
-                               value="<?= htmlspecialchars($currentUser->last_name ?? '') ?>" required
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                            <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($currentUser->email ?? 'Not provided') ?></p>
+                        </div>
+                        
+                        <?php if ($currentUser->school): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                            <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($currentUser->school) ?></p>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($currentUser->description): ?>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">About Me</label>
+                            <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= nl2br(htmlspecialchars($currentUser->description)) ?></p>
+                        </div>
+                        <?php endif; ?>
                     </div>
-                    <div>
-                        <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
-                        <input type="text" id="github_username" name="github_username"
-                               value="<?= htmlspecialchars($currentUser->github_username ?? '') ?>"
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                    
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php" 
+                           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Edit Profile
+                        </a>
                     </div>
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description" name="description" rows="3"
-                                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
-                    </div>
-                    <button type="submit" name="dashboard_profile_update"
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                        Update Profile
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
             </div>
             <div class="p-6">
                 <div class="space-y-3">
-                    <a href="<?= $settings['site_url'] ?>/dashboard/import-projects.php" 
-                       class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Import YSWS Projects</p>
-                            <p class="text-xs text-gray-500">Browse and import Hack Club YSWS projects</p>
-                        </div>
-                    </a>
-
                     <a href="<?= $settings['site_url'] ?>/dashboard/projects.php" 
-                       class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">View My Projects</p>
-                            <p class="text-xs text-gray-500">See all your joined and available projects</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">View My Projects</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">See all your joined and available projects</p>
+                        </div>
+                    </a>
+
+                    <a href="<?= $settings['site_url'] ?>/dashboard/events.php" 
+                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">View Events</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">See upcoming and past community events</p>
+                        </div>
+                    </a>
+
+                    <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php" 
+                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Change Password</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Update your account security</p>
                         </div>
                     </a>
 
                     <?php if (in_array($currentUser->role, ['Leader', 'Co-leader'])): ?>
                     <a href="<?= $settings['site_url'] ?>/dashboard/applications.php" 
-                       class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Review Applications</p>
-                            <p class="text-xs text-gray-500"><?= $totalApplications ?> pending applications</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Review Applications</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= $totalApplications ?> pending applications</p>
                         </div>
                     </a>
                     <?php endif; ?>
 
-                    <a href="<?= $settings['site_url'] ?>/dashboard/events.php" 
-                       class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">View Events</p>
-                            <p class="text-xs text-gray-500">See upcoming and past community events</p>
-                        </div>
-                    </a>
-
                     <?php if (!empty($recentProjects)): ?>
-                    <div class="pt-3 border-t border-gray-200">
-                        <h4 class="text-sm font-medium text-gray-900 mb-2">Recent Projects</h4>
+                    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Recent Projects</h4>
                         <div class="space-y-1">
                             <?php foreach (array_slice($recentProjects, 0, 3) as $project): ?>
-                                <div class="text-sm text-gray-600"><?= htmlspecialchars($project['title']) ?></div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400"><?= htmlspecialchars($project['title']) ?></div>
                             <?php endforeach; ?>
                         </div>
                     </div>
