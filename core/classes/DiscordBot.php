@@ -547,27 +547,31 @@ class DiscordBot {
             $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             foreach ($events as $event) {
-                // Get users who should NOT have the participated role
+                // Get users who SHOULD have the participated role (qualified participants)
                 $stmt = $this->db->prepare("
                     SELECT DISTINCT dl.discord_id
-                    FROM discord_links dl
-                    JOIN users u ON dl.user_id = u.id
-                    WHERE dl.discord_id NOT IN (
-                        SELECT DISTINCT dl2.discord_id
-                        FROM event_ysws ey
-                        JOIN projects p ON p.requirements LIKE CONCAT('%', ey.ysws_link, '%')
-                        JOIN project_assignments pa ON p.id = pa.project_id AND pa.status = 'accepted'
-                        JOIN users u2 ON pa.user_id = u2.id
-                        JOIN discord_links dl2 ON u2.id = dl2.user_id
-                        WHERE ey.event_id = ?
-                    )
+                    FROM event_ysws ey
+                    JOIN projects p ON p.requirements LIKE CONCAT('%', ey.ysws_link, '%')
+                    JOIN project_assignments pa ON p.id = pa.project_id AND pa.status = 'accepted'
+                    JOIN users u ON pa.user_id = u.id
+                    JOIN discord_links dl ON u.id = dl.user_id
+                    WHERE ey.event_id = ?
                 ");
                 $stmt->execute([$event['id']]);
-                $usersToRemove = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                $qualifiedUsers = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 
-                foreach ($usersToRemove as $discordId) {
-                    if ($this->removeDiscordRole($discordId, $event['discord_participated_role_id'])) {
-                        $removed_count++;
+                // Get all guild members who currently have this role
+                $roleHolders = $this->getGuildMembersWithRole($event['discord_participated_role_id']);
+                
+                if ($roleHolders['success']) {
+                    foreach ($roleHolders['members'] as $discordId) {
+                        // If this user has the role but is not in the qualified list, remove it
+                        if (!in_array($discordId, $qualifiedUsers)) {
+                            if ($this->removeDiscordRole($discordId, $event['discord_participated_role_id'])) {
+                                $removed_count++;
+                                error_log("Removed event role {$event['discord_participated_role_id']} from user {$discordId} for event {$event['id']}");
+                            }
+                        }
                     }
                 }
             }
@@ -577,6 +581,72 @@ class DiscordBot {
         }
         
         return $removed_count;
+    }
+    
+    /**
+     * Get all guild members who have a specific role
+     */
+    private function getGuildMembersWithRole($roleId) {
+        if (!$this->botToken || !$this->guildId) {
+            return ['success' => false, 'error' => 'Bot token or guild ID not configured'];
+        }
+        
+        try {
+            // Get guild members (paginated)
+            $members = [];
+            $after = null;
+            $limit = 1000;
+            
+            do {
+                $url = "https://discord.com/api/v10/guilds/{$this->guildId}/members?limit={$limit}";
+                if ($after) {
+                    $url .= "&after={$after}";
+                }
+                
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HTTPHEADER => [
+                        'Authorization: Bot ' . $this->botToken
+                    ]
+                ]);
+                
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                
+                if ($httpCode !== 200) {
+                    return ['success' => false, 'error' => "Failed to fetch guild members: HTTP {$httpCode}"];
+                }
+                
+                $batch = json_decode($response, true);
+                if (empty($batch)) {
+                    break;
+                }
+                
+                // Filter members who have the specified role
+                foreach ($batch as $member) {
+                    if (in_array($roleId, $member['roles'])) {
+                        $members[] = $member['user']['id'];
+                    }
+                }
+                
+                // Set after parameter for next page
+                if (count($batch) === $limit) {
+                    $after = end($batch)['user']['id'];
+                } else {
+                    break;
+                }
+                
+            } while (count($batch) === $limit);
+            
+            return ['success' => true, 'members' => $members];
+            
+        } catch (Exception $e) {
+            error_log("Failed to get guild members with role: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
     
     /**
