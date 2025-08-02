@@ -14,7 +14,8 @@ use PHPMailer\PHPMailer\Exception;
 $createSuccess = $createError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $fields = [
-        'first_name', 'last_name', 'email', 'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
+        'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
+        'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
@@ -28,11 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         $createError = "A user with this email already exists.";
     } else {
         $stmt = $db->prepare("INSERT INTO users
-            (first_name, last_name, email, password, school, hcb_member, birthdate, class, phone, role, description, active_member)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (first_name, last_name, email, password, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['first_name'], $data['last_name'], $data['email'], $data['password'],
-            $data['school'], $data['hcb_member'], $data['birthdate'], $data['class'],
+            $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
+            $data['hcb_member'], $data['birthdate'], $data['class'],
             $data['phone'], $data['role'], $data['description'], $data['active_member']
         ]);
         header("Location: users.php?created=1");
@@ -50,7 +52,8 @@ $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $id = intval($_POST['user_id']);
     $fields = [
-        'first_name', 'last_name', 'email', 'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
+        'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
+        'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
@@ -61,13 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     if ($updatePassword) {
         $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $stmt = $db->prepare("UPDATE users SET
-            first_name=?, last_name=?, email=?, password=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+            first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $id;
     } else {
         $stmt = $db->prepare("UPDATE users SET
-            first_name=?, last_name=?, email=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+            first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $id;
@@ -131,13 +134,8 @@ $pageTitle = "Manage Users";
 include __DIR__ . '/components/dashboard-header.php';
 ?>
 
-
-<script>
-// Add class to body to target this specific page
-document.body.classList.add('users-page');
-</script>
-
 <div class="space-y-6">
+    <!-- Page Header -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -149,6 +147,8 @@ document.body.classList.add('users-page');
             </div>
         </div>
     </div>
+
+    <!-- Notifications -->
     <?php if ($createSuccess || isset($_GET['created'])): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -230,6 +230,7 @@ document.body.classList.add('users-page');
     <?php endif; ?>
 
     <?php if (isset($_GET['add'])): ?>
+        <!-- Add User Form -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">Add New User</h3>
@@ -259,6 +260,16 @@ document.body.classList.add('users-page');
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                             <input type="password" name="password" id="password" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                            <input type="text" name="discord_id" id="discord_id"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                            <input type="text" name="github_username" id="github_username"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
@@ -331,6 +342,7 @@ document.body.classList.add('users-page');
             }
         }
         if ($editUser): ?>
+            <!-- Edit User Form -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
@@ -362,6 +374,16 @@ document.body.classList.add('users-page');
                                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                                 <p class="text-xs text-gray-500 mb-1">Leave blank to keep current password</p>
                                 <input type="password" name="password" id="password"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                                <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                                <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
                             <div>
@@ -443,6 +465,7 @@ document.body.classList.add('users-page');
         <?php endif; ?>
 
     <?php else: ?>
+        <!-- Users Table -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">All Users</h3>
@@ -465,9 +488,10 @@ document.body.classList.add('users-page');
                             Add User
                         </a>
                     </div>
-                </div>            <?php else: ?>
-                <div class="table-container">
-                    <table class="users-table divide-y divide-gray-200">
+                </div>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
@@ -478,75 +502,79 @@ document.body.classList.add('users-page');
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <?php foreach ($users as $u): ?>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                                        <span class="text-sm font-medium text-gray-700">
-                                                            <?= strtoupper(substr($u['first_name'], 0, 1) . substr($u['last_name'], 0, 1)) ?>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">
-                                                        <?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>
-                                                    </div>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($users as $u): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                    <span class="text-sm font-medium text-gray-700">
+                                                        <?= strtoupper(substr($u['first_name'], 0, 1) . substr($u['last_name'], 0, 1)) ?>
+                                                    </span>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-gray-900">
-                                            <a href="mailto:<?= htmlspecialchars($u['email']) ?>" class="text-primary hover:text-red-600 break-all">
-                                                <?= htmlspecialchars($u['email']) ?>
-                                            </a>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <?php
-                                            $roleColor = '';
-                                            switch($u['role']) {
-                                                case 'Leader': $roleColor = 'bg-purple-100 text-purple-800'; break;
-                                                case 'Co-leader': $roleColor = 'bg-blue-100 text-blue-800'; break;
-                                                case 'Member': $roleColor = 'bg-green-100 text-green-800'; break;
-                                                default: $roleColor = 'bg-gray-100 text-gray-800';
-                                            }
-                                            ?>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?>">
-                                                <?= htmlspecialchars($u['role']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm text-gray-500">
-                                            <span class="break-all"><?= htmlspecialchars($u['school'] ?? 'N/A') ?></span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="checkbox" <?= $u['active_member'] ? 'checked' : '' ?>
-                                                       onchange="toggleActive(this, <?= $u['id'] ?>)"
-                                                       class="sr-only">
-                                                <div class="relative">
-                                                    <div class="block bg-gray-600 w-14 h-8 rounded-full <?= $u['active_member'] ? 'bg-primary' : '' ?>"></div>
-                                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition <?= $u['active_member'] ? 'transform translate-x-6' : '' ?>"></div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>
                                                 </div>
-                                            </label>
-                                        </td>
-                                        <td class="px-6 py-4 text-sm font-medium">
-                                            <div class="flex flex-col space-y-1">
-                                                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?edit=<?= $u['id'] ?>" 
-                                                   class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?reset=<?= $u['id'] ?>" 
-                                                   onclick="return confirm('Send password reset email?')"
-                                                   class="text-blue-600 hover:text-blue-900">Send Reset</a>
-                                                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?delete=<?= $u['id'] ?>" 
-                                                   onclick="return confirm('Delete user? This action cannot be undone.')"
-                                                   class="text-red-600 hover:text-red-900">Delete</a>
+                                                <?php if ($u['discord_id']): ?>
+                                                    <div class="text-sm text-gray-500">
+                                                        Discord: <?= htmlspecialchars($u['discord_id']) ?>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <a href="mailto:<?= htmlspecialchars($u['email']) ?>" class="text-primary hover:text-red-600 break-all">
+                                            <?= htmlspecialchars($u['email']) ?>
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <?php
+                                        $roleColor = '';
+                                        switch($u['role']) {
+                                            case 'Leader': $roleColor = 'bg-purple-100 text-purple-800'; break;
+                                            case 'Co-leader': $roleColor = 'bg-blue-100 text-blue-800'; break;
+                                            case 'Member': $roleColor = 'bg-green-100 text-green-800'; break;
+                                            default: $roleColor = 'bg-gray-100 text-gray-800';
+                                        }
+                                        ?>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?>">
+                                            <?= htmlspecialchars($u['role']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        <span class="break-all"><?= htmlspecialchars($u['school'] ?? 'N/A') ?></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" <?= $u['active_member'] ? 'checked' : '' ?>
+                                                   onchange="toggleActive(this, <?= $u['id'] ?>)"
+                                                   class="sr-only">
+                                            <div class="relative">
+                                                <div class="block bg-gray-600 w-14 h-8 rounded-full <?= $u['active_member'] ? 'bg-primary' : '' ?>"></div>
+                                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition <?= $u['active_member'] ? 'transform translate-x-6' : '' ?>"></div>
+                                            </div>
+                                        </label>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-medium">
+                                        <div class="flex flex-col space-y-1">
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?edit=<?= $u['id'] ?>" 
+                                               class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?reset=<?= $u['id'] ?>" 
+                                               onclick="return confirm('Send password reset email?')"
+                                               class="text-blue-600 hover:text-blue-900">Send Reset</a>
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?delete=<?= $u['id'] ?>" 
+                                               onclick="return confirm('Delete user? This action cannot be undone.')"
+                                               class="text-red-600 hover:text-red-900">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             <?php endif; ?>
         </div>

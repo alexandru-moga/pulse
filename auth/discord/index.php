@@ -12,9 +12,12 @@ try {
     }
     
     if (isset($_GET['code']) && isset($_GET['state'])) {
+        error_log("Discord OAuth Callback: Received code and state: " . $_GET['state']);
+        
         $result = $discord->handleCallback($_GET['code'], $_GET['state']);
         
         if ($result['success']) {
+            error_log("Discord OAuth: Callback successful, action: " . $result['action']);
             if ($result['action'] === 'login') {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
             } else {
@@ -22,6 +25,7 @@ try {
                 header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
             }
         } else {
+            error_log("Discord OAuth: Callback failed: " . $result['error']);
             if (isset($_SESSION['discord_oauth_action']) && $_SESSION['discord_oauth_action'] === 'login') {
                 $_SESSION['discord_error'] = $result['error'];
                 header('Location: ' . $settings['site_url'] . '/dashboard/login.php');
@@ -34,12 +38,14 @@ try {
     }
     
     if (isset($_GET['error'])) {
+        error_log("Discord OAuth: Received error: " . $_GET['error']);
         $_SESSION['account_error'] = 'Discord OAuth was cancelled or failed.';
         header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
         exit;
     }
     
     $isLogin = ($_GET['action'] ?? 'link') === 'login';
+    error_log("Discord OAuth: Starting flow, isLogin: " . ($isLogin ? 'true' : 'false'));
     $authUrl = $discord->generateAuthUrl($isLogin);
     header('Location: ' . $authUrl);
     exit;

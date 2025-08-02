@@ -23,7 +23,7 @@ if (!$page || empty($page['table_name'])) {
     exit;
 }
 
-$componentManager = new ComponentManager($db);
+$componentManager = new ComponentManager();
 $tableName = $page['table_name'];
 
 // Handle AJAX requests
@@ -255,10 +255,17 @@ function renderEditableBlock($block, $componentManager) {
                 
                 include $componentFile;
             } else {
-                echo '<div class="text-center p-8 text-gray-500">';
-                echo '<h3 class="text-lg font-medium">' . htmlspecialchars($component['name'] ?? $block['block_type']) . '</h3>';
-                echo '<p class="text-sm">Component file not found</p>';
-                echo '</div>';
+                // Fallback: Use ComponentManager render method or show placeholder
+                try {
+                    echo $componentManager->render($block['block_type'], $content, $block['id']);
+                } catch (Exception $e) {
+                    echo '<div class="text-center p-8 text-gray-500 bg-gray-50 rounded">';
+                    echo '<div class="text-6xl mb-4">📦</div>';
+                    echo '<h3 class="text-lg font-medium mb-2">' . htmlspecialchars($component['name'] ?? $block['block_type']) . '</h3>';
+                    echo '<p class="text-sm text-gray-400">Component preview not available</p>';
+                    echo '<p class="text-xs mt-2 text-red-500">File: ' . htmlspecialchars($block['block_type'] . '.php') . '</p>';
+                    echo '</div>';
+                }
             }
             ?>
         </div>

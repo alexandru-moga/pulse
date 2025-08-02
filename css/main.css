@@ -124,3 +124,57 @@ select[multiple] {
   font-family: monospace;
   width: 100%;
 }
+
+/* Dark mode form styles */
+.dark .readonly-field {
+  background: #374151;
+  border: 1px solid #4b5563;
+  color: #d1d5db;
+}
+
+.dark select[multiple] {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #ffffff;
+}
+
+.dark select[multiple] option {
+  background-color: #374151;
+  color: #ffffff;
+}
+
+.dark select[multiple] option:checked {
+  background-color: #ec3750;
+  color: #ffffff;
+}
+
+/* Dark mode switch adjustments */
+.dark .slider {
+  background-color: #4b5563;
+}
+
+.dark input:checked+.slider {
+  background-color: #ec3750;
+}
+
+/* Dark mode table styles */
+.dark .table-container {
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.dark .users-table th {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.dark .users-table td {
+  background-color: #1f2937;
+  color: #ffffff;
+  border-color: #374151;
+}
+
+.dark .users-table tr:hover td {
+  background-color: #374151;
+}

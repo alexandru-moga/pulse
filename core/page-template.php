@@ -18,7 +18,7 @@ try {
     // Table might not exist yet
 }
 
-$componentManager = new ComponentManager($db);
+$componentManager = new ComponentManager();
 ?>
 <?php include 'components/layout/header.php'; ?>
 
@@ -39,7 +39,7 @@ $componentManager = new ComponentManager($db);
         <?php foreach ($blocks as $block): ?>
             <?php
             $content = json_decode($block['content'], true) ?: [];
-            echo $componentManager->renderComponent($block['block_type'], $content, $block['id']);
+            echo $componentManager->render($block['block_type'], $content, $block['id']);
             ?>
         <?php endforeach; ?>
     <?php endif; ?>

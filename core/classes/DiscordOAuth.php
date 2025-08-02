@@ -34,8 +34,12 @@ class DiscordOAuth {
         
         $state = bin2hex(random_bytes(16));
         $csrf = bin2hex(random_bytes(16));
+        $expiresAt = date('Y-m-d H:i:s', time() + 600); // 10 minutes
+        
+        error_log("Discord OAuth: Generating auth URL with state: $state, expires: $expiresAt");
+        
         $stmt = $this->db->prepare("INSERT INTO discord_login_sessions (state_token, csrf_token, expires_at) VALUES (?, ?, ?)");
-        $stmt->execute([$state, $csrf, date('Y-m-d H:i:s', time() + 600)]); // 10 minutes
+        $stmt->execute([$state, $csrf, $expiresAt]);
         
         $_SESSION['discord_csrf_token'] = $csrf;
         $_SESSION['discord_is_login'] = $isLogin;
@@ -55,14 +59,23 @@ class DiscordOAuth {
         if (!$this->isConfigured()) {
             throw new Exception('Discord OAuth not configured');
         }
+        
+        error_log("Discord OAuth: Handling callback with state: $state");
+        
         $stmt = $this->db->prepare("SELECT csrf_token, used FROM discord_login_sessions WHERE state_token = ? AND expires_at > NOW()");
         $stmt->execute([$state]);
         $session = $stmt->fetch();
         
-        if (!$session || $session['used'] || $session['csrf_token'] !== ($_SESSION['discord_csrf_token'] ?? '')) {
+        error_log("Discord OAuth: Session data: " . json_encode($session));
+        error_log("Discord OAuth: Expected CSRF: " . ($_SESSION['discord_csrf_token'] ?? 'none'));
+        
+        if (!$session || $session['used'] == 1 || $session['csrf_token'] !== ($_SESSION['discord_csrf_token'] ?? '')) {
+            error_log("Discord OAuth: State validation failed");
             throw new Exception('Invalid or expired state token');
         }
-        $this->db->prepare("UPDATE discord_login_sessions SET used = TRUE WHERE state_token = ?")->execute([$state]);
+        
+        $this->db->prepare("UPDATE discord_login_sessions SET used = 1 WHERE state_token = ?")->execute([$state]);
+        
         $tokenData = $this->exchangeCodeForToken($code);
         $discordUser = $this->getDiscordUser($tokenData['access_token']);
         

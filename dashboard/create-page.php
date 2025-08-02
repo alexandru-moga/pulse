@@ -100,11 +100,11 @@ include __DIR__ . '/components/dashboard-header.php';
 ?>
 
 <div class="space-y-6">
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900">Create New Page</h2>
-                <p class="text-gray-600 mt-1">Add a new page to your website</p>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Create New Page</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Add a new page to your website</p>
             </div>
             <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
                class="text-primary hover:text-red-600 text-sm font-medium">
@@ -113,7 +113,7 @@ include __DIR__ . '/components/dashboard-header.php';
         </div>
     </div>
     <?php if ($errors): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div class="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded">
             <ul class="list-disc list-inside">
                 <?php foreach ($errors as $error): ?>
                     <li><?= htmlspecialchars($error) ?></li>
@@ -121,63 +121,63 @@ include __DIR__ . '/components/dashboard-header.php';
             </ul>
         </div>
     <?php endif; ?>
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Page Configuration</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Configuration</h3>
         </div>
         
         <form method="post" class="p-6" autocomplete="off">
             <div class="grid grid-cols-1 gap-6">
                 <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700">Page Title</label>
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Page Title</label>
                     <input type="text" 
                            id="title" 
                            name="title" 
                            required 
                            value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                            placeholder="Enter page title">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">URL Slug</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">URL Slug</label>
                         <input type="text" 
                                id="name" 
                                name="name" 
                                readonly 
                                value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
-                        <p class="mt-1 text-sm text-gray-500">Page URL slug</p>
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400">
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Page URL slug</p>
                     </div>
 
                     <div>
-                        <label for="table_name" class="block text-sm font-medium text-gray-700">Database Table</label>
+                        <label for="table_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Table</label>
                         <input type="text" 
                                id="table_name" 
                                name="table_name" 
                                readonly 
                                value="<?= htmlspecialchars($_POST['table_name'] ?? '') ?>"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
-                        <p class="mt-1 text-sm text-gray-500">Database table for page content</p>
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400">
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Database table for page content</p>
                     </div>
                 </div>
 
                 <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description (optional)</label>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description (optional)</label>
                     <textarea id="description" 
                               name="description" 
                               rows="3"
-                              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                              class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"
                               placeholder="Brief description of the page"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="parent_id" class="block text-sm font-medium text-gray-700">Parent Page</label>
+                        <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Parent Page</label>
                         <select name="parent_id" 
                                 id="parent_id"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                             <option value="">-- None (Top Level) --</option>
                             <?php foreach ($pages as $p): ?>
                                 <option value="<?= $p['id'] ?>" <?= (isset($_POST['parent_id']) && $_POST['parent_id'] == $p['id']) ? 'selected' : '' ?>>
@@ -188,27 +188,27 @@ include __DIR__ . '/components/dashboard-header.php';
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Menu Options</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Menu Options</label>
                         <div class="mt-2">
                             <label class="inline-flex items-center">
                                 <input type="checkbox" 
                                        name="menu_enabled" 
                                        value="1" 
                                        <?= isset($_POST['menu_enabled']) ? 'checked' : '' ?>
-                                       class="rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
-                                <span class="ml-2 text-sm text-gray-900">Show in header menu</span>
+                                       class="rounded border-gray-300 dark:border-gray-600 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 dark:bg-gray-700">
+                                <span class="ml-2 text-sm text-gray-900 dark:text-white">Show in header menu</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <label for="visibility" class="block text-sm font-medium text-gray-700">Page Visibility</label>
+                    <label for="visibility" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Page Visibility</label>
                     <select name="visibility[]" 
                             id="visibility" 
                             multiple 
                             required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         <?php
                         $all_roles = ['everyone', 'guest', 'Member', 'Co-leader', 'Leader'];
                         $selected_roles = $_POST['visibility'] ?? ['everyone'];
@@ -218,13 +218,13 @@ include __DIR__ . '/components/dashboard-header.php';
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="mt-1 text-sm text-gray-500">Hold Ctrl/Cmd to select multiple roles. Select "everyone" for public pages.</p>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Hold Ctrl/Cmd to select multiple roles. Select "everyone" for public pages.</p>
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+            <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
-                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                   class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     Cancel
                 </a>
                 <button type="submit" 

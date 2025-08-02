@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
+require_once __DIR__ . '/../core/classes/DiscordBot.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
@@ -17,9 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_event'])) {
     $start_datetime = $_POST['start_datetime'];
     $end_datetime = $_POST['end_datetime'];
     $reminders = json_encode(array_values(array_filter($_POST['reminders'] ?? [])));
+    
     $stmt = $db->prepare("INSERT INTO events (title, description, location, start_datetime, end_datetime, reminders, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$title, $description, $location, $start_datetime, $end_datetime, $reminders, $currentUser->id]);
     $event_id = $db->lastInsertId();
+    
     if (!empty($_POST['ysws_links'])) {
         foreach (array_unique($_POST['ysws_links']) as $ysws_link) {
             try {
@@ -27,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_event'])) {
             } catch (PDOException $e) {}
         }
     }
-    $success = "Event created successfully!";
+    $success = "Event created successfully! Configure Discord roles in the Discord Settings page.";
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_event'])) {
@@ -38,8 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_event'])) {
     $start_datetime = $_POST['start_datetime'];
     $end_datetime = $_POST['end_datetime'];
     $reminders = json_encode(array_values(array_filter($_POST['reminders'] ?? [])));
+    
     $stmt = $db->prepare("UPDATE events SET title=?, description=?, location=?, start_datetime=?, end_datetime=?, reminders=? WHERE id=?");
     $stmt->execute([$title, $description, $location, $start_datetime, $end_datetime, $reminders, $event_id]);
+    
     $db->prepare("DELETE FROM event_ysws WHERE event_id=?")->execute([$event_id]);
     if (!empty($_POST['ysws_links'])) {
         foreach (array_unique($_POST['ysws_links']) as $ysws_link) {
@@ -60,6 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
 
 $events = $db->query("SELECT * FROM events ORDER BY start_datetime DESC")->fetchAll(PDO::FETCH_ASSOC);
 $ysws_projects = $db->query("SELECT id, title, requirements FROM projects WHERE requirements LIKE 'YSWS:%'")->fetchAll(PDO::FETCH_ASSOC);
+
+// Get Discord role settings for events
+$discordBot = new DiscordBot($db);
+
 function getAssignedYsws($db, $event_id) {
     $stmt = $db->prepare("SELECT ysws_link FROM event_ysws WHERE event_id = ?");
     $stmt->execute([$event_id]);
@@ -69,17 +78,29 @@ function getAssignedYsws($db, $event_id) {
 ?>
 
 <div class="space-y-6">
-    <div class="bg-white rounded-lg shadow p-6">
+    <!-- Page Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900">Manage Events</h2>
-                <p class="text-gray-600 mt-1">Create and manage events for your community</p>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Manage Events</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Create and manage events for your community</p>
             </div>
-            <div class="text-sm text-gray-500">
-                Total Events: <?= count($events) ?>
+            <div class="flex space-x-4">
+                <a href="<?= $settings['site_url'] ?>/dashboard/discord-settings.php" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                    Discord Settings
+                </a>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Total Events: <?= count($events) ?>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Notifications -->
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
@@ -92,65 +113,76 @@ function getAssignedYsws($db, $event_id) {
             </div>
         </div>
     <?php endif; ?>
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Create New Event</h3>
+
+    <!-- Create New Event -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Create New Event</h3>
         </div>
         <div class="p-6">
             <form method="post" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                         <input type="text" name="title" id="title" required
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                     </div>
                     <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
                         <input type="text" name="location" id="location"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                     </div>
                     <div>
-                        <label for="start_datetime" class="block text-sm font-medium text-gray-700">Start Date & Time</label>
+                        <label for="start_datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date & Time</label>
                         <input type="datetime-local" name="start_datetime" id="start_datetime" required
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                     </div>
                     <div>
-                        <label for="end_datetime" class="block text-sm font-medium text-gray-700">End Date & Time</label>
+                        <label for="end_datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date & Time</label>
                         <input type="datetime-local" name="end_datetime" id="end_datetime"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                     </div>
                 </div>
                 
                 <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                     <textarea name="description" id="description" rows="3"
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"></textarea>
+                              class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"></textarea>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Reminders (before event)</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reminders (before event)</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <input type="text" name="reminders[]" placeholder="e.g. 7 days"
-                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         <input type="text" name="reminders[]" placeholder="e.g. 3 days"
-                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         <input type="text" name="reminders[]" placeholder="e.g. 1 hour"
-                               class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                               class="block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Examples: "7 days", "3 days", "1 hour", "2 weeks"</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Examples: "7 days", "3 days", "1 hour", "2 weeks"</p>
                 </div>
                 
                 <div>
-                    <label for="ysws_links" class="block text-sm font-medium text-gray-700">Assign YSWS Projects</label>
+                    <label for="ysws_links" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Assign YSWS Projects</label>
                     <select name="ysws_links[]" id="ysws_links" multiple
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         <?php foreach ($ysws_projects as $p):
                             if (preg_match('/YSWS:\s*(https?:\/\/\S+)/', $p['requirements'], $m)) $link = $m[1]; else $link = '';
                         ?>
                             <option value="<?= htmlspecialchars($link) ?>"><?= htmlspecialchars($p['title']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple projects</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Hold Ctrl/Cmd to select multiple projects</p>
+                </div>
+                
+                <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                    <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md">
+                        <p class="text-sm text-blue-700 dark:text-blue-300">
+                            <strong>Discord Role Configuration:</strong> After creating the event, configure Discord roles for participants in the 
+                            <a href="<?= $settings['site_url'] ?>/dashboard/discord-settings.php" class="underline hover:no-underline">Discord Settings</a> page.
+                        </p>
+                    </div>
                 </div>
                 
                 <div class="flex justify-end">
@@ -162,9 +194,11 @@ function getAssignedYsws($db, $event_id) {
             </form>
         </div>
     </div>
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">All Events</h3>
+
+    <!-- Events List -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">All Events</h3>
         </div>
         
         <?php if (empty($events)): ?>
@@ -180,12 +214,13 @@ function getAssignedYsws($db, $event_id) {
                 <?php foreach ($events as $event): 
                     $assigned_ysws = getAssignedYsws($db, $event['id']);
                     $reminders = json_decode($event['reminders'], true) ?: [];
+                    $roleSettings = $discordBot->getRoleSettings('event', $event['id']);
                 ?>
-                    <div class="border border-gray-200 rounded-lg p-6">
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-6">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <h4 class="text-lg font-medium text-gray-900"><?= htmlspecialchars($event['title']) ?></h4>
-                                <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($event['title']) ?></h4>
+                                <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                                     <span><?= htmlspecialchars($event['location']) ?></span>
                                     <span><?= date('M j, Y g:i A', strtotime($event['start_datetime'])) ?></span>
                                     <?php if ($event['end_datetime']): ?>
@@ -193,58 +228,81 @@ function getAssignedYsws($db, $event_id) {
                                     <?php endif; ?>
                                 </div>
                                 <?php if ($event['description']): ?>
-                                    <p class="mt-2 text-sm text-gray-700"><?= nl2br(htmlspecialchars($event['description'])) ?></p>
+                                    <p class="mt-2 text-sm text-gray-700 dark:text-gray-300"><?= nl2br(htmlspecialchars($event['description'])) ?></p>
+                                <?php endif; ?>
+                                
+                                <?php if ($roleSettings): ?>
+                                    <div class="mt-3 p-2 bg-green-50 dark:bg-green-900/30 rounded-md">
+                                        <p class="text-xs text-green-700 dark:text-green-300">
+                                            <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Discord roles configured for participants
+                                        </p>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="mt-3 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-md">
+                                        <p class="text-xs text-yellow-700 dark:text-yellow-300">
+                                            <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                            No Discord roles configured - 
+                                            <a href="<?= $settings['site_url'] ?>/dashboard/discord-settings.php" class="underline hover:no-underline">Configure now</a>
+                                        </p>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="mt-6 border-t border-gray-200 pt-6">
+                        
+                        <!-- Edit Form (initially hidden) -->
+                        <div class="mt-6 border-t border-gray-200 dark:border-gray-600 pt-6">
                             <details>
-                                <summary class="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">Edit Event</summary>
+                                <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Edit Event</summary>
                                 <form method="post" class="mt-4 space-y-4">
                                     <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Title</label>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                                             <input type="text" name="title" value="<?= htmlspecialchars($event['title']) ?>" required
-                                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Location</label>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
                                             <input type="text" name="location" value="<?= htmlspecialchars($event['location']) ?>"
-                                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">Start Date & Time</label>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date & Time</label>
                                             <input type="datetime-local" name="start_datetime" value="<?= date('Y-m-d\TH:i', strtotime($event['start_datetime'])) ?>" required
-                                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700">End Date & Time</label>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date & Time</label>
                                             <input type="datetime-local" name="end_datetime" value="<?= date('Y-m-d\TH:i', strtotime($event['end_datetime'])) ?>"
-                                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                                         <textarea name="description" rows="2"
-                                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm"><?= htmlspecialchars($event['description']) ?></textarea>
+                                                  class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm"><?= htmlspecialchars($event['description']) ?></textarea>
                                     </div>
                                     
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Reminders</label>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reminders</label>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                                             <?php for ($i=0; $i<3; $i++): ?>
                                                 <input type="text" name="reminders[]" value="<?= htmlspecialchars($reminders[$i] ?? '') ?>" placeholder="e.g. 7 days"
-                                                       class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                       class="block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                             <?php endfor; ?>
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700">YSWS Projects</label>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">YSWS Projects</label>
                                         <select name="ysws_links[]" multiple
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white text-sm">
                                             <?php foreach ($ysws_projects as $p):
                                                 if (preg_match('/YSWS:\s*(https?:\/\/\S+)/', $p['requirements'], $m)) $link = $m[1]; else $link = '';
                                             ?>
