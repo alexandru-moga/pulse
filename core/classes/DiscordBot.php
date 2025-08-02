@@ -445,4 +445,165 @@ class DiscordBot {
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+    
+    /**
+     * Clean up Discord roles - remove roles from users who no longer qualify
+     */
+    public function cleanupDiscordRoles() {
+        try {
+            $removed_count = 0;
+            
+            // Clean up project roles
+            $removed_count += $this->cleanupProjectRoles();
+            
+            // Clean up event roles
+            $removed_count += $this->cleanupEventRoles();
+            
+            return ['success' => true, 'removed_count' => $removed_count];
+            
+        } catch (Exception $e) {
+            error_log("Discord role cleanup failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Clean up project-specific roles
+     */
+    private function cleanupProjectRoles() {
+        $removed_count = 0;
+        
+        try {
+            // Get all projects with Discord roles
+            $stmt = $this->db->prepare("
+                SELECT id, discord_accepted_role_id, discord_pizza_role_id 
+                FROM projects 
+                WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($projects as $project) {
+                // Get users who should NOT have the accepted role
+                if ($project['discord_accepted_role_id']) {
+                    $stmt = $this->db->prepare("
+                        SELECT DISTINCT dl.discord_id
+                        FROM discord_links dl
+                        JOIN users u ON dl.user_id = u.id
+                        LEFT JOIN project_assignments pa ON u.id = pa.user_id AND pa.project_id = ?
+                        WHERE pa.status IS NULL OR pa.status != 'accepted'
+                    ");
+                    $stmt->execute([$project['id']]);
+                    $usersToRemove = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    
+                    foreach ($usersToRemove as $discordId) {
+                        if ($this->removeDiscordRole($discordId, $project['discord_accepted_role_id'])) {
+                            $removed_count++;
+                        }
+                    }
+                }
+                
+                // Get users who should NOT have the pizza role
+                if ($project['discord_pizza_role_id']) {
+                    $stmt = $this->db->prepare("
+                        SELECT DISTINCT dl.discord_id
+                        FROM discord_links dl
+                        JOIN users u ON dl.user_id = u.id
+                        LEFT JOIN project_assignments pa ON u.id = pa.user_id AND pa.project_id = ?
+                        WHERE pa.pizza_grant IS NULL OR pa.pizza_grant != 'received'
+                    ");
+                    $stmt->execute([$project['id']]);
+                    $usersToRemove = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    
+                    foreach ($usersToRemove as $discordId) {
+                        if ($this->removeDiscordRole($discordId, $project['discord_pizza_role_id'])) {
+                            $removed_count++;
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("Project role cleanup failed: " . $e->getMessage());
+        }
+        
+        return $removed_count;
+    }
+    
+    /**
+     * Clean up event-specific roles
+     */
+    private function cleanupEventRoles() {
+        $removed_count = 0;
+        
+        try {
+            // Get all events with Discord roles
+            $stmt = $this->db->prepare("
+                SELECT id, discord_participated_role_id 
+                FROM events 
+                WHERE discord_participated_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($events as $event) {
+                // Get users who should NOT have the participated role
+                $stmt = $this->db->prepare("
+                    SELECT DISTINCT dl.discord_id
+                    FROM discord_links dl
+                    JOIN users u ON dl.user_id = u.id
+                    WHERE dl.discord_id NOT IN (
+                        SELECT DISTINCT dl2.discord_id
+                        FROM event_ysws ey
+                        JOIN projects p ON p.requirements LIKE CONCAT('%', ey.ysws_link, '%')
+                        JOIN project_assignments pa ON p.id = pa.project_id AND pa.status = 'accepted'
+                        JOIN users u2 ON pa.user_id = u2.id
+                        JOIN discord_links dl2 ON u2.id = dl2.user_id
+                        WHERE ey.event_id = ?
+                    )
+                ");
+                $stmt->execute([$event['id']]);
+                $usersToRemove = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                
+                foreach ($usersToRemove as $discordId) {
+                    if ($this->removeDiscordRole($discordId, $event['discord_participated_role_id'])) {
+                        $removed_count++;
+                    }
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("Event role cleanup failed: " . $e->getMessage());
+        }
+        
+        return $removed_count;
+    }
+    
+    /**
+     * Remove Discord role from user
+     */
+    private function removeDiscordRole($discordUserId, $roleId) {
+        if (!$this->botToken || !$this->guildId) {
+            return false;
+        }
+        
+        $url = "https://discord.com/api/v10/guilds/{$this->guildId}/members/{$discordUserId}/roles/{$roleId}";
+        
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bot ' . $this->botToken,
+                'Content-Type: application/json'
+            ]
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        return $httpCode === 204;
+    }
 }

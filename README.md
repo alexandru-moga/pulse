@@ -12,7 +12,7 @@ Pulse is a modular PHP web application for building and managing dynamic website
 - **User Management:** Role-based access (Leader, Co-leader, Member, Guest), user profiles, GitHub, Discord, Google, and Slack integration.
 - **Header/Menu Management:** Header menu is generated from the `pages` table, supports parent/child menus and role-based visibility.
 - **GitHub Integration:** Member profile photos and links loaded from GitHub, OAuth login and account linking.
-- **Discord Integration:** OAuth login and account linking for community features.
+- **Discord Integration:** Automated role management for project acceptance, pizza grants, and event participation with cleanup functionality.
 - **Responsive Design:** Modern CSS for a clean, responsive interface.
 - **No vendor lock-in:** Runs on any PHP/MySQL host, no Composer or Node.js dependencies.
 

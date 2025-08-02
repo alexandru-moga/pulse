@@ -8,7 +8,7 @@ if (!isset($currentUser) || !$currentUser) {
 }
 
 $isLoggedIn = isset($currentUser) && $currentUser;
-$role = $isLoggedIn ? $currentUser->role : 'guest';
+$role = $isLoggedIn ? ($currentUser->role ?? 'Guest') : 'guest';
 
 function page_is_visible($page, $role) {
     if (empty($page['visibility'])) return true;

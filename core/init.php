@@ -80,7 +80,7 @@ function isLoggedIn() {
 
 function isAdmin() {
     global $currentUser;
-    return $currentUser && $currentUser->role === 'admin';
+    return $currentUser && in_array($currentUser->role, ['Leader', 'Co-leader']);
 }
 
 function checkLoggedIn() {
