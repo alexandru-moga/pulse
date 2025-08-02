@@ -21,6 +21,26 @@ if (!$userId || !$projectId || !$status) {
     exit;
 }
 
+// Validate that user exists and is active
+$stmt = $db->prepare("SELECT id, first_name, last_name FROM users WHERE id = ? AND active_member = 1");
+$stmt->execute([$userId]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    echo json_encode(['success' => false, 'error' => 'User not found or inactive']);
+    exit;
+}
+
+// Validate that project exists
+$stmt = $db->prepare("SELECT id, title FROM projects WHERE id = ?");
+$stmt->execute([$projectId]);
+$project = $stmt->fetch();
+
+if (!$project) {
+    echo json_encode(['success' => false, 'error' => 'Project not found']);
+    exit;
+}
+
 $validStatuses = ['accepted', 'waiting', 'rejected', 'not_sent', 'completed'];
 if (!in_array($status, $validStatuses)) {
     echo json_encode(['success' => false, 'error' => 'Invalid status']);
@@ -36,47 +56,43 @@ if (!in_array($pizzaGrant, $validPizzaGrants)) {
 try {
     global $db;
     
-    $stmt = $db->prepare("SELECT id FROM project_assignments WHERE user_id = ? AND project_id = ?");
-    $stmt->execute([$userId, $projectId]);
-    $existing = $stmt->fetch();
-    
-    if ($existing) {
-        $stmt = $db->prepare("UPDATE project_assignments SET status = ?, pizza_grant = ? WHERE user_id = ? AND project_id = ?");
-        $stmt->execute([$status, $pizzaGrant, $userId, $projectId]);
-    } else {
-        $stmt = $db->prepare("INSERT INTO project_assignments (user_id, project_id, status, pizza_grant) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$userId, $projectId, $status, $pizzaGrant]);
-    }
-    
-    // Check if this project is linked to any events with YSWS
+    // Update or insert assignment
     $stmt = $db->prepare("
-        SELECT DISTINCT e.id, e.discord_accepted_role_id, e.discord_pizza_role_id 
-        FROM events e 
-        JOIN event_ysws ey ON e.id = ey.event_id 
-        JOIN projects p ON p.requirements LIKE CONCAT('%', ey.ysws_link, '%')
-        WHERE p.id = ? AND (e.discord_accepted_role_id IS NOT NULL OR e.discord_pizza_role_id IS NOT NULL)
+        INSERT INTO project_assignments (user_id, project_id, status, pizza_grant, updated_at) 
+        VALUES (?, ?, ?, ?, NOW()) 
+        ON DUPLICATE KEY UPDATE 
+        status = VALUES(status), 
+        pizza_grant = VALUES(pizza_grant), 
+        updated_at = NOW()
     ");
-    $stmt->execute([$projectId]);
-    $linkedEvents = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Handle Discord role assignment for linked events
-    if (!empty($linkedEvents)) {
-        $discordBot = new DiscordBot($db);
+    $result = $stmt->execute([$userId, $projectId, $status, $pizzaGrant]);
+    
+    if ($result) {
+        // Check if user has Discord linked for role assignment
+        $stmt = $db->prepare("SELECT discord_id FROM discord_links WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        $discordLink = $stmt->fetch();
         
-        foreach ($linkedEvents as $event) {
-            if ($status === 'accepted') {
-                $pizzaGrantReceived = ($pizzaGrant === 'received');
-                $discordBot->assignEventRole($userId, $event['id'], $status, $pizzaGrantReceived);
-            } else {
-                // Remove roles if status is not accepted
-                $discordBot->removeEventRole($userId, $event['id']);
-            }
+        $response = [
+            'success' => true, 
+            'message' => 'Assignment updated successfully',
+            'user_name' => $user['first_name'] . ' ' . $user['last_name'],
+            'project_name' => $project['title'],
+            'discord_linked' => $discordLink ? true : false
+        ];
+        
+        if (!$discordLink && $status === 'accepted') {
+            $response['warning'] = 'User does not have Discord linked - cannot assign Discord roles';
         }
+        
+        echo json_encode($response);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Failed to update assignment']);
     }
-    
-    echo json_encode(['success' => true]);
     
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    error_log("Assignment update error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'Database error occurred']);
 }
 ?>

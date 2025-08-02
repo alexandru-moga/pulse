@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project'])) {
 // Get all projects
 $projects = $db->query("SELECT * FROM projects ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 
+// Get all users for member statistics
+$users = $db->query("SELECT * FROM users WHERE active_member = 1 ORDER BY first_name, last_name")->fetchAll(PDO::FETCH_ASSOC);
+
 // Get project statistics
 $totalProjects = count($projects);
 $activeProjects = count(array_filter($projects, function($p) {
@@ -29,6 +32,11 @@ $activeProjects = count(array_filter($projects, function($p) {
 $yswsProjects = count(array_filter($projects, function($p) {
     return strpos($p['requirements'] ?? '', 'YSWS:') !== false;
 }));
+
+// Get Discord link statistics
+$totalUsers = count($users);
+$discordLinkedUsers = $db->query("SELECT COUNT(DISTINCT user_id) FROM discord_links")->fetchColumn();
+$unlinkedUsers = $totalUsers - $discordLinkedUsers;
 
 // Helper function to get assignment summary
 function getAssignmentSummary($db, $projectId) {

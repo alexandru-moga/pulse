@@ -459,6 +459,9 @@ class DiscordBot {
             // Clean up event roles
             $removed_count += $this->cleanupEventRoles();
             
+            // Clean up roles from users who are no longer active members
+            $removed_count += $this->cleanupInactiveUserRoles();
+            
             return ['success' => true, 'removed_count' => $removed_count];
             
         } catch (Exception $e) {
@@ -578,6 +581,76 @@ class DiscordBot {
             
         } catch (Exception $e) {
             error_log("Event role cleanup failed: " . $e->getMessage());
+        }
+        
+        return $removed_count;
+    }
+    
+    /**
+     * Clean up roles from inactive users or users who unlinked Discord
+     */
+    private function cleanupInactiveUserRoles() {
+        $removed_count = 0;
+        
+        try {
+            // Get all Discord IDs from discord_links table for users who are no longer active
+            $stmt = $this->db->prepare("
+                SELECT dl.discord_id
+                FROM discord_links dl
+                LEFT JOIN users u ON dl.user_id = u.id
+                WHERE u.id IS NULL OR u.active_member = 0
+            ");
+            $stmt->execute();
+            $inactiveDiscordIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            // Get all configured role IDs
+            $allRoleIds = [];
+            
+            // Project roles
+            $stmt = $this->db->prepare("
+                SELECT discord_accepted_role_id, discord_pizza_role_id 
+                FROM projects 
+                WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $projectRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($projectRoles as $role) {
+                if ($role['discord_accepted_role_id']) $allRoleIds[] = $role['discord_accepted_role_id'];
+                if ($role['discord_pizza_role_id']) $allRoleIds[] = $role['discord_pizza_role_id'];
+            }
+            
+            // Event roles
+            $stmt = $this->db->prepare("
+                SELECT discord_participated_role_id 
+                FROM events 
+                WHERE discord_participated_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $eventRoles = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $allRoleIds = array_merge($allRoleIds, $eventRoles);
+            
+            // Remove all configured roles from inactive users
+            foreach ($inactiveDiscordIds as $discordId) {
+                foreach (array_unique($allRoleIds) as $roleId) {
+                    if ($this->removeDiscordRole($discordId, $roleId)) {
+                        $removed_count++;
+                        error_log("Removed role {$roleId} from inactive user {$discordId}");
+                    }
+                }
+            }
+            
+            // Clean up discord_links for inactive users
+            $stmt = $this->db->prepare("
+                DELETE dl FROM discord_links dl
+                LEFT JOIN users u ON dl.user_id = u.id
+                WHERE u.id IS NULL OR u.active_member = 0
+            ");
+            $deletedLinks = $stmt->execute() ? $stmt->rowCount() : 0;
+            error_log("Cleaned up {$deletedLinks} Discord links for inactive users");
+            
+        } catch (Exception $e) {
+            error_log("Inactive user role cleanup failed: " . $e->getMessage());
         }
         
         return $removed_count;

@@ -37,12 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cleanup_discord_roles
 
 // Get statistics for display
 $stats = [
-    'total_users' => $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-    'discord_linked_users' => $db->query("SELECT COUNT(*) FROM discord_links")->fetchColumn(),
+    'total_users' => $db->query("SELECT COUNT(*) FROM users WHERE active_member = 1")->fetchColumn(),
+    'discord_linked_users' => $db->query("SELECT COUNT(DISTINCT dl.user_id) FROM discord_links dl JOIN users u ON dl.user_id = u.id WHERE u.active_member = 1")->fetchColumn(),
     'projects_with_roles' => $db->query("SELECT COUNT(*) FROM projects WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL")->fetchColumn(),
     'events_with_roles' => $db->query("SELECT COUNT(*) FROM events WHERE discord_participated_role_id IS NOT NULL")->fetchColumn()
 ];
 
+// Calculate unlinked users
+$unlinked_users = $stats['total_users'] - $stats['discord_linked_users'];
 ?>
 
 <div class="space-y-6">
@@ -108,6 +110,10 @@ $stats = [
                     <div class="text-2xl font-bold text-purple-600 dark:text-purple-400"><?= $stats['events_with_roles'] ?></div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">Events with Roles</div>
                 </div>
+                <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-4">
+                    <div class="text-2xl font-bold text-red-600 dark:text-red-400"><?= $unlinked_users ?></div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">Users Without Discord</div>
+                </div>
             </div>
 
             <!-- Sync Actions -->
@@ -140,7 +146,7 @@ $stats = [
                     <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Discord Role Sync Information</h4>
                     <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                         <li>• <strong>Sync All:</strong> Assigns roles to users based on their project acceptance status and event participation</li>
-                        <li>• <strong>Cleanup:</strong> Removes roles from users who no longer qualify (rejected projects, etc.)</li>
+                        <li>• <strong>Cleanup:</strong> Removes roles from users who no longer qualify (rejected projects, inactive users, unlinked Discord accounts)</li>
                         <li>• <strong>Project Roles:</strong> "Accepted" role for accepted users, "Pizza" role for pizza grant recipients</li>
                         <li>• <strong>Event Roles:</strong> "Participated" role for users linked to events through YSWS projects</li>
                         <li>• <strong>Requirements:</strong> Users must have Discord linked in their profile</li>

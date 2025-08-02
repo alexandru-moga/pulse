@@ -139,11 +139,11 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900">User Management</h2>
-                <p class="text-gray-600 mt-1">Manage members, co-leaders, and leaders</p>
+                <h2 class="text-xl font-semibold text-gray-900">Users Management</h2>
+                <p class="text-gray-600 mt-1">Manage all registered users and their Discord connections</p>
             </div>
             <div class="text-sm text-gray-500">
-                Total Users: <?= count($users) ?>
+                Total Users: <?= count($users) ?> | Discord Linked: <?= $db->query("SELECT COUNT(DISTINCT user_id) FROM discord_links")->fetchColumn() ?>
             </div>
         </div>
     </div>
@@ -497,13 +497,17 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">School</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discord Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <?php foreach ($users as $u): ?>
+                            <?php foreach ($users as $u): 
+                                // Check Discord link status
+                                $stmt = $db->prepare("SELECT discord_username FROM discord_links WHERE user_id = ?");
+                                $stmt->execute([$u['id']]);
+                                $discordLink = $stmt->fetch();
+                            ?>
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -518,9 +522,9 @@ include __DIR__ . '/components/dashboard-header.php';
                                                 <div class="text-sm font-medium text-gray-900">
                                                     <?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?>
                                                 </div>
-                                                <?php if ($u['discord_id']): ?>
+                                                <?php if ($discordLink): ?>
                                                     <div class="text-sm text-gray-500">
-                                                        Discord: <?= htmlspecialchars($u['discord_id']) ?>
+                                                        Discord: <?= htmlspecialchars($discordLink['discord_username']) ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
@@ -537,39 +541,33 @@ include __DIR__ . '/components/dashboard-header.php';
                                         switch($u['role']) {
                                             case 'Leader': $roleColor = 'bg-purple-100 text-purple-800'; break;
                                             case 'Co-leader': $roleColor = 'bg-blue-100 text-blue-800'; break;
-                                            case 'Member': $roleColor = 'bg-green-100 text-green-800'; break;
-                                            default: $roleColor = 'bg-gray-100 text-gray-800';
+                                            default: $roleColor = 'bg-gray-100 text-gray-800'; break;
                                         }
                                         ?>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?>">
-                                            <?= htmlspecialchars($u['role']) ?>
+                                            <?= htmlspecialchars($u['role'] ?: 'Member') ?>
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">
-                                        <span class="break-all"><?= htmlspecialchars($u['school'] ?? 'N/A') ?></span>
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox" <?= $u['active_member'] ? 'checked' : '' ?>
-                                                   onchange="toggleActive(this, <?= $u['id'] ?>)"
-                                                   class="sr-only">
-                                            <div class="relative">
-                                                <div class="block bg-gray-600 w-14 h-8 rounded-full <?= $u['active_member'] ? 'bg-primary' : '' ?>"></div>
-                                                <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition <?= $u['active_member'] ? 'transform translate-x-6' : '' ?>"></div>
-                                            </div>
-                                        </label>
+                                        <?php if ($discordLink): ?>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Linked
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Not Linked
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4 text-sm font-medium">
-                                        <div class="flex flex-col space-y-1">
-                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?edit=<?= $u['id'] ?>" 
-                                               class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?reset=<?= $u['id'] ?>" 
-                                               onclick="return confirm('Send password reset email?')"
-                                               class="text-blue-600 hover:text-blue-900">Send Reset</a>
-                                            <a href="<?= $settings['site_url'] ?>/dashboard/users.php?delete=<?= $u['id'] ?>" 
-                                               onclick="return confirm('Delete user? This action cannot be undone.')"
-                                               class="text-red-600 hover:text-red-900">Delete</a>
-                                        </div>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="<?= $settings['site_url'] ?>/dashboard/edit-user.php?id=<?= $u['id'] ?>" 
+                                           class="text-primary hover:text-red-600">Edit</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
