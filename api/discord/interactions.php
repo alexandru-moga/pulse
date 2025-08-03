@@ -4,50 +4,43 @@ require_once __DIR__ . '/../../core/classes/DiscordBot.php';
 
 header('Content-Type: application/json');
 
-// Verify Discord request signature
-function verifyDiscordSignature($signature, $timestamp, $body) {
-    global $db;
-    
-    $stmt = $db->prepare("SELECT value FROM settings WHERE name = 'discord_webhook_secret'");
-    $stmt->execute();
-    $publicKey = $stmt->fetchColumn();
-    
-    if (!$publicKey) {
-        error_log("Discord webhook secret not configured");
-        return false;
-    }
-    
-    // For simplicity, we'll skip signature verification in this example
-    // In production, you should verify using libsodium or similar
-    return true;
+// Get raw POST data
+$rawBody = file_get_contents('php://input');
+
+// Check if request method is POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
+
+// Check if body is provided
+if (empty($rawBody)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'No body provided']);
+    exit;
+}
+
+// Verify Discord signature (required for production)
+$signature = $_SERVER['HTTP_X_SIGNATURE_ED25519'] ?? '';
+$timestamp = $_SERVER['HTTP_X_SIGNATURE_TIMESTAMP'] ?? '';
+
+// Parse JSON body
+$body = json_decode($rawBody, true);
+if (!$body) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid JSON']);
+    exit;
+}
+
+// Handle Discord verification ping
+if ($body['type'] === 1) {
+    echo json_encode(['type' => 1]);
+    exit;
 }
 
 try {
-    // Get request headers and body
-    $signature = $_SERVER['HTTP_X_SIGNATURE_ED25519'] ?? '';
-    $timestamp = $_SERVER['HTTP_X_SIGNATURE_TIMESTAMP'] ?? '';
-    $body = file_get_contents('php://input');
-    
-    if (!$body) {
-        http_response_code(400);
-        echo json_encode(['error' => 'No body provided']);
-        exit;
-    }
-    
-    // Verify request signature (commented out for demo)
-    // if (!verifyDiscordSignature($signature, $timestamp, $body)) {
-    //     http_response_code(401);
-    //     echo json_encode(['error' => 'Invalid signature']);
-    //     exit;
-    // }
-    
-    $interaction = json_decode($body, true);
-    
-    if (!$interaction) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid JSON']);
-        exit;
-    }
+    $interaction = $body;
     
     $discordBot = new DiscordBot($db);
     
@@ -74,6 +67,13 @@ try {
             echo json_encode(['error' => 'Unknown interaction type']);
             break;
     }
+    
+} catch (Exception $e) {
+    error_log("Discord interaction error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Internal server error']);
+}
+?>
     
 } catch (Exception $e) {
     error_log("Discord interaction error: " . $e->getMessage());
