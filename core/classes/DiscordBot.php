@@ -749,4 +749,273 @@ class DiscordBot {
         
         return $httpCode === 204;
     }
+
+    /**
+     * Register slash commands with Discord
+     */
+    public function registerSlashCommands() {
+        if (!$this->botToken || !$this->guildId) {
+            return ['success' => false, 'error' => 'Bot token or guild ID not configured'];
+        }
+
+        $commands = [
+            [
+                'name' => 'sync',
+                'description' => 'Synchronize Discord roles with project assignments',
+                'default_member_permissions' => '8', // Administrator permission
+                'options' => [
+                    [
+                        'type' => 3, // STRING
+                        'name' => 'type',
+                        'description' => 'What to sync',
+                        'required' => false,
+                        'choices' => [
+                            ['name' => 'All (projects and events)', 'value' => 'all'],
+                            ['name' => 'Projects only', 'value' => 'projects'],
+                            ['name' => 'Events only', 'value' => 'events'],
+                            ['name' => 'Cleanup invalid roles', 'value' => 'cleanup']
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        foreach ($commands as $command) {
+            $result = $this->createSlashCommand($command);
+            if (!$result['success']) {
+                return $result;
+            }
+        }
+
+        return ['success' => true, 'message' => 'Slash commands registered successfully'];
+    }
+
+    /**
+     * Create a single slash command
+     */
+    private function createSlashCommand($command) {
+        $url = "https://discord.com/api/v10/applications/{$this->getApplicationId()}/guilds/{$this->guildId}/commands";
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($command),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bot ' . $this->botToken,
+                'Content-Type: application/json'
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 || $httpCode === 201) {
+            return ['success' => true];
+        } else {
+            error_log("Failed to create slash command: HTTP $httpCode - $response");
+            return ['success' => false, 'error' => "HTTP $httpCode"];
+        }
+    }
+
+    /**
+     * Get application ID from bot token
+     */
+    private function getApplicationId() {
+        // Get application ID from Discord settings or decode from token
+        $stmt = $this->db->prepare("SELECT value FROM settings WHERE name = 'discord_client_id'");
+        $stmt->execute();
+        $clientId = $stmt->fetchColumn();
+        
+        if ($clientId) {
+            return $clientId;
+        }
+
+        // Fallback: decode from token (bot tokens contain application ID)
+        $tokenParts = explode('.', $this->botToken);
+        if (count($tokenParts) >= 1) {
+            return base64_decode($tokenParts[0]);
+        }
+
+        throw new Exception('Could not determine application ID');
+    }
+
+    /**
+     * Handle slash command interaction
+     */
+    public function handleSlashCommand($interaction) {
+        $commandName = $interaction['data']['name'] ?? '';
+        $options = $interaction['data']['options'] ?? [];
+        
+        // Parse options into key-value pairs
+        $parsedOptions = [];
+        foreach ($options as $option) {
+            $parsedOptions[$option['name']] = $option['value'];
+        }
+
+        switch ($commandName) {
+            case 'sync':
+                return $this->handleSyncCommand($interaction, $parsedOptions);
+            default:
+                return $this->createInteractionResponse($interaction, 'Unknown command', true);
+        }
+    }
+
+    /**
+     * Handle /sync command
+     */
+    private function handleSyncCommand($interaction, $options) {
+        $type = $options['type'] ?? 'all';
+        
+        // Send initial "thinking" response
+        $this->sendDeferredResponse($interaction);
+        
+        try {
+            $result = null;
+            $message = '';
+
+            switch ($type) {
+                case 'projects':
+                    $result = $this->syncProjectRolesOnly();
+                    $message = $result['success'] ? 
+                        "✅ Project roles synced! Synced {$result['projects_synced']} projects." :
+                        "❌ Project sync failed: {$result['error']}";
+                    break;
+
+                case 'events':
+                    $result = $this->syncEventRolesOnly();
+                    $message = $result['success'] ? 
+                        "✅ Event roles synced! Synced {$result['events_synced']} events." :
+                        "❌ Event sync failed: {$result['error']}";
+                    break;
+
+                case 'cleanup':
+                    $result = $this->cleanupDiscordRoles();
+                    $message = $result['success'] ? 
+                        "🧹 Discord role cleanup completed! Removed {$result['removed_count']} invalid role assignments." :
+                        "❌ Cleanup failed: {$result['error']}";
+                    break;
+
+                case 'all':
+                default:
+                    $result = $this->syncAllRoles();
+                    $message = $result['success'] ? 
+                        "✅ Discord roles synced successfully! Projects: {$result['projects_synced']}, Events: {$result['events_synced']}" :
+                        "❌ Sync failed: {$result['error']}";
+                    break;
+            }
+
+            return $this->editInteractionResponse($interaction, $message);
+
+        } catch (Exception $e) {
+            error_log("Discord sync command error: " . $e->getMessage());
+            return $this->editInteractionResponse($interaction, "❌ Sync failed: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sync only project roles
+     */
+    private function syncProjectRolesOnly() {
+        try {
+            $projects_synced = 0;
+            
+            $stmt = $this->db->prepare("
+                SELECT id FROM projects 
+                WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $projects = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            foreach ($projects as $project_id) {
+                $result = $this->syncProjectRoles($project_id);
+                if ($result['success']) {
+                    $projects_synced++;
+                }
+            }
+            
+            return ['success' => true, 'projects_synced' => $projects_synced];
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Sync only event roles
+     */
+    private function syncEventRolesOnly() {
+        try {
+            $events_synced = 0;
+            
+            $stmt = $this->db->prepare("
+                SELECT id FROM events 
+                WHERE discord_participated_role_id IS NOT NULL
+            ");
+            $stmt->execute();
+            $events = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            foreach ($events as $event_id) {
+                $result = $this->syncEventRoles($event_id);
+                if ($result['success']) {
+                    $events_synced++;
+                }
+            }
+            
+            return ['success' => true, 'events_synced' => $events_synced];
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Send deferred response to give more time for processing
+     */
+    private function sendDeferredResponse($interaction) {
+        $url = "https://discord.com/api/v10/interactions/{$interaction['id']}/{$interaction['token']}/callback";
+        
+        $response = [
+            'type' => 5 // DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        ];
+
+        $this->sendDiscordRequest($url, $response);
+    }
+
+    /**
+     * Edit the deferred interaction response
+     */
+    private function editInteractionResponse($interaction, $content) {
+        $applicationId = $this->getApplicationId();
+        $url = "https://discord.com/api/v10/webhooks/{$applicationId}/{$interaction['token']}/messages/@original";
+        
+        $response = [
+            'content' => $content
+        ];
+
+        return $this->sendDiscordRequest($url, $response, 'PATCH');
+    }
+
+    /**
+     * Send request to Discord API
+     */
+    private function sendDiscordRequest($url, $data, $method = 'POST') {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bot ' . $this->botToken,
+                'Content-Type: application/json'
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return ['success' => $httpCode >= 200 && $httpCode < 300, 'response' => $response, 'code' => $httpCode];
+    }
 }

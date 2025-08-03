@@ -81,6 +81,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Discord connection failed: " . $test_result['error'];
         }
     }
+    
+    if (isset($_POST['register_slash_commands'])) {
+        require_once __DIR__ . '/../core/classes/DiscordBot.php';
+        $discordBot = new DiscordBot($db);
+        
+        $result = $discordBot->registerSlashCommands();
+        if ($result['success']) {
+            $success = "Discord slash commands registered successfully!";
+        } else {
+            $error = "Failed to register slash commands: " . $result['error'];
+        }
+    }
 }
 
 // Get current Discord settings
@@ -235,6 +247,10 @@ include __DIR__ . '/components/dashboard-header.php';
                             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Test Bot Connection
                     </button>
+                    <button type="submit" name="register_slash_commands"
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Register /sync Command
+                    </button>
                 </div>
             </form>
         </div>
@@ -373,6 +389,15 @@ include __DIR__ . '/components/dashboard-header.php';
                             <li>Go to your Discord server → Server Settings → Roles</li>
                             <li>Right-click on any role and select "Copy ID"</li>
                             <li>Paste the ID into the appropriate field above</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="font-medium">Slash Commands Setup:</h4>
+                        <ol class="list-decimal list-inside space-y-1 mt-1">
+                            <li>Configure bot token and guild ID above</li>
+                            <li>Click "Register /sync Command" to register the slash command</li>
+                            <li>Set your interactions endpoint URL in Discord Developer Portal to: <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded"><?= htmlspecialchars($settings['site_url']) ?>/api/discord/interactions.php</code></li>
+                            <li>Use <code>/sync</code> command in your Discord server to synchronize roles</li>
                         </ol>
                     </div>
                 </div>
