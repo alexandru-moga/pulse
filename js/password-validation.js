@@ -99,7 +99,13 @@ function setupPasswordValidation(config) {
         }
         if (confirmField && passwordField) {
             confirmField.value = passwordField.value;
+            // Reset confirm field to password type when section is hidden
+            confirmField.type = 'password';
         }
+        // Reset confirm visibility state and icons when section is hidden
+        confirmVisible = false;
+        if (confirmEyeIcon) confirmEyeIcon.classList.remove('hidden');
+        if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.add('hidden');
     }
 
     // Function to show confirm password section
@@ -111,7 +117,8 @@ function setupPasswordValidation(config) {
 
     // Function to update visibility states and UI
     function updatePasswordVisibility() {
-        // Hide confirm section if either password is visible
+        // Hide confirm section if either password field is visible
+        // Show confirm section only when both password fields are hidden
         if (passwordVisible || confirmVisible) {
             hideConfirmPasswordSection();
         } else {

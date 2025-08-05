@@ -38,7 +38,7 @@ if ($token) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,38 +50,70 @@ if ($token) {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#ef4444'
+                        primary: '#ec4a0a'
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div>
+<body class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="flex justify-center">
             <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary">
                 <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
             </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Set a new password
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                Choose a secure password for your account
-            </p>
         </div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Set a new password
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Choose a secure password for your account
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
 
         <?php if ($error): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                <?= htmlspecialchars($error) ?>
+            <div class="rounded-md bg-red-50 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Reset Failed
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <?= htmlspecialchars($error) ?>
+                        </div>
+                    </div>
+                </div>
             </div>
         <?php endif; ?>
 
         <?php if ($success): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                <?= htmlspecialchars($success) ?>
+            <div class="rounded-md bg-green-50 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">
+                            Success!
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            <?= htmlspecialchars($success) ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="text-center">
                 <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
@@ -186,13 +218,14 @@ if ($token) {
                 </div>
             </form>
         <?php endif; ?>
-
-        <div class="text-center">
-            <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
-               class="text-sm text-gray-500 hover:text-gray-700">
-                ← Back to login
-            </a>
         </div>
+    </div>
+
+    <div class="mt-8 text-center">
+        <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
+           class="text-sm text-gray-500 hover:text-gray-700">
+            ← Back to login
+        </a>
     </div>
 
     <!-- Password validation JavaScript -->
