@@ -177,7 +177,14 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                             padding: 40px 40px 20px 40px;
                             background-color: #ffffff;
                         }
-                        .logo {
+                        .logo-img {
+                            width: 64px;
+                            height: 64px;
+                            margin: 0 auto 24px auto;
+                            display: block;
+                            border-radius: 8px;
+                        }
+                        .logo-fallback {
                             width: 64px;
                             height: 64px;
                             margin: 0 auto 24px auto;
@@ -191,21 +198,6 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                             font-size: 24px;
                             color: white;
                             text-decoration: none;
-                        }
-                        .logo-fallback {
-                            width: 64px;
-                            height: 64px;
-                            margin: 0 auto 24px auto;
-                            background-color: #ec4a0a;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        .logo-fallback svg {
-                            width: 32px;
-                            height: 32px;
-                            color: white;
                         }
                         .title {
                             font-size: 24px;
@@ -290,7 +282,12 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                     <div class="container">
                         <div class="card">
                             <div class="header">
-                                <div class="logo" style="width: 64px; height: 64px; margin: 0 auto 24px auto; background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 24px; color: white;">
+                                <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
+                                     alt="Hack Club Logo" 
+                                     class="logo-img"
+                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
+                                     onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-users\').style.display=\'flex\';">
+                                <div id="logo-fallback-users" class="logo-fallback" style="width: 64px; height: 64px; margin: 0 auto 24px auto; background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%); border-radius: 50%; display: none; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 24px; color: white;">
                                     H
                                 </div>
                                 <h1 class="title">Set Your Password</h1>
