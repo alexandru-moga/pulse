@@ -380,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="mt-6 text-center">
-                    <a href="login.php" 
+                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
                        class="font-medium text-primary hover:text-red-500">
                         Sign in to your account
                     </a>

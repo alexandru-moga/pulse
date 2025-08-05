@@ -2,7 +2,7 @@
 require_once '../core/init.php';
 
 if (!isLoggedIn()) {
-    header('Location: ../login.php');
+    header('Location: /dashboard/login.php');
     exit;
 }
 if (isset($_SESSION['account_link_success'])) {
