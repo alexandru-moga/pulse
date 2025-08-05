@@ -97,7 +97,7 @@ function setupPasswordValidation(config) {
         if (confirmSection) {
             confirmSection.style.display = 'none';
         }
-        if (confirmField) {
+        if (confirmField && passwordField) {
             confirmField.value = passwordField.value;
         }
     }
@@ -106,6 +106,16 @@ function setupPasswordValidation(config) {
     function showConfirmPasswordSection() {
         if (confirmSection) {
             confirmSection.style.display = 'block';
+        }
+    }
+
+    // Function to update visibility states and UI
+    function updatePasswordVisibility() {
+        // Hide confirm section if either password is visible
+        if (passwordVisible || confirmVisible) {
+            hideConfirmPasswordSection();
+        } else {
+            showConfirmPasswordSection();
         }
     }
 
@@ -118,19 +128,13 @@ function setupPasswordValidation(config) {
                 passwordField.type = 'text';
                 if (eyeIcon) eyeIcon.classList.add('hidden');
                 if (eyeSlashIcon) eyeSlashIcon.classList.remove('hidden');
-
-                // Hide confirm password section when ANY password is visible
-                hideConfirmPasswordSection();
             } else {
                 passwordField.type = 'password';
                 if (eyeIcon) eyeIcon.classList.remove('hidden');
                 if (eyeSlashIcon) eyeSlashIcon.classList.add('hidden');
-
-                // Show confirm password section only if confirm password is also not visible
-                if (!confirmVisible) {
-                    showConfirmPasswordSection();
-                }
             }
+
+            updatePasswordVisibility();
         });
     }
 
@@ -143,19 +147,13 @@ function setupPasswordValidation(config) {
                 if (confirmField) confirmField.type = 'text';
                 if (confirmEyeIcon) confirmEyeIcon.classList.add('hidden');
                 if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.remove('hidden');
-
-                // Hide confirm password section when ANY password is visible
-                hideConfirmPasswordSection();
             } else {
                 if (confirmField) confirmField.type = 'password';
                 if (confirmEyeIcon) confirmEyeIcon.classList.remove('hidden');
                 if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.add('hidden');
-
-                // Show confirm password section only if main password is also not visible
-                if (!passwordVisible) {
-                    showConfirmPasswordSection();
-                }
             }
+
+            updatePasswordVisibility();
         });
     }
 
