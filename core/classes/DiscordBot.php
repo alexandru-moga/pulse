@@ -1,4 +1,5 @@
 <?php
+// filepath: c:\Program Files\xampp\htdocs\phoenix\core\classes\DiscordBot.php
 
 class DiscordBot {
     private $token;
@@ -35,11 +36,14 @@ class DiscordBot {
         return $this->clientSecret;
     }
     
+    // Add other Discord bot methods as needed
     public function sendMessage($channelId, $message) {
+        // Implement Discord API message sending
         return false; // Placeholder
     }
     
     public function getGuilds() {
+        // Implement Discord API guild fetching
         return []; // Placeholder
     }
 }
