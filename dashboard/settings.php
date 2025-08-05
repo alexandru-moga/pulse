@@ -87,10 +87,6 @@ $unlinked_users = $stats['total_users'] - $stats['discord_linked_users'];
                     <div class="text-2xl font-bold text-purple-600 dark:text-purple-400"><?= $stats['events_with_roles'] ?></div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">Events with Roles</div>
                 </div>
-                <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-4">
-                    <div class="text-2xl font-bold text-red-600 dark:text-red-400"><?= $unlinked_users ?></div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">Users Without Discord</div>
-                </div>
             </div>
 
             <!-- Sync Actions -->
