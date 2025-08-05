@@ -104,6 +104,7 @@ if ($token) {
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                placeholder="Enter new password">
                     </div>
+                    <?= PasswordValidator::getRequirementsHtml() ?>
                 </div>
 
                 <div>
@@ -119,33 +120,6 @@ if ($token) {
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                placeholder="Confirm new password">
                     </div>
-                </div>
-
-                <!-- Password Requirements -->
-                <div id="password-requirements" class="text-xs text-gray-500 mt-1">
-                    <p class="mb-2">Password must contain:</p>
-                    <ul class="space-y-1">
-                        <li class="requirement-item flex items-center" data-check="minLength">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 8 characters</span>
-                        </li>
-                        <li class="requirement-item flex items-center" data-check="hasUppercase">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 1 uppercase letter</span>
-                        </li>
-                        <li class="requirement-item flex items-center" data-check="hasLowercase">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 1 lowercase letter</span>
-                        </li>
-                        <li class="requirement-item flex items-center" data-check="hasNumber">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 1 number</span>
-                        </li>
-                        <li class="requirement-item flex items-center" data-check="hasSpecialChar">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 1 special character</span>
-                        </li>
-                    </ul>
                 </div>
 
                 <div>
@@ -167,62 +141,5 @@ if ($token) {
 
     <!-- Password validation JavaScript -->
     <script src="<?= $settings['site_url'] ?>/css/password-validation.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordField = document.getElementById('password');
-            const requirements = document.querySelectorAll('.requirement-item');
-            
-            if (passwordField) {
-                passwordField.addEventListener('input', function() {
-                    const password = this.value;
-                    
-                    // Check each requirement
-                    const checks = {
-                        minLength: password.length >= 8,
-                        hasUppercase: /[A-Z]/.test(password),
-                        hasLowercase: /[a-z]/.test(password),
-                        hasNumber: /[0-9]/.test(password),
-                        hasSpecialChar: /[^A-Za-z0-9]/.test(password)
-                    };
-                    
-                    // Update requirement indicators
-                    requirements.forEach(item => {
-                        const check = item.getAttribute('data-check');
-                        const dot = item.querySelector('.requirement-dot');
-                        const text = item.querySelector('span:last-child');
-                        
-                        if (checks[check]) {
-                            // Requirement met - green dot and text
-                            dot.classList.remove('bg-gray-300');
-                            dot.classList.add('bg-green-500');
-                            text.classList.remove('text-gray-500');
-                            text.classList.add('text-green-600');
-                        } else {
-                            // Requirement not met - gray dot and text
-                            dot.classList.remove('bg-green-500');
-                            dot.classList.add('bg-gray-300');
-                            text.classList.remove('text-green-600');
-                            text.classList.add('text-gray-500');
-                        }
-                    });
-                    
-                    // Update password field border color
-                    const allValid = Object.values(checks).every(check => check);
-                    if (password.length > 0) {
-                        if (allValid) {
-                            passwordField.classList.remove('border-red-300', 'focus:border-red-300');
-                            passwordField.classList.add('border-green-300', 'focus:border-green-300');
-                        } else {
-                            passwordField.classList.remove('border-green-300', 'focus:border-green-300');
-                            passwordField.classList.add('border-red-300', 'focus:border-red-300');
-                        }
-                    } else {
-                        passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
