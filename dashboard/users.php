@@ -143,11 +143,179 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                 $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
                 $mail->isHTML(true);
                 $mail->Subject = 'Set Your PULSE Password';
-                $mail->Body = "Hello,<br><br>
-                    Is's time for you to set your password. 
-                    <b><a href=\"$resetLink\">Click here to set your password</a></b>.<br><br>
-                    This link will expire in 1 hour.<br><br>
-                    PULSE Team";
+                
+                // Modern HTML email template matching the reset page design
+                $emailBody = '
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Set Your PULSE Password</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #374151;
+                            background-color: #f9fafb;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 40px 20px;
+                        }
+                        .card {
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+                            overflow: hidden;
+                        }
+                        .header {
+                            text-align: center;
+                            padding: 40px 40px 20px 40px;
+                            background-color: #ffffff;
+                        }
+                        .logo {
+                            width: 64px;
+                            height: 64px;
+                            margin: 0 auto 24px auto;
+                            background-color: #ec4a0a;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .logo svg {
+                            width: 32px;
+                            height: 32px;
+                            color: white;
+                        }
+                        .title {
+                            font-size: 24px;
+                            font-weight: 800;
+                            color: #111827;
+                            margin: 0 0 8px 0;
+                        }
+                        .subtitle {
+                            font-size: 14px;
+                            color: #6b7280;
+                            margin: 0;
+                        }
+                        .content {
+                            padding: 20px 40px 40px 40px;
+                        }
+                        .greeting {
+                            font-size: 16px;
+                            margin-bottom: 20px;
+                        }
+                        .message {
+                            font-size: 14px;
+                            line-height: 1.5;
+                            margin-bottom: 30px;
+                            color: #4b5563;
+                        }
+                        .button {
+                            display: inline-block;
+                            padding: 12px 24px;
+                            background-color: #ec4a0a;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 6px;
+                            font-weight: 500;
+                            font-size: 14px;
+                            text-align: center;
+                            margin: 20px 0;
+                        }
+                        .button:hover {
+                            background-color: #dc2626;
+                        }
+                        .link-fallback {
+                            font-size: 12px;
+                            color: #6b7280;
+                            margin-top: 20px;
+                            word-break: break-all;
+                        }
+                        .footer {
+                            text-align: center;
+                            padding: 20px 40px;
+                            background-color: #f9fafb;
+                            border-top: 1px solid #e5e7eb;
+                        }
+                        .footer-text {
+                            font-size: 12px;
+                            color: #6b7280;
+                            margin: 0;
+                        }
+                        .welcome-notice {
+                            background-color: #dbeafe;
+                            border: 1px solid #93c5fd;
+                            border-radius: 6px;
+                            padding: 16px;
+                            margin: 20px 0;
+                        }
+                        .welcome-notice p {
+                            margin: 0;
+                            font-size: 14px;
+                            color: #1e40af;
+                        }
+                        @media only screen and (max-width: 600px) {
+                            .container {
+                                padding: 20px 10px;
+                            }
+                            .header, .content, .footer {
+                                padding-left: 20px;
+                                padding-right: 20px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="card">
+                            <div class="header">
+                                <div class="logo">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <h1 class="title">Set Your Password</h1>
+                                <p class="subtitle">Welcome to PULSE - Complete your account setup</p>
+                            </div>
+                            
+                            <div class="content">
+                                <div class="greeting">Hello ' . htmlspecialchars($user['first_name']) . ',</div>
+                                
+                                <div class="message">
+                                    Welcome to PULSE! Your account has been created and it\'s time to set your password. Click the button below to complete your account setup.
+                                </div>
+                                
+                                <div style="text-align: center;">
+                                    <a href="' . $resetLink . '" class="button">Set Password</a>
+                                </div>
+                                
+                                <div class="welcome-notice">
+                                    <p><strong>Getting Started:</strong> This link will expire in 1 hour for security. Once you set your password, you\'ll have full access to your PULSE dashboard.</p>
+                                </div>
+                                
+                                <div class="link-fallback">
+                                    If the button above does not work, copy and paste this link into your browser:<br>
+                                    <a href="' . $resetLink . '" style="color: #ec4a0a;">' . $resetLink . '</a>
+                                </div>
+                            </div>
+                            
+                            <div class="footer">
+                                <p class="footer-text">
+                                    This email was sent by PULSE. If you have any questions, please contact our support team.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>';
+                
+                $mail->Body = $emailBody;
 
                 $mail->send();
             $resetSuccess = "Password reset email sent to " . htmlspecialchars($user['email']);

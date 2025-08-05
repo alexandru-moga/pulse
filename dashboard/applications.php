@@ -43,7 +43,160 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
             $mail->addAddress($app['email'], $app['first_name'] . ' ' . $app['last_name']);
             $mail->isHTML(true);
             $mail->Subject = 'Your Application Has Been Accepted!';
-            $mail->Body = "Hello " . htmlspecialchars($app['first_name']) . ",<br><br>Your application has been <b>accepted</b>!<br>Welcome to the club!<br><br>PULSE Team";
+            
+            // Modern HTML email template matching the reset page design
+            $emailBody = '
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Application Accepted - Welcome to PULSE</title>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #374151;
+                        background-color: #f9fafb;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 40px 20px;
+                    }
+                    .card {
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+                        overflow: hidden;
+                    }
+                    .header {
+                        text-align: center;
+                        padding: 40px 40px 20px 40px;
+                        background-color: #ffffff;
+                    }
+                    .logo {
+                        width: 64px;
+                        height: 64px;
+                        margin: 0 auto 24px auto;
+                        background-color: #ec4a0a;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .logo svg {
+                        width: 32px;
+                        height: 32px;
+                        color: white;
+                    }
+                    .title {
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: #111827;
+                        margin: 0 0 8px 0;
+                    }
+                    .subtitle {
+                        font-size: 14px;
+                        color: #6b7280;
+                        margin: 0;
+                    }
+                    .content {
+                        padding: 20px 40px 40px 40px;
+                    }
+                    .greeting {
+                        font-size: 16px;
+                        margin-bottom: 20px;
+                    }
+                    .message {
+                        font-size: 14px;
+                        line-height: 1.5;
+                        margin-bottom: 30px;
+                        color: #4b5563;
+                    }
+                    .celebration {
+                        text-align: center;
+                        font-size: 48px;
+                        margin: 20px 0;
+                    }
+                    .footer {
+                        text-align: center;
+                        padding: 20px 40px;
+                        background-color: #f9fafb;
+                        border-top: 1px solid #e5e7eb;
+                    }
+                    .footer-text {
+                        font-size: 12px;
+                        color: #6b7280;
+                        margin: 0;
+                    }
+                    .success-notice {
+                        background-color: #dcfce7;
+                        border: 1px solid #86efac;
+                        border-radius: 6px;
+                        padding: 16px;
+                        margin: 20px 0;
+                    }
+                    .success-notice p {
+                        margin: 0;
+                        font-size: 14px;
+                        color: #166534;
+                    }
+                    @media only screen and (max-width: 600px) {
+                        .container {
+                            padding: 20px 10px;
+                        }
+                        .header, .content, .footer {
+                            padding-left: 20px;
+                            padding-right: 20px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="card">
+                        <div class="header">
+                            <div class="logo">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h1 class="title">Congratulations!</h1>
+                            <p class="subtitle">Your application has been accepted</p>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="celebration">🎉</div>
+                            
+                            <div class="greeting">Hello ' . htmlspecialchars($app['first_name']) . ',</div>
+                            
+                            <div class="message">
+                                We are excited to inform you that your application to join PULSE has been <strong>accepted</strong>! Welcome to our community.
+                            </div>
+                            
+                            <div class="success-notice">
+                                <p><strong>Next Steps:</strong> You will receive further instructions about accessing your account and getting started with PULSE. Welcome aboard!</p>
+                            </div>
+                            
+                            <div class="message">
+                                We look forward to having you as part of our team and seeing the amazing things you\'ll accomplish with us.
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <p class="footer-text">
+                                Welcome to PULSE! If you have any questions, please contact our support team.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>';
+            
+            $mail->Body = $emailBody;
             $mail->send();
             $success = "Accepted email sent to " . htmlspecialchars($app['email']);
         } catch (Exception $e) {
