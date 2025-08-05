@@ -124,41 +124,51 @@ class DiscordBot {
         try {
             $projects_synced = 0;
             $events_synced = 0;
+            $roles_added = 0;
+            $roles_removed = 0;
             
-            // Sync all projects with Discord roles
+            // First, sync all projects with Discord roles
             $stmt = $this->db->prepare("
-                SELECT id FROM projects 
+                SELECT id, discord_accepted_role_id, discord_pizza_role_id 
+                FROM projects 
                 WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL
             ");
             $stmt->execute();
-            $projects = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            foreach ($projects as $project_id) {
-                $result = $this->syncProjectRoles($project_id);
+            foreach ($projects as $project) {
+                $result = $this->syncProjectRolesFull($project['id']);
                 if ($result['success']) {
                     $projects_synced++;
+                    $roles_added += $result['roles_added'];
+                    $roles_removed += $result['roles_removed'];
                 }
             }
             
-            // Sync all events with Discord roles
+            // Then, sync all events with Discord roles
             $stmt = $this->db->prepare("
-                SELECT id FROM events 
+                SELECT id, discord_participated_role_id 
+                FROM events 
                 WHERE discord_participated_role_id IS NOT NULL
             ");
             $stmt->execute();
-            $events = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            foreach ($events as $event_id) {
-                $result = $this->syncEventRoles($event_id);
+            foreach ($events as $event) {
+                $result = $this->syncEventRolesFull($event['id']);
                 if ($result['success']) {
                     $events_synced++;
+                    $roles_added += $result['roles_added'];
+                    $roles_removed += $result['roles_removed'];
                 }
             }
             
             return [
                 'success' => true, 
                 'projects_synced' => $projects_synced,
-                'events_synced' => $events_synced
+                'events_synced' => $events_synced,
+                'roles_added' => $roles_added,
+                'roles_removed' => $roles_removed
             ];
             
         } catch (Exception $e) {
@@ -1018,4 +1028,150 @@ class DiscordBot {
 
         return ['success' => $httpCode >= 200 && $httpCode < 300, 'response' => $response, 'code' => $httpCode];
     }
-}
+
+    /**
+     * Sync roles for a specific project - comprehensive sync that adds and removes roles
+     */
+    public function syncProjectRolesFull($projectId) {
+        try {
+            // Get project info
+            $stmt = $this->db->prepare("SELECT * FROM projects WHERE id = ?");
+            $stmt->execute([$projectId]);
+            $project = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$project) {
+                return ['success' => false, 'error' => 'Project not found'];
+            }
+            
+            $roles_added = 0;
+            $roles_removed = 0;
+            
+            // Handle accepted role sync
+            if ($project['discord_accepted_role_id']) {
+                $result = $this->syncSpecificRole(
+                    $project['discord_accepted_role_id'],
+                    "SELECT pa.*, u.id as user_id, dl.discord_id
+                     FROM project_assignments pa
+                     JOIN users u ON pa.user_id = u.id
+                     LEFT JOIN discord_links dl ON u.id = dl.user_id
+                     WHERE pa.project_id = ? AND pa.status = 'accepted' AND dl.discord_id IS NOT NULL",
+                    [$projectId]
+                );
+                $roles_added += $result['added'];
+                $roles_removed += $result['removed'];
+            }
+            
+            // Handle pizza role sync
+            if ($project['discord_pizza_role_id']) {
+                $result = $this->syncSpecificRole(
+                    $project['discord_pizza_role_id'],
+                    "SELECT pa.*, u.id as user_id, dl.discord_id
+                     FROM project_assignments pa
+                     JOIN users u ON pa.user_id = u.id
+                     LEFT JOIN discord_links dl ON u.id = dl.user_id
+                     WHERE pa.project_id = ? AND pa.status = 'accepted' AND pa.pizza_grant = 'received' AND dl.discord_id IS NOT NULL",
+                    [$projectId]
+                );
+                $roles_added += $result['added'];
+                $roles_removed += $result['removed'];
+            }
+            
+            return [
+                'success' => true, 
+                'roles_added' => $roles_added,
+                'roles_removed' => $roles_removed
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Discord project full sync failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Sync roles for a specific event - comprehensive sync that adds and removes roles
+     */
+    public function syncEventRolesFull($eventId) {
+        try {
+            // Get event info
+            $stmt = $this->db->prepare("SELECT * FROM events WHERE id = ?");
+            $stmt->execute([$eventId]);
+            $event = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$event || !$event['discord_participated_role_id']) {
+                return ['success' => false, 'error' => 'Event not found or no role configured'];
+            }
+            
+            // Sync participated role
+            $result = $this->syncSpecificRole(
+                $event['discord_participated_role_id'],
+                "SELECT DISTINCT u.id as user_id, dl.discord_id
+                 FROM event_ysws ey
+                 JOIN projects p ON p.requirements LIKE CONCAT('%', ey.ysws_link, '%')
+                 JOIN project_assignments pa ON p.id = pa.project_id AND pa.status = 'accepted'
+                 JOIN users u ON pa.user_id = u.id
+                 LEFT JOIN discord_links dl ON u.id = dl.user_id
+                 WHERE ey.event_id = ? AND dl.discord_id IS NOT NULL",
+                [$eventId]
+            );
+            
+            return [
+                'success' => true,
+                'roles_added' => $result['added'],
+                'roles_removed' => $result['removed']
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Discord event full sync failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Sync a specific Discord role - adds it to users who should have it, removes from users who shouldn't
+     */
+    private function syncSpecificRole($roleId, $query, $params) {
+        $added = 0;
+        $removed = 0;
+        
+        try {
+            // Get all users who should have this role (linked and meet criteria)
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            $usersWhoShouldHaveRole = $stmt->fetchAll(PDO::FETCH_COLUMN, 2); // discord_id column
+            
+            // Get all Discord users who currently have this role
+            $currentRoleMembers = $this->getGuildMembersWithRole($roleId);
+            
+            if (!$currentRoleMembers['success']) {
+                error_log("Failed to get current role members: " . $currentRoleMembers['error']);
+                return ['added' => 0, 'removed' => 0];
+            }
+            
+            $currentDiscordIds = $currentRoleMembers['members'];
+            
+            // Add role to users who should have it but don't
+            foreach ($usersWhoShouldHaveRole as $discordId) {
+                if (!in_array($discordId, $currentDiscordIds)) {
+                    if ($this->assignDiscordRole($discordId, $roleId)) {
+                        $added++;
+                    }
+                }
+            }
+            
+            // Remove role from users who have it but shouldn't
+            foreach ($currentDiscordIds as $discordId) {
+                if (!in_array($discordId, $usersWhoShouldHaveRole)) {
+                    if ($this->removeDiscordRole($discordId, $roleId)) {
+                        $removed++;
+                    }
+                }
+            }
+            
+            return ['added' => $added, 'removed' => $removed];
+            
+        } catch (Exception $e) {
+            error_log("Discord specific role sync failed: " . $e->getMessage());
+            return ['added' => 0, 'removed' => 0];
+        }
+    }

@@ -13,23 +13,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($_POST['sync_project_roles'])) {
         $project_id = (int)$_POST['project_id'];
-        $result = $discordBot->syncProjectRoles($project_id);
+        $comprehensive = isset($_POST['comprehensive']) && $_POST['comprehensive'] === '1';
         
-        if ($result['success']) {
-            $success = "Project roles synced successfully! Assigned " . $result['assigned_count'] . " roles.";
+        if ($comprehensive) {
+            $result = $discordBot->syncProjectRolesFull($project_id);
+            
+            if ($result['success']) {
+                $success = "Project roles synced comprehensively! Added: " . $result['roles_added'] . " roles, Removed: " . $result['roles_removed'] . " roles.";
+            } else {
+                $error = "Failed to sync project roles: " . $result['error'];
+            }
         } else {
-            $error = "Failed to sync project roles: " . $result['error'];
+            $result = $discordBot->syncProjectRoles($project_id);
+            
+            if ($result['success']) {
+                $success = "Project roles synced successfully! Assigned " . $result['assigned_count'] . " roles.";
+            } else {
+                $error = "Failed to sync project roles: " . $result['error'];
+            }
         }
     }
     
     if (isset($_POST['sync_event_roles'])) {
         $event_id = (int)$_POST['event_id'];
-        $result = $discordBot->syncEventRoles($event_id);
+        $comprehensive = isset($_POST['comprehensive']) && $_POST['comprehensive'] === '1';
         
-        if ($result['success']) {
-            $success = "Event roles synced successfully! Assigned " . $result['assigned_count'] . " roles.";
+        if ($comprehensive) {
+            $result = $discordBot->syncEventRolesFull($event_id);
+            
+            if ($result['success']) {
+                $success = "Event roles synced comprehensively! Added: " . $result['roles_added'] . " roles, Removed: " . $result['roles_removed'] . " roles.";
+            } else {
+                $error = "Failed to sync event roles: " . $result['error'];
+            }
         } else {
-            $error = "Failed to sync event roles: " . $result['error'];
+            $result = $discordBot->syncEventRoles($event_id);
+            
+            if ($result['success']) {
+                $success = "Event roles synced successfully! Assigned " . $result['assigned_count'] . " roles.";
+            } else {
+                $error = "Failed to sync event roles: " . $result['error'];
+            }
         }
     }
     
@@ -37,7 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $discordBot->syncAllRoles();
         
         if ($result['success']) {
-            $success = "All roles synced successfully! Projects: " . $result['projects_synced'] . ", Events: " . $result['events_synced'];
+            $success = "All roles synced successfully! Projects: " . $result['projects_synced'] . 
+                      ", Events: " . $result['events_synced'] . 
+                      ", Roles Added: " . $result['roles_added'] . 
+                      ", Roles Removed: " . $result['roles_removed'];
         } else {
             $error = "Failed to sync all roles: " . $result['error'];
         }
@@ -78,12 +105,12 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
             <form method="POST" class="inline">
                 <button type="submit" name="sync_all_roles" 
-                        onclick="return confirm('This will sync ALL Discord roles. Continue?')"
+                        onclick="return confirm('This will perform a FULL sync of ALL Discord roles - adding missing roles to linked users and removing roles from users who no longer qualify. Continue?')"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    Sync All Roles
+                    Sync All Discord Roles
                 </button>
             </form>
         </div>
@@ -157,13 +184,24 @@ include __DIR__ . '/components/dashboard-header.php';
                                 </div>
                                 <form method="POST" class="ml-4">
                                     <input type="hidden" name="project_id" value="<?= $project['id'] ?>">
-                                    <button type="submit" name="sync_project_roles"
-                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                        </svg>
-                                        Sync Roles
-                                    </button>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="submit" name="sync_project_roles"
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                            Add Roles
+                                        </button>
+                                        <button type="submit" name="sync_project_roles" value="1"
+                                                onclick="this.form.comprehensive.value='1'"
+                                                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                            Full Sync
+                                        </button>
+                                        <input type="hidden" name="comprehensive" value="0">
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -208,13 +246,24 @@ include __DIR__ . '/components/dashboard-header.php';
                                 </div>
                                 <form method="POST" class="ml-4">
                                     <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                                    <button type="submit" name="sync_event_roles"
-                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                        </svg>
-                                        Sync Roles
-                                    </button>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="submit" name="sync_event_roles"
+                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                            Add Roles
+                                        </button>
+                                        <button type="submit" name="sync_event_roles" value="1"
+                                                onclick="this.form.comprehensive.value='1'"
+                                                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                            Full Sync
+                                        </button>
+                                        <input type="hidden" name="comprehensive" value="0">
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -233,8 +282,9 @@ include __DIR__ . '/components/dashboard-header.php';
                 <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">How Discord Role Sync Works</h3>
                 <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                     <ul class="list-disc list-inside space-y-1">
-                        <li><strong>Project Sync:</strong> Assigns "accepted" role to users with status "accepted", and "pizza" role to users with pizza_grant "received"</li>
-                        <li><strong>Event Sync:</strong> Assigns "participated" role to users linked to events through YSWS projects</li>
+                        <li><strong>Add Roles:</strong> Only assigns roles to eligible users who don't have them yet</li>
+                        <li><strong>Full Sync:</strong> Assigns roles to eligible users AND removes roles from users who no longer meet criteria or aren't linked</li>
+                        <li><strong>Sync All Roles:</strong> Performs full sync for all projects and events at once</li>
                         <li><strong>Requirements:</strong> Users must have Discord linked in their profile</li>
                         <li><strong>Manual Process:</strong> Click sync buttons to update Discord roles on demand</li>
                     </ul>
