@@ -166,12 +166,15 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (17, 'slack_webhook_url', ''),
 (18, 'google_client_id', ''),
 (19, 'google_client_secret', ''),
-(20, 'google_redirect_uri', '');
+(20, 'google_redirect_uri', ''),
 (21, 'discord_client_id', ''),
 (22, 'discord_client_secret', ''),
 (23, 'discord_redirect_uri', ''),
 (24, 'discord_bot_token', ''),
 (25, 'discord_guild_id', ''),
+(26, 'discord_member_role_id', ''),
+(27, 'discord_co_leader_role_id', ''),
+(28, 'discord_leader_role_id', '');
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,

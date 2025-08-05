@@ -37,23 +37,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_discord_settings'])) {
         $bot_token = $_POST['bot_token'];
         $guild_id = $_POST['guild_id'];
-        $webhook_secret = $_POST['webhook_secret'];
-        $webhook_enabled = isset($_POST['webhook_enabled']) ? '1' : '0';
         
         // Discord OAuth settings
         $client_id = $_POST['client_id'];
         $client_secret = $_POST['client_secret'];
         $redirect_uri = $_POST['redirect_uri'];
         
+        // Discord role IDs
+        $member_role_id = $_POST['member_role_id'];
+        $co_leader_role_id = $_POST['co_leader_role_id'];
+        $leader_role_id = $_POST['leader_role_id'];
+        
         // Update settings in database
         $settings_to_update = [
             'discord_bot_token' => $bot_token,
             'discord_guild_id' => $guild_id,
-            'discord_webhook_secret' => $webhook_secret,
-            'discord_webhook_enabled' => $webhook_enabled,
             'discord_client_id' => $client_id,
             'discord_client_secret' => $client_secret,
-            'discord_redirect_uri' => $redirect_uri
+            'discord_redirect_uri' => $redirect_uri,
+            'discord_member_role_id' => $member_role_id,
+            'discord_co_leader_role_id' => $co_leader_role_id,
+            'discord_leader_role_id' => $leader_role_id
         ];
         
         foreach ($settings_to_update as $name => $value) {
@@ -141,7 +145,7 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Discord Configuration</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure Discord OAuth, bot, and webhook settings</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure Discord OAuth, bot, and role settings</p>
         </div>
         <div class="p-6">
             <form method="POST" class="space-y-6">
@@ -212,26 +216,33 @@ include __DIR__ . '/components/dashboard-header.php';
                     </div>
                 </div>
 
-                <!-- Discord Webhook Settings -->
+                <!-- Discord Role IDs -->
                 <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
-                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Webhook Settings</h4>
-                    <div class="grid grid-cols-1 gap-4">
+                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">User Role IDs</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Webhook Secret</label>
-                            <input type="password" name="webhook_secret" 
-                                   value="<?= htmlspecialchars($discord_settings['discord_webhook_secret'] ?? '') ?>"
-                                   placeholder="Webhook verification secret"
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Member Role ID</label>
+                            <input type="text" name="member_role_id" 
+                                   value="<?= htmlspecialchars($discord_settings['discord_member_role_id'] ?? '') ?>"
+                                   placeholder="Role ID for Members"
                                    class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         </div>
                         <div>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="webhook_enabled" 
-                                       <?= ($discord_settings['discord_webhook_enabled'] ?? '0') === '1' ? 'checked' : '' ?>
-                                       class="rounded border-gray-300 text-primary focus:ring-primary">
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Discord Webhooks</span>
-                            </label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Co-leader Role ID</label>
+                            <input type="text" name="co_leader_role_id" 
+                                   value="<?= htmlspecialchars($discord_settings['discord_co_leader_role_id'] ?? '') ?>"
+                                   placeholder="Role ID for Co-leaders"
+                                   class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Leader Role ID</label>
+                            <input type="text" name="leader_role_id" 
+                                   value="<?= htmlspecialchars($discord_settings['discord_leader_role_id'] ?? '') ?>"
+                                   placeholder="Role ID for Leaders"
+                                   class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">These roles will be automatically assigned based on user roles in the system</p>
                 </div>
 
                 <div class="flex space-x-3 pt-4">
