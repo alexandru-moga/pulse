@@ -10,14 +10,23 @@ include __DIR__ . '/components/dashboard-header.php';
 
 $success = $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    foreach ($_POST['settings'] as $id => $value) {
-        $stmt = $db->prepare("UPDATE settings SET value=? WHERE id=?");
-        $stmt->execute([$value, $id]);
+    try {
+        foreach ($_POST['settings'] as $id => $value) {
+            $stmt = $db->prepare("UPDATE settings SET value=? WHERE id=?");
+            $stmt->execute([$value, $id]);
+        }
+        $success = "Email settings updated successfully!";
+    } catch (Exception $e) {
+        $error = "Failed to update settings: " . $e->getMessage();
     }
-    $success = "Email settings updated successfully!";
 }
 
-$email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' ORDER BY id ASC")->fetchAll();
+try {
+    $email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' ORDER BY id ASC")->fetchAll();
+} catch (Exception $e) {
+    $error = "Failed to load email settings: " . $e->getMessage();
+    $email_settings = [];
+}
 ?>
 
 <div class="space-y-6">
@@ -45,6 +54,19 @@ $email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' OR
             </div>
         </div>
     <?php endif; ?>
+    
+    <?php if ($error): ?>
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700"><?= htmlspecialchars($error) ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">SMTP Configuration</h3>
@@ -57,27 +79,8 @@ $email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' OR
                     <label for="setting-<?= $setting['id'] ?>" class="block text-sm font-medium text-gray-700 mb-1">
                         <?= htmlspecialchars(str_replace('smtp_', 'SMTP ', ucwords(str_replace('_', ' ', $setting['name'])))) ?>
                     </label>
-                    <?php if (strpos($setting['name'], 'password') !== false): ?>
-                        <input type="password" 
-                               name="settings[<?= $setting['id'] ?>]" 
-                               id="setting-<?= $setting['id'] ?>"
-                               value="<?= htmlspecialchars($setting['value']) ?>"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                    <?php elseif ($setting['name'] === 'smtp_port'): ?>
-                        <input type="number" 
-                               name="settings[<?= $setting['id'] ?>]" 
-                               id="setting-<?= $setting['id'] ?>"
-                               value="<?= htmlspecialchars($setting['value']) ?>"
-                               min="1" max="65535"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                    <?php elseif ($setting['name'] === 'smtp_secure'): ?>
-                        <select name="settings[<?= $setting['id'] ?>]" id="setting-<?= $setting['id'] ?>"
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                            <option value="" <?= $setting['value'] == '' ? 'selected' : '' ?>>None</option>
-                            <option value="tls" <?= $setting['value'] == 'tls' ? 'selected' : '' ?>>TLS</option>
-                            <option value="ssl" <?= $setting['value'] == 'ssl' ? 'selected' : '' ?>>SSL</option>
-                        </select>
-                    <?php elseif ($setting['name'] === 'smtp_password'): ?>
+                    
+                    <?php if ($setting['name'] === 'smtp_pass'): ?>
                         <div class="relative">
                             <input type="password" 
                                    name="settings[<?= $setting['id'] ?>]" 
@@ -96,24 +99,33 @@ $email_settings = $db->query("SELECT * FROM settings WHERE name LIKE 'smtp_%' OR
                                 </svg>
                             </button>
                         </div>
-                    
-                    <?php if ($setting['name'] === 'smtp_host'): ?>
-                        <p class="mt-1 text-sm text-gray-500">Your SMTP server hostname (e.g., smtp.gmail.com)</p>
                     <?php elseif ($setting['name'] === 'smtp_port'): ?>
-                        <p class="mt-1 text-sm text-gray-500">Usually 587 for TLS, 465 for SSL, or 25 for no encryption</p>
-                    <?php elseif ($setting['name'] === 'smtp_username'): ?>
-                        <p class="mt-1 text-sm text-gray-500">Your email address or SMTP username</p>
-                    <?php elseif ($setting['name'] === 'smtp_password'): ?>
-                        <p class="mt-1 text-sm text-gray-500">Your email password or app-specific password</p>
-                    <?php elseif ($setting['name'] === 'smtp_secure'): ?>
-                        <p class="mt-1 text-sm text-gray-500">Encryption method used by your email provider</p>
-                        </div>
+                        <input type="number" 
+                               name="settings[<?= $setting['id'] ?>]" 
+                               id="setting-<?= $setting['id'] ?>"
+                               value="<?= htmlspecialchars($setting['value']) ?>"
+                               min="1" max="65535"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                     <?php else: ?>
                         <input type="text" 
                                name="settings[<?= $setting['id'] ?>]" 
                                id="setting-<?= $setting['id'] ?>"
                                value="<?= htmlspecialchars($setting['value']) ?>"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <?php endif; ?>
+                    
+                    <?php if ($setting['name'] === 'smtp_host'): ?>
+                        <p class="mt-1 text-sm text-gray-500">Your SMTP server hostname (e.g., smtp.gmail.com)</p>
+                    <?php elseif ($setting['name'] === 'smtp_port'): ?>
+                        <p class="mt-1 text-sm text-gray-500">Usually 587 for TLS, 465 for SSL, or 25 for no encryption</p>
+                    <?php elseif ($setting['name'] === 'smtp_user'): ?>
+                        <p class="mt-1 text-sm text-gray-500">Your email address or SMTP username</p>
+                    <?php elseif ($setting['name'] === 'smtp_pass'): ?>
+                        <p class="mt-1 text-sm text-gray-500">Your email password or app-specific password</p>
+                    <?php elseif ($setting['name'] === 'smtp_from'): ?>
+                        <p class="mt-1 text-sm text-gray-500">The email address emails will be sent from</p>
+                    <?php elseif ($setting['name'] === 'smtp_from_name'): ?>
+                        <p class="mt-1 text-sm text-gray-500">The name that will appear as the sender</p>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
