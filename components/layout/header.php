@@ -43,7 +43,7 @@ if ($dashboardPageId) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($pageTitle ?? 'PULSE') ?></title>
+    <title><?= htmlspecialchars($pageTitle ?? ($settings['site_title'] ?? 'Site')) ?></title>
     <link rel="stylesheet" href="<?= $settings['site_url'] ?>/css/main.css">
     <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
 </head>

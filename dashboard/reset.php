@@ -61,7 +61,7 @@ if ($token) {
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center">
             <img src="<?= $settings['site_url'] ?>/images/logo.svg" 
-                 alt="PULSE Logo" 
+                 alt="<?= htmlspecialchars($settings['site_title']) ?> Logo" 
                  class="h-16 w-auto">
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">

@@ -2,7 +2,11 @@
 require_once '../core/init.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
-require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
+require_once __DIR__                                 <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
+                                     alt="' . htmlspecialchars($settings['site_title']) . ' Logo" 
+                                     class="logo-img"
+                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
+                                     onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-reset\').style.display=\'flex\';">"./lib/PHPMailer/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -46,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
                 $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
                 $mail->isHTML(true);
-                $mail->Subject = 'Reset Your PULSE Password';
+                $mail->Subject = 'Reset Your ' . htmlspecialchars($settings['site_title']) . ' Password';
                 
                 // Modern HTML email template matching the reset page design
                 $emailBody = '
@@ -55,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Reset Your PULSE Password</title>
+                    <title>Reset Your ' . htmlspecialchars($settings['site_title']) . ' Password</title>
                     <style>
                         body {
                             margin: 0;
@@ -195,14 +199,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     H
                                 </div>
                                 <h1 class="title">Reset Your Password</h1>
-                                <p class="subtitle">Secure access to your PULSE account</p>
+                                <p class="subtitle">Secure access to your ' . htmlspecialchars($settings['site_title']) . ' account</p>
                             </div>
                             
                             <div class="content">
                                 <div class="greeting">Hello ' . htmlspecialchars($user['first_name']) . ',</div>
                                 
                                 <div class="message">
-                                    We received a request to reset the password for your PULSE account. If you made this request, click the button below to set a new password.
+                                    We received a request to reset the password for your ' . htmlspecialchars($settings['site_title']) . ' account. If you made this request, click the button below to set a new password.
                                 </div>
                                 
                                 <div style="text-align: center;">
@@ -221,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             <div class="footer">
                                 <p class="footer-text">
-                                    This email was sent by PULSE. If you have any questions, please contact our support team.
+                                    This email was sent by ' . htmlspecialchars($settings['site_title']) . '. If you have any questions, please contact our support team.
                                 </p>
                             </div>
                         </div>
@@ -247,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - PULSE Dashboard</title>
+    <title>Reset Password - <?= htmlspecialchars($settings['site_title']) ?> Dashboard</title>
     <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -289,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center">
             <img src="<?= $settings['site_url'] ?>/images/logo.svg" 
-                 alt="PULSE Logo" 
+                 alt="<?= htmlspecialchars($settings['site_title']) ?> Logo" 
                  class="h-16 w-auto">
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">

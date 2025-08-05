@@ -61,7 +61,7 @@ $currentPage = basename($_SERVER['SCRIPT_NAME'], '.php');
 
 try {
     $pageStructure = $pageManager->getPageStructure($currentPage);
-    $pageTitle = $pageStructure['meta']['title'] ?? 'PULSE';
+    $pageTitle = $pageStructure['meta']['title'] ?? ($settings['site_title'] ?? 'Site');
     $pageDescription = $pageStructure['meta']['description'] ?? 'Programming University Learning & Software Engineering';
 } catch (Exception $e) {
     die("Page load error: " . $e->getMessage());
@@ -154,7 +154,7 @@ function checkMaintenanceMode() {
         <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full space-y-8 text-center">
                 <div>
-                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="PULSE" class="mx-auto h-16 w-16">
+                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="<?= htmlspecialchars($settings['site_title'] ?? 'Site') ?>" class="mx-auto h-16 w-16">
                     <h1 class="mt-6 text-3xl font-extrabold text-gray-900">Maintenance Mode</h1>
                     <p class="mt-2 text-sm text-gray-600">
                         We're currently performing scheduled maintenance to improve your experience.

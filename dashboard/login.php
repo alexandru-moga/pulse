@@ -53,7 +53,7 @@ $slackConfigured = $slack->isConfigured();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - PULSE Dashboard</title>
+    <title>Login - <?= htmlspecialchars($settings['site_title']) ?> Dashboard</title>
     <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -72,14 +72,14 @@ $slackConfigured = $slack->isConfigured();
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center">
             <img src="<?= $settings['site_url'] ?>/images/logo.svg" 
-                 alt="PULSE Logo" 
+                 alt="<?= htmlspecialchars($settings['site_title']) ?> Logo" 
                  class="h-16 w-auto">
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to Dashboard
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-            Access the PULSE management dashboard
+            Access the <?= htmlspecialchars($settings['site_title']) ?> management dashboard
         </p>
     </div>
 

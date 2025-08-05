@@ -7,7 +7,11 @@ global $db, $currentUser, $settings;
 
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
-require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
+require_o                                <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
+                                     alt="' . htmlspecialchars($settings['site_title']) . ' Logo" 
+                                     class="logo-img"
+                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
+                                     onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-users\').style.display=\'flex\';">"_DIR__ . '/../lib/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -291,14 +295,14 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                                     H
                                 </div>
                                 <h1 class="title">Set Your Password</h1>
-                                <p class="subtitle">Welcome to PULSE - Complete your account setup</p>
+                                <p class="subtitle">Welcome to ' . htmlspecialchars($settings['site_title']) . ' - Complete your account setup</p>
                             </div>
                             
                             <div class="content">
                                 <div class="greeting">Hello ' . htmlspecialchars($user['first_name']) . ',</div>
                                 
                                 <div class="message">
-                                    Welcome to PULSE! Your account has been created and it\'s time to set your password. Click the button below to complete your account setup.
+                                    Welcome to ' . htmlspecialchars($settings['site_title']) . '! Your account has been created and it\'s time to set your password. Click the button below to complete your account setup.
                                 </div>
                                 
                                 <div style="text-align: center;">
@@ -306,7 +310,7 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                                 </div>
                                 
                                 <div class="welcome-notice">
-                                    <p><strong>Getting Started:</strong> This link will expire in 1 hour for security. Once you set your password, you\'ll have full access to your PULSE dashboard.</p>
+                                    <p><strong>Getting Started:</strong> This link will expire in 1 hour for security. Once you set your password, you\'ll have full access to your ' . htmlspecialchars($settings['site_title']) . ' dashboard.</p>
                                 </div>
                                 
                                 <div class="link-fallback">
@@ -317,7 +321,7 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                             
                             <div class="footer">
                                 <p class="footer-text">
-                                    This email was sent by PULSE. If you have any questions, please contact our support team.
+                                    This email was sent by ' . htmlspecialchars($settings['site_title']) . '. If you have any questions, please contact our support team.
                                 </p>
                             </div>
                         </div>

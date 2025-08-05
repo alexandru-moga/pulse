@@ -5,7 +5,11 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser, $settings;
 
-require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
+require_once __DIR_                            <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
+                                 alt="' . htmlspecialchars($settings['site_title']) . ' Logo" 
+                                 class="logo-img"
+                                 style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
+                                 onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-apps\').style.display=\'flex\';">"/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
@@ -184,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
                             <div class="greeting">Hello ' . htmlspecialchars($app['first_name']) . ',</div>
                             
                             <div class="message">
-                                We are excited to inform you that your application to join PULSE has been <strong>accepted</strong>! Welcome to our community.
+                                We are excited to inform you that your application to join ' . htmlspecialchars($settings['site_title']) . ' has been <strong>accepted</strong>! Welcome to our community.
                             </div>
                             
                             <div class="success-notice">
@@ -198,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
                         
                         <div class="footer">
                             <p class="footer-text">
-                                Welcome to PULSE! If you have any questions, please contact our support team.
+                                Welcome to ' . htmlspecialchars($settings['site_title']) . '! If you have any questions, please contact our support team.
                             </p>
                         </div>
                     </div>

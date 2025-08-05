@@ -46,7 +46,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle ?? 'Dashboard - PULSE') ?></title>
+    <title><?= htmlspecialchars($pageTitle ?? 'Dashboard - ' . $settings['site_title']) ?></title>
     <link rel="icon" type="image/x-icon" href="<?= $settings['site_url'] ?>/images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -158,9 +158,9 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         <div class="w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3">
-                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="PULSE" class="h-8 w-8">
+                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="<?= htmlspecialchars($settings['site_title']) ?>" class="h-8 w-8">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">PULSE</h1>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($settings['site_title']) ?></h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">Dashboard</p>
                     </div>
                 </div>

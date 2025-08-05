@@ -1,7 +1,7 @@
 <?php
 // Default values
 $title = $title ?? 'Our Team';
-$subtitle = $subtitle ?? 'Meet the amazing people behind PULSE';
+$subtitle = $subtitle ?? 'Meet the amazing people behind ' . htmlspecialchars($settings['site_title'] ?? 'our organization');
 $show_all_members = $show_all_members ?? true;
 $members_per_row = $members_per_row ?? '3';
 
