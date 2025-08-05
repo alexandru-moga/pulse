@@ -91,23 +91,6 @@ function setupPasswordValidation(config) {
 
     let passwordVisible = false;
 
-    // Function to hide confirm password section
-    function hideConfirmPasswordSection() {
-        if (confirmSection) {
-            confirmSection.style.display = 'none';
-        }
-        if (confirmField && passwordField) {
-            confirmField.value = passwordField.value;
-        }
-    }
-
-    // Function to show confirm password section
-    function showConfirmPasswordSection() {
-        if (confirmSection) {
-            confirmSection.style.display = 'block';
-        }
-    }
-
     // Function to sync both password fields visibility
     function syncPasswordVisibility(visible) {
         passwordVisible = visible;
@@ -144,11 +127,9 @@ function setupPasswordValidation(config) {
             }
         }
 
-        // Update section visibility
-        if (visible) {
-            hideConfirmPasswordSection();
-        } else {
-            showConfirmPasswordSection();
+        // Keep both sections visible at all times, but sync the values when showing
+        if (visible && confirmField && passwordField) {
+            confirmField.value = passwordField.value;
         }
     }
 
@@ -218,8 +199,8 @@ function setupPasswordValidation(config) {
                 passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
             }
 
-            // Auto-fill confirm password when password is visible
-            if (passwordVisible && confirmField) {
+            // Auto-fill confirm password when password is visible and confirm field is empty
+            if (passwordVisible && confirmField && confirmField.value === '') {
                 confirmField.value = password;
             }
 
