@@ -19,17 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Old password is incorrect.";
     } elseif ($newPassword === '') {
         $error = "New password cannot be empty.";
-    } elseif (strlen($newPassword) < 6) {
-        $error = "New password must be at least 6 characters.";
     } elseif ($newPassword !== $confirmPassword) {
         $error = "New passwords do not match.";
     } elseif ($oldPassword === $newPassword) {
         $error = "New password cannot be the same as the old password.";
     } else {
-        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-        $db->prepare("UPDATE users SET password = ? WHERE id = ?")
-           ->execute([$hashed, $currentUser->id]);
-        $success = "Password updated successfully!";
+        // Validate new password
+        $passwordValidation = PasswordValidator::validate($newPassword);
+        if (!$passwordValidation['valid']) {
+            $error = $passwordValidation['message'];
+        } else {
+            $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+            $db->prepare("UPDATE users SET password = ? WHERE id = ?")
+               ->execute([$hashed, $currentUser->id]);
+            $success = "Password updated successfully!";
+        }
     }
 }
 
@@ -78,10 +82,10 @@ include __DIR__ . '/components/dashboard-header.php';
                            id="new_password" 
                            name="new_password" 
                            required 
-                           minlength="6"
+                           minlength="8"
                            autocomplete="new-password"
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                    <p class="mt-1 text-sm text-gray-500">Must be at least 6 characters long.</p>
+                    <?= PasswordValidator::getRequirementsHtml() ?>
                 </div>
 
                 <div>
@@ -90,7 +94,7 @@ include __DIR__ . '/components/dashboard-header.php';
                            id="confirm_password" 
                            name="confirm_password" 
                            required 
-                           minlength="6"
+                           minlength="8"
                            autocomplete="new-password"
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>

@@ -6,7 +6,13 @@ global $db, $settings;
 $token = $_GET['token'] ?? '';
 $error = $success = null;
 
-if ($token) {
+if ($to                            <input id="confirm" 
+                                   name="confirm" 
+                                   type="password" 
+                                   required 
+                                   minlength="8"
+                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                                   placeholder="Confirm new password">
     $stmt = $db->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()");
     $stmt->execute([$token]);
     $reset = $stmt->fetch();
@@ -16,15 +22,21 @@ if ($token) {
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newPassword = $_POST['password'] ?? '';
         $confirm = $_POST['confirm'] ?? '';
-        if ($newPassword === '' || strlen($newPassword) < 6) {
-            $error = "Password must be at least 6 characters.";
+        if ($newPassword === '') {
+            $error = "Password cannot be empty.";
         } elseif ($newPassword !== $confirm) {
             $error = "Passwords do not match.";
         } else {
-            $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-            $db->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $reset['user_id']]);
-            $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$reset['user_id']]);
-            $success = "Password has been reset successfully.";
+            // Validate new password
+            $passwordValidation = PasswordValidator::validate($newPassword);
+            if (!$passwordValidation['valid']) {
+                $error = $passwordValidation['message'];
+            } else {
+                $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+                $db->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $reset['user_id']]);
+                $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$reset['user_id']]);
+                $success = "Password has been reset successfully.";
+            }
         }
     }
 } else {
@@ -117,11 +129,11 @@ if ($token) {
                                    name="password" 
                                    type="password" 
                                    required 
-                                   minlength="6"
+                                   minlength="8"
                                    class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                    placeholder="Enter new password">
                         </div>
-                        <p class="mt-1 text-sm text-gray-500">Must be at least 6 characters long.</p>
+                        <?= PasswordValidator::getRequirementsHtml() ?>
                     </div>
 
                     <div>

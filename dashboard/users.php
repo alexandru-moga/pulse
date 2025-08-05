@@ -21,13 +21,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
-    $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
-    $exists->execute([$data['email']]);
-    if ($exists->fetch()) {
-        $createError = "A user with this email already exists.";
+    // Validate password
+    $passwordValidation = PasswordValidator::validate($_POST['password'] ?? '');
+    if (!$passwordValidation['valid']) {
+        $createError = $passwordValidation['message'];
     } else {
+        $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+        $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
+        $exists->execute([$data['email']]);
+        if ($exists->fetch()) {
+            $createError = "A user with this email already exists.";
+        } else {
         $stmt = $db->prepare("INSERT INTO users
             (first_name, last_name, email, password, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -39,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         ]);
         header("Location: users.php?created=1");
         exit();
+    }
     }
 }
 
@@ -62,21 +69,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
     $updatePassword = !empty($_POST['password']);
     if ($updatePassword) {
-        $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $stmt = $db->prepare("UPDATE users SET
-            first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
-            WHERE id=?");
-        $params = array_values($data);
-        $params[] = $id;
+        // Validate password
+        $passwordValidation = PasswordValidator::validate($_POST['password']);
+        if (!$passwordValidation['valid']) {
+            $editError = $passwordValidation['message'];
+        } else {
+            $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            $stmt = $db->prepare("UPDATE users SET
+                first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+                WHERE id=?");
+            $params = array_values($data);
+            $params[] = $id;
+            $stmt->execute($params);
+            $editSuccess = "User updated successfully!";
+        }
     } else {
         $stmt = $db->prepare("UPDATE users SET
             first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $id;
+        $stmt->execute($params);
+        $editSuccess = "User updated successfully!";
     }
-    $stmt->execute($params);
-    $editSuccess = "User updated successfully!";
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
@@ -259,8 +274,9 @@ include __DIR__ . '/components/dashboard-header.php';
                         </div>
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" name="password" id="password" required
+                            <input type="password" name="password" id="password" required minlength="8"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <?= PasswordValidator::getRequirementsHtml() ?>
                         </div>
                         <div>
                             <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
@@ -373,8 +389,9 @@ include __DIR__ . '/components/dashboard-header.php';
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                                 <p class="text-xs text-gray-500 mb-1">Leave blank to keep current password</p>
-                                <input type="password" name="password" id="password"
+                                <input type="password" name="password" id="password" minlength="8"
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <?= PasswordValidator::getRequirementsHtml() ?>
                             </div>
                             <div>
                                 <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
