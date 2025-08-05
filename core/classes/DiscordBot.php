@@ -1175,3 +1175,4 @@ class DiscordBot {
             return ['added' => 0, 'removed' => 0];
         }
     }
+}
