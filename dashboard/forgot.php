@@ -2,11 +2,7 @@
 require_once '../core/init.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
-require_once __DIR__                                 <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
-                                     alt="' . htmlspecialchars($settings['site_title']) . ' Logo" 
-                                     class="logo-img"
-                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
-                                     onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-reset\').style.display=\'flex\';">"./lib/PHPMailer/src/SMTP.php';
+require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

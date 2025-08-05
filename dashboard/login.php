@@ -79,7 +79,7 @@ $slackConfigured = $slack->isConfigured();
             Sign in to Dashboard
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-            Access the <?= htmlspecialchars($settings['site_title']) ?> management dashboard
+            Access <?= htmlspecialchars($settings['site_title']) ?> dashboard
         </p>
     </div>
 
