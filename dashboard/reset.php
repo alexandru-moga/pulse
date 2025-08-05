@@ -1,5 +1,12 @@
-<?php
-require_once '../core/init.php';
+<?php$token = $_GET['token'] ?? '';
+$error = $success = null;
+
+if ($token) {
+    $stmt = $db->prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()");
+    $stmt->execute([$token]);
+    $reset = $stmt->fetch();
+
+    if (!$reset) {'../core/init.php';
 
 global $db, $settings;
 
