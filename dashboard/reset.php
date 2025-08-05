@@ -95,14 +95,25 @@ if ($token) {
                     <label for="password" class="block text-sm font-medium text-gray-700">
                         New Password
                     </label>
-                    <div class="mt-1">
+                    <div class="mt-1 relative">
                         <input id="password" 
                                name="password" 
                                type="password" 
                                required 
                                minlength="8"
-                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                               class="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                placeholder="Enter new password">
+                        <button type="button" 
+                                id="togglePassword" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg id="eyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <svg id="eyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -110,14 +121,25 @@ if ($token) {
                     <label for="confirm" class="block text-sm font-medium text-gray-700">
                         Confirm Password
                     </label>
-                    <div class="mt-1">
+                    <div class="mt-1 relative">
                         <input id="confirm" 
                                name="confirm" 
                                type="password" 
                                required 
                                minlength="8"
-                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                               class="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                                placeholder="Confirm new password">
+                        <button type="button" 
+                                id="toggleConfirm" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <svg id="confirmEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <svg id="confirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -171,8 +193,65 @@ if ($token) {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const passwordField = document.getElementById('password');
+            const confirmField = document.getElementById('confirm');
             const requirements = document.querySelectorAll('.requirement-item');
             
+            // Password visibility toggle functionality
+            const togglePassword = document.getElementById('togglePassword');
+            const toggleConfirm = document.getElementById('toggleConfirm');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+            const confirmEyeIcon = document.getElementById('confirmEyeIcon');
+            const confirmEyeSlashIcon = document.getElementById('confirmEyeSlashIcon');
+            
+            let passwordVisible = false;
+            let confirmVisible = false;
+            
+            // Toggle main password visibility
+            togglePassword.addEventListener('click', function() {
+                passwordVisible = !passwordVisible;
+                
+                if (passwordVisible) {
+                    passwordField.type = 'text';
+                    eyeIcon.classList.add('hidden');
+                    eyeSlashIcon.classList.remove('hidden');
+                    
+                    // Disable confirm password when main password is visible
+                    confirmField.disabled = true;
+                    confirmField.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    confirmField.placeholder = 'Disabled - password is visible above';
+                    toggleConfirm.style.display = 'none';
+                } else {
+                    passwordField.type = 'password';
+                    eyeIcon.classList.remove('hidden');
+                    eyeSlashIcon.classList.add('hidden');
+                    
+                    // Re-enable confirm password when main password is hidden
+                    confirmField.disabled = false;
+                    confirmField.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    confirmField.placeholder = 'Confirm new password';
+                    toggleConfirm.style.display = 'flex';
+                }
+            });
+            
+            // Toggle confirm password visibility (only works when not disabled)
+            toggleConfirm.addEventListener('click', function() {
+                if (!confirmField.disabled) {
+                    confirmVisible = !confirmVisible;
+                    
+                    if (confirmVisible) {
+                        confirmField.type = 'text';
+                        confirmEyeIcon.classList.add('hidden');
+                        confirmEyeSlashIcon.classList.remove('hidden');
+                    } else {
+                        confirmField.type = 'password';
+                        confirmEyeIcon.classList.remove('hidden');
+                        confirmEyeSlashIcon.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Password validation functionality
             if (passwordField) {
                 passwordField.addEventListener('input', function() {
                     const password = this.value;
@@ -219,6 +298,11 @@ if ($token) {
                         }
                     } else {
                         passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
+                    }
+                    
+                    // Auto-fill confirm password when main password is visible
+                    if (passwordVisible) {
+                        confirmField.value = password;
                     }
                 });
             }
