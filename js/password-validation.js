@@ -90,7 +90,6 @@ function setupPasswordValidation(config) {
     const confirmEyeSlashIcon = document.getElementById(confirmEyeSlashIconId);
 
     let passwordVisible = false;
-    let confirmVisible = false;
 
     // Function to hide confirm password section
     function hideConfirmPasswordSection() {
@@ -99,13 +98,7 @@ function setupPasswordValidation(config) {
         }
         if (confirmField && passwordField) {
             confirmField.value = passwordField.value;
-            // Reset confirm field to password type when section is hidden
-            confirmField.type = 'password';
         }
-        // Reset confirm visibility state and icons when section is hidden
-        confirmVisible = false;
-        if (confirmEyeIcon) confirmEyeIcon.classList.remove('hidden');
-        if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.add('hidden');
     }
 
     // Function to show confirm password section
@@ -115,11 +108,44 @@ function setupPasswordValidation(config) {
         }
     }
 
-    // Function to update visibility states and UI
-    function updatePasswordVisibility() {
-        // Hide confirm section if either password field is visible
-        // Show confirm section only when both password fields are hidden
-        if (passwordVisible || confirmVisible) {
+    // Function to sync both password fields visibility
+    function syncPasswordVisibility(visible) {
+        passwordVisible = visible;
+
+        // Update main password field
+        if (passwordField) {
+            passwordField.type = visible ? 'text' : 'password';
+        }
+
+        // Update confirm password field
+        if (confirmField) {
+            confirmField.type = visible ? 'text' : 'password';
+        }
+
+        // Update main password icons
+        if (eyeIcon && eyeSlashIcon) {
+            if (visible) {
+                eyeIcon.classList.add('hidden');
+                eyeSlashIcon.classList.remove('hidden');
+            } else {
+                eyeIcon.classList.remove('hidden');
+                eyeSlashIcon.classList.add('hidden');
+            }
+        }
+
+        // Update confirm password icons
+        if (confirmEyeIcon && confirmEyeSlashIcon) {
+            if (visible) {
+                confirmEyeIcon.classList.add('hidden');
+                confirmEyeSlashIcon.classList.remove('hidden');
+            } else {
+                confirmEyeIcon.classList.remove('hidden');
+                confirmEyeSlashIcon.classList.add('hidden');
+            }
+        }
+
+        // Update section visibility
+        if (visible) {
             hideConfirmPasswordSection();
         } else {
             showConfirmPasswordSection();
@@ -129,38 +155,14 @@ function setupPasswordValidation(config) {
     // Toggle main password visibility
     if (togglePassword) {
         togglePassword.addEventListener('click', function () {
-            passwordVisible = !passwordVisible;
-
-            if (passwordVisible) {
-                passwordField.type = 'text';
-                if (eyeIcon) eyeIcon.classList.add('hidden');
-                if (eyeSlashIcon) eyeSlashIcon.classList.remove('hidden');
-            } else {
-                passwordField.type = 'password';
-                if (eyeIcon) eyeIcon.classList.remove('hidden');
-                if (eyeSlashIcon) eyeSlashIcon.classList.add('hidden');
-            }
-
-            updatePasswordVisibility();
+            syncPasswordVisibility(!passwordVisible);
         });
     }
 
     // Toggle confirm password visibility
     if (toggleConfirm) {
         toggleConfirm.addEventListener('click', function () {
-            confirmVisible = !confirmVisible;
-
-            if (confirmVisible) {
-                if (confirmField) confirmField.type = 'text';
-                if (confirmEyeIcon) confirmEyeIcon.classList.add('hidden');
-                if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.remove('hidden');
-            } else {
-                if (confirmField) confirmField.type = 'password';
-                if (confirmEyeIcon) confirmEyeIcon.classList.remove('hidden');
-                if (confirmEyeSlashIcon) confirmEyeSlashIcon.classList.add('hidden');
-            }
-
-            updatePasswordVisibility();
+            syncPasswordVisibility(!passwordVisible);
         });
     }
 
@@ -216,8 +218,8 @@ function setupPasswordValidation(config) {
                 passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
             }
 
-            // Auto-fill confirm password when any password is visible
-            if ((passwordVisible || confirmVisible) && confirmField) {
+            // Auto-fill confirm password when password is visible
+            if (passwordVisible && confirmField) {
                 confirmField.value = password;
             }
 
