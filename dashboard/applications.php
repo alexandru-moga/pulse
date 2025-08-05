@@ -81,7 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
                         width: 64px;
                         height: 64px;
                         margin: 0 auto 24px auto;
-                        display: block;
+                        background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: system-ui, -apple-system, sans-serif;
+                        font-weight: bold;
+                        font-size: 24px;
+                        color: white;
+                        text-decoration: none;
                     }
                     .logo-fallback {
                         width: 64px;
@@ -165,19 +174,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
                 <div class="container">
                     <div class="card">
                         <div class="header">
-                            <!--[if mso]>
-                            <div class="logo-fallback">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                            <div class="logo" style="width: 64px; height: 64px; margin: 0 auto 24px auto; background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 24px; color: white;">
+                                H
                             </div>
-                            <![endif]-->
-                            <!--[if !mso]><!-->
-                            <img src="' . $settings['site_url'] . '/images/logo.svg" 
-                                 alt="PULSE Logo" 
-                                 class="logo"
-                                 style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block;">
-                            <!--<![endif]-->
                             <h1 class="title">Congratulations!</h1>
                             <p class="subtitle">Your application has been accepted</p>
                         </div>

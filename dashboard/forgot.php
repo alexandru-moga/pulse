@@ -85,7 +85,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             width: 64px;
                             height: 64px;
                             margin: 0 auto 24px auto;
-                            display: block;
+                            background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-family: system-ui, -apple-system, sans-serif;
+                            font-weight: bold;
+                            font-size: 24px;
+                            color: white;
+                            text-decoration: none;
                         }
                         .logo-fallback {
                             width: 64px;
@@ -185,19 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="container">
                         <div class="card">
                             <div class="header">
-                                <!--[if mso]>
-                                <div class="logo-fallback">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                    </svg>
+                                <div class="logo" style="width: 64px; height: 64px; margin: 0 auto 24px auto; background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 24px; color: white;">
+                                    H
                                 </div>
-                                <![endif]-->
-                                <!--[if !mso]><!-->
-                                <img src="' . $settings['site_url'] . '/images/logo.svg" 
-                                     alt="PULSE Logo" 
-                                     class="logo"
-                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block;">
-                                <!--<![endif]-->
                                 <h1 class="title">Reset Your Password</h1>
                                 <p class="subtitle">Secure access to your PULSE account</p>
                             </div>
