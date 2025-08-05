@@ -181,13 +181,19 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                             width: 64px;
                             height: 64px;
                             margin: 0 auto 24px auto;
+                            display: block;
+                        }
+                        .logo-fallback {
+                            width: 64px;
+                            height: 64px;
+                            margin: 0 auto 24px auto;
                             background-color: #ec4a0a;
                             border-radius: 50%;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                         }
-                        .logo svg {
+                        .logo-fallback svg {
                             width: 32px;
                             height: 32px;
                             color: white;
@@ -275,11 +281,19 @@ if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
                     <div class="container">
                         <div class="card">
                             <div class="header">
-                                <div class="logo">
+                                <!--[if mso]>
+                                <div class="logo-fallback">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                     </svg>
                                 </div>
+                                <![endif]-->
+                                <!--[if !mso]><!-->
+                                <img src="' . $settings['site_url'] . '/images/logo.svg" 
+                                     alt="PULSE Logo" 
+                                     class="logo"
+                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block;">
+                                <!--<![endif]-->
                                 <h1 class="title">Set Your Password</h1>
                                 <p class="subtitle">Welcome to PULSE - Complete your account setup</p>
                             </div>
