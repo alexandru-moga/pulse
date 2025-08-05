@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_discord_settings'])) {
         $bot_token = $_POST['bot_token'];
         $guild_id = $_POST['guild_id'];
-        $bot_enabled = isset($_POST['bot_enabled']) ? '1' : '0';
         $webhook_secret = $_POST['webhook_secret'];
         $webhook_enabled = isset($_POST['webhook_enabled']) ? '1' : '0';
         
@@ -50,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $settings_to_update = [
             'discord_bot_token' => $bot_token,
             'discord_guild_id' => $guild_id,
-            'discord_bot_enabled' => $bot_enabled,
             'discord_webhook_secret' => $webhook_secret,
             'discord_webhook_enabled' => $webhook_enabled,
             'discord_client_id' => $client_id,
@@ -81,18 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Discord connection failed: " . $test_result['error'];
         }
     }
-    
-    if (isset($_POST['register_slash_commands'])) {
-        require_once __DIR__ . '/../core/classes/DiscordBot.php';
-        $discordBot = new DiscordBot($db);
-        
-        $result = $discordBot->registerSlashCommands();
-        if ($result['success']) {
-            $success = "Discord slash commands registered successfully!";
-        } else {
-            $error = "Failed to register slash commands: " . $result['error'];
-        }
-    }
 }
 
 // Get current Discord settings
@@ -109,7 +95,7 @@ $projects = $db->query("SELECT id, title, discord_accepted_role_id, discord_pizz
 // Get all events with their Discord role settings
 $events = $db->query("SELECT id, title, discord_participated_role_id FROM events ORDER BY start_datetime DESC")->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Discord Role Settings';
+$pageTitle = 'Discord Settings';
 include __DIR__ . '/components/dashboard-header.php';
 ?>
 
@@ -118,8 +104,8 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Discord Role Settings</h2>
-                <p class="text-gray-600 dark:text-gray-300 mt-1">Configure Discord bot settings and roles for projects and events</p>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Discord Settings</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Configure Discord OAuth, bot settings, and role IDs for projects and events</p>
             </div>
         </div>
     </div>
@@ -172,16 +158,25 @@ include __DIR__ . '/components/dashboard-header.php';
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Client Secret</label>
-                            <input type="password" name="client_secret" 
-                                   value="<?= htmlspecialchars($discord_settings['discord_client_secret'] ?? '') ?>"
-                                   placeholder="Your Discord Application Client Secret"
-                                   class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                            <div class="mt-1 relative">
+                                <input type="password" name="client_secret" id="client_secret"
+                                       value="<?= htmlspecialchars($discord_settings['discord_client_secret'] ?? '') ?>"
+                                       placeholder="Your Discord Application Client Secret"
+                                       class="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 pr-10 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                                <button type="button" onclick="toggleVisibility('client_secret')" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Redirect URI</label>
                             <input type="url" name="redirect_uri" 
                                    value="<?= htmlspecialchars($discord_settings['discord_redirect_uri'] ?? '') ?>"
-                                   placeholder="https://yourdomain.com/auth/discord/callback"
+                                   placeholder="https://yourdomain.com/auth/discord/"
                                    class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
@@ -193,10 +188,19 @@ include __DIR__ . '/components/dashboard-header.php';
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bot Token</label>
-                            <input type="password" name="bot_token" 
-                                   value="<?= htmlspecialchars($discord_settings['discord_bot_token'] ?? '') ?>"
-                                   placeholder="Your Discord Bot Token"
-                                   class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                            <div class="mt-1 relative">
+                                <input type="password" name="bot_token" id="bot_token"
+                                       value="<?= htmlspecialchars($discord_settings['discord_bot_token'] ?? '') ?>"
+                                       placeholder="Your Discord Bot Token"
+                                       class="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 pr-10 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                                <button type="button" onclick="toggleVisibility('bot_token')" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Guild ID</label>
@@ -204,14 +208,6 @@ include __DIR__ . '/components/dashboard-header.php';
                                    value="<?= htmlspecialchars($discord_settings['discord_guild_id'] ?? '') ?>"
                                    placeholder="Your Discord Server ID"
                                    class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="bot_enabled" 
-                                       <?= ($discord_settings['discord_bot_enabled'] ?? '0') === '1' ? 'checked' : '' ?>
-                                       class="rounded border-gray-300 text-primary focus:ring-primary">
-                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable Discord Bot</span>
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -247,10 +243,6 @@ include __DIR__ . '/components/dashboard-header.php';
                             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Test Bot Connection
                     </button>
-                    <button type="submit" name="register_slash_commands"
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        Register /sync Command
-                    </button>
                 </div>
             </form>
         </div>
@@ -260,7 +252,7 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Project Discord Roles</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure roles for project acceptance and pizza grants</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure role IDs for project acceptance and pizza grants</p>
         </div>
         <div class="p-6">
             <?php if (empty($projects)): ?>
@@ -298,7 +290,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <div class="flex justify-end">
                                     <button type="submit" name="update_project_roles"
                                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                                        Update Roles
+                                        Update Role IDs
                                     </button>
                                 </div>
                             </form>
@@ -313,7 +305,7 @@ include __DIR__ . '/components/dashboard-header.php';
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Event Discord Roles</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure roles for event participation</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure role IDs for event participation</p>
         </div>
         <div class="p-6">
             <?php if (empty($events)): ?>
@@ -344,7 +336,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <div class="flex justify-end">
                                     <button type="submit" name="update_event_roles"
                                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                                        Update Role
+                                        Update Role ID
                                     </button>
                                 </div>
                             </form>
@@ -392,18 +384,24 @@ include __DIR__ . '/components/dashboard-header.php';
                         </ol>
                     </div>
                     <div>
-                        <h4 class="font-medium">Slash Commands Setup:</h4>
-                        <ol class="list-decimal list-inside space-y-1 mt-1">
-                            <li>Configure bot token and guild ID above</li>
-                            <li>Click "Register /sync Command" to register the slash command</li>
-                            <li>Set your interactions endpoint URL in Discord Developer Portal to: <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded"><?= htmlspecialchars($settings['site_url']) ?>/api/discord/interactions.php</code></li>
-                            <li>Use <code>/sync</code> command in your Discord server to synchronize roles</li>
-                        </ol>
+                        <h4 class="font-medium">Role Synchronization:</h4>
+                        <p class="mt-1">Role synchronization is now handled by a separate Discord bot. Configure the role IDs above and the bot will automatically sync roles based on project assignments and event participation.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function toggleVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+    } else {
+        field.type = 'password';
+    }
+}
+</script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
