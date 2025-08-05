@@ -11,29 +11,6 @@ include __DIR__ . '/components/dashboard-header.php';
 
 $success = $error = null;
 
-// Handle Discord role sync
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_discord_roles'])) {
-    $discordBot = new DiscordBot($db);
-    $result = $discordBot->syncAllRoles();
-    
-    if ($result['success']) {
-        $success = "Discord roles synced successfully! Projects: " . $result['projects_synced'] . ", Events: " . $result['events_synced'];
-    } else {
-        $error = "Failed to sync Discord roles: " . $result['error'];
-    }
-}
-
-// Handle role cleanup (remove roles from users who no longer qualify)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cleanup_discord_roles'])) {
-    $discordBot = new DiscordBot($db);
-    $result = $discordBot->cleanupDiscordRoles();
-    
-    if ($result['success']) {
-        $success = "Discord role cleanup completed! Removed " . $result['removed_count'] . " invalid role assignments.";
-    } else {
-        $error = "Failed to cleanup Discord roles: " . $result['error'];
-    }
-}
 
 // Get statistics for display
 $stats = [
@@ -120,37 +97,10 @@ $unlinked_users = $stats['total_users'] - $stats['discord_linked_users'];
             <div class="space-y-4">
                 <div class="flex flex-col sm:flex-row gap-4">
                     <form method="POST" class="flex-1">
-                        <button type="submit" name="sync_discord_roles" 
-                                onclick="return confirm('This will sync Discord roles for all projects and events. Continue?')"
-                                class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            Sync All Discord Roles
-                        </button>
                     </form>
                     
                     <form method="POST" class="flex-1">
-                        <button type="submit" name="cleanup_discord_roles" 
-                                onclick="return confirm('This will remove Discord roles from users who no longer qualify. Continue?')"
-                                class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                            Cleanup Invalid Roles
-                        </button>
                     </form>
-                </div>
-                
-                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4">
-                    <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Discord Role Sync Information</h4>
-                    <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                        <li>• <strong>Sync All:</strong> Assigns roles to users based on their project acceptance status and event participation</li>
-                        <li>• <strong>Cleanup:</strong> Removes roles from users who no longer qualify (rejected projects, inactive users, unlinked Discord accounts)</li>
-                        <li>• <strong>Project Roles:</strong> "Accepted" role for accepted users, "Pizza" role for pizza grant recipients</li>
-                        <li>• <strong>Event Roles:</strong> "Participated" role for users linked to events through YSWS projects</li>
-                        <li>• <strong>Requirements:</strong> Users must have Discord linked in their profile</li>
-                    </ul>
                 </div>
             </div>
         </div>
