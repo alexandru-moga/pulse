@@ -480,13 +480,12 @@ include __DIR__ . '/components/dashboard-header.php';
                                         </svg>
                                         <svg id="editEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <!-- Password Strength Indicator -->
-                                <div id="editPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div id="editPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Password Strength Indicator -->
+                            <div id="editPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="editPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
                             </div>
                             
                             <div id="editConfirmPasswordSection">
@@ -503,109 +502,109 @@ include __DIR__ . '/components/dashboard-header.php';
                                         </svg>
                                         <svg id="editConfirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <!-- Confirm Password Strength Indicator -->
-                                <div id="editConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div id="editConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                </div>
-                                <!-- Password Requirements -->
-                                <div id="password-requirements-edit" class="text-xs text-gray-500 mt-1">
-                                    <p class="mb-2">Password must contain:</p>
-                                    <ul class="space-y-1">
-                                        <li class="requirement-item flex items-center" data-check="minLength">
-                                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                            <span>At least 8 characters</span>
-                                        </li>
-                                        <li class="requirement-item flex items-center" data-check="hasUppercase">
-                                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                            <span>At least 1 uppercase letter</span>
-                                        </li>
-                                        <li class="requirement-item flex items-center" data-check="hasLowercase">
-                                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                            <span>At least 1 lowercase letter</span>
-                                        </li>
-                                        <li class="requirement-item flex items-center" data-check="hasNumber">
-                                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                            <span>At least 1 number</span>
-                                        </li>
-                                        <li class="requirement-item flex items-center" data-check="hasSpecialChar">
-                                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                            <span>At least 1 special character</span>
-                                        </li>
-                                    </ul>
-                                </div>
+                                    </svg>
+                                </button>
                             </div>
-                            <div>
-                                <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
-                                <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <!-- Confirm Password Strength Indicator -->
+                            <div id="editConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="editConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
                             </div>
-                            <div>
-                                <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
-                                <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="school" class="block text-sm font-medium text-gray-700">School</label>
-                                <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                                <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
-                                <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                                <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
-                                <select name="role" id="role"
-                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                    <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
-                                    <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
-                                    <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
-                                </select>
+                            <!-- Password Requirements -->
+                            <div id="password-requirements-edit" class="text-xs text-gray-500 mt-1">
+                                <p class="mb-2">Password must contain:</p>
+                                <ul class="space-y-1">
+                                    <li class="requirement-item flex items-center" data-check="minLength">
+                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                                        <span>At least 8 characters</span>
+                                    </li>
+                                    <li class="requirement-item flex items-center" data-check="hasUppercase">
+                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                                        <span>At least 1 uppercase letter</span>
+                                    </li>
+                                    <li class="requirement-item flex items-center" data-check="hasLowercase">
+                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                                        <span>At least 1 lowercase letter</span>
+                                    </li>
+                                    <li class="requirement-item flex items-center" data-check="hasNumber">
+                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                                        <span>At least 1 number</span>
+                                    </li>
+                                    <li class="requirement-item flex items-center" data-check="hasSpecialChar">
+                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                                        <span>At least 1 special character</span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                        
-                        <div class="flex items-center space-x-6">
-                            <div class="flex items-center">
-                                <input type="checkbox" name="hcb_member" value="1" id="hcb_member" <?= $editUser['hcb_member'] ? 'checked' : '' ?>
-                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                                <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                                <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
-                            </div>
-                        </div>
-                        
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea name="description" id="description" rows="3"
-                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
+                            <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                            <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
-                        
-                        <div class="flex justify-end">
-                            <button type="submit" name="edit_user"
-                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <div>
+                            <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                            <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="school" class="block text-sm font-medium text-gray-700">School</label>
+                            <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                            <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                            <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                            <select name="role" id="role"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
+                                <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
+                                <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="hcb_member" value="1" id="hcb_member" <?= $editUser['hcb_member'] ? 'checked' : '' ?>
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" id="description" rows="3"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" name="edit_user"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                                 Save Changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
         <?php else: ?>
             <div class="bg-red-50 border border-red-200 rounded-md p-4">
                 <div class="flex">
@@ -740,238 +739,41 @@ include __DIR__ . '/components/dashboard-header.php';
     <?php endif; ?>
 </div>
 
+<script src="<?= $settings['site_url'] ?>/js/password-validation.js"></script>
+
 <script>
-// Function to calculate password strength
-function calculateStrength(password) {
-    let score = 0;
-    const checks = {
-        minLength: password.length >= 8,
-        hasUppercase: /[A-Z]/.test(password),
-        hasLowercase: /[a-z]/.test(password),
-        hasNumber: /[0-9]/.test(password),
-        hasSpecialChar: /[^A-Za-z0-9]/.test(password)
-    };
-    
-    // Calculate score based on requirements met
-    Object.values(checks).forEach(check => {
-        if (check) score += 20;
-    });
-    
-    return { score, checks };
-}
-
-// Function to update strength indicator
-function updateStrengthIndicator(strengthBar, password, isConfirm = false, mainPassword = '') {
-    if (!password) {
-        strengthBar.style.width = '0%';
-        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-gray-300';
-        return;
-    }
-    
-    let strength;
-    if (isConfirm) {
-        // For confirm field, check if it matches the main password
-        if (password === mainPassword && mainPassword.length > 0) {
-            strength = calculateStrength(password);
-        } else {
-            strengthBar.style.width = '100%';
-            strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
-            return;
-        }
-    } else {
-        strength = calculateStrength(password);
-    }
-    
-    const { score } = strength;
-    strengthBar.style.width = score + '%';
-    
-    // Update color based on strength
-    if (score < 40) {
-        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
-    } else if (score < 80) {
-        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-yellow-500';
-    } else {
-        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-green-500';
-    }
-}
-
-function setupPasswordValidation(passwordFieldId, confirmFieldId, confirmSectionId, requirementsSelector, strengthBarId, confirmStrengthBarId, togglePasswordId, toggleConfirmId, eyeIconId, eyeSlashIconId, confirmEyeIconId, confirmEyeSlashIconId) {
-    const passwordField = document.getElementById(passwordFieldId);
-    const confirmField = document.getElementById(confirmFieldId);
-    const confirmSection = document.getElementById(confirmSectionId);
-    const requirements = document.querySelectorAll(requirementsSelector + ' .requirement-item');
-    const strengthBar = document.getElementById(strengthBarId);
-    const confirmStrengthBar = document.getElementById(confirmStrengthBarId);
-    
-    // Visibility toggle elements
-    const togglePassword = document.getElementById(togglePasswordId);
-    const toggleConfirm = document.getElementById(toggleConfirmId);
-    const eyeIcon = document.getElementById(eyeIconId);
-    const eyeSlashIcon = document.getElementById(eyeSlashIconId);
-    const confirmEyeIcon = document.getElementById(confirmEyeIconId);
-    const confirmEyeSlashIcon = document.getElementById(confirmEyeSlashIconId);
-    
-    let passwordVisible = false;
-    let confirmVisible = false;
-    
-    // Toggle password visibility
-    if (togglePassword) {
-        togglePassword.addEventListener('click', function() {
-            passwordVisible = !passwordVisible;
-            
-            if (passwordVisible) {
-                passwordField.type = 'text';
-                eyeIcon.classList.add('hidden');
-                eyeSlashIcon.classList.remove('hidden');
-                
-                // Hide confirm password section
-                if (confirmSection) {
-                    confirmSection.style.display = 'none';
-                }
-                
-                // Auto-fill confirm password
-                if (confirmField) {
-                    confirmField.value = passwordField.value;
-                }
-            } else {
-                passwordField.type = 'password';
-                eyeIcon.classList.remove('hidden');
-                eyeSlashIcon.classList.add('hidden');
-                
-                // Show confirm password section
-                if (confirmSection) {
-                    confirmSection.style.display = 'block';
-                }
-            }
-        });
-    }
-    
-    // Toggle confirm password visibility
-    if (toggleConfirm) {
-        toggleConfirm.addEventListener('click', function() {
-            if (!passwordVisible) {
-                confirmVisible = !confirmVisible;
-                
-                if (confirmVisible) {
-                    confirmField.type = 'text';
-                    confirmEyeIcon.classList.add('hidden');
-                    confirmEyeSlashIcon.classList.remove('hidden');
-                } else {
-                    confirmField.type = 'password';
-                    confirmEyeIcon.classList.remove('hidden');
-                    confirmEyeSlashIcon.classList.add('hidden');
-                }
-            }
-        });
-    }
-    
-    if (passwordField) {
-        passwordField.addEventListener('input', function() {
-            const password = this.value;
-            
-            // Update strength indicator
-            if (strengthBar) {
-                updateStrengthIndicator(strengthBar, password);
-            }
-            
-            // Check each requirement
-            const checks = {
-                minLength: password.length >= 8,
-                hasUppercase: /[A-Z]/.test(password),
-                hasLowercase: /[a-z]/.test(password),
-                hasNumber: /[0-9]/.test(password),
-                hasSpecialChar: /[^A-Za-z0-9]/.test(password)
-            };
-            
-            // Update requirement indicators
-            requirements.forEach(item => {
-                const check = item.getAttribute('data-check');
-                const dot = item.querySelector('.requirement-dot');
-                const text = item.querySelector('span:last-child');
-                
-                if (checks[check]) {
-                    // Requirement met - green dot and text
-                    dot.classList.remove('bg-gray-300');
-                    dot.classList.add('bg-green-500');
-                    text.classList.remove('text-gray-500');
-                    text.classList.add('text-green-600');
-                } else {
-                    // Requirement not met - gray dot and text
-                    dot.classList.remove('bg-green-500');
-                    dot.classList.add('bg-gray-300');
-                    text.classList.remove('text-green-600');
-                    text.classList.add('text-gray-500');
-                }
-            });
-            
-            // Update password field border color
-            const allValid = Object.values(checks).every(check => check);
-            if (password.length > 0) {
-                if (allValid) {
-                    passwordField.classList.remove('border-red-300', 'focus:border-red-300');
-                    passwordField.classList.add('border-green-300', 'focus:border-green-300');
-                } else {
-                    passwordField.classList.remove('border-green-300', 'focus:border-green-300');
-                    passwordField.classList.add('border-red-300', 'focus:border-red-300');
-                }
-            } else {
-                passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
-            }
-            
-            // Auto-fill confirm password when main password is visible
-            if (passwordVisible && confirmField) {
-                confirmField.value = password;
-            }
-            
-            // Update confirm field strength indicator if it has content
-            if (confirmField && confirmField.value && confirmStrengthBar) {
-                updateStrengthIndicator(confirmStrengthBar, confirmField.value, true, password);
-            }
-        });
-    }
-    
-    // Confirm password validation
-    if (confirmField) {
-        confirmField.addEventListener('input', function() {
-            const confirmPassword = this.value;
-            const mainPassword = passwordField.value;
-            
-            if (confirmStrengthBar) {
-                updateStrengthIndicator(confirmStrengthBar, confirmPassword, true, mainPassword);
-            }
-            
-            // Update confirm field border color based on match
-            if (confirmPassword.length > 0) {
-                if (confirmPassword === mainPassword && mainPassword.length > 0) {
-                    confirmField.classList.remove('border-red-300', 'focus:border-red-300');
-                    confirmField.classList.add('border-green-300', 'focus:border-green-300');
-                } else {
-                    confirmField.classList.remove('border-green-300', 'focus:border-green-300');
-                    confirmField.classList.add('border-red-300', 'focus:border-red-300');
-                }
-            } else {
-                confirmField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
-            }
-        });
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     // Setup validation for create user form
-    setupPasswordValidation(
-        'password', 'confirm_password', 'createConfirmPasswordSection', '#password-requirements-create',
-        'createPasswordStrengthBar', 'createConfirmStrengthBar',
-        'toggleCreatePassword', 'toggleCreateConfirm',
-        'createEyeIcon', 'createEyeSlashIcon', 'createConfirmEyeIcon', 'createConfirmEyeSlashIcon'
-    );
+    setupPasswordValidation({
+        passwordFieldId: 'password',
+        confirmFieldId: 'confirm_password',
+        confirmSectionId: 'createConfirmPasswordSection',
+        requirementsSelector: '#password-requirements-create',
+        strengthBarId: 'createPasswordStrengthBar',
+        confirmStrengthBarId: 'createConfirmStrengthBar',
+        togglePasswordId: 'toggleCreatePassword',
+        toggleConfirmId: 'toggleCreateConfirm',
+        eyeIconId: 'createEyeIcon',
+        eyeSlashIconId: 'createEyeSlashIcon',
+        confirmEyeIconId: 'createConfirmEyeIcon',
+        confirmEyeSlashIconId: 'createConfirmEyeSlashIcon'
+    });
     
     // Setup validation for edit user form
-    setupPasswordValidation(
-        'edit-password', 'edit_confirm_password', 'editConfirmPasswordSection', '#password-requirements-edit',
-        'editPasswordStrengthBar', 'editConfirmStrengthBar',
-        'toggleEditPassword', 'toggleEditConfirm',
-        'editEyeIcon', 'editEyeSlashIcon', 'editConfirmEyeIcon', 'editConfirmEyeSlashIcon'
-    );
+    setupPasswordValidation({
+        passwordFieldId: 'edit-password',
+        confirmFieldId: 'edit_confirm_password',
+        confirmSectionId: 'editConfirmPasswordSection',
+        requirementsSelector: '#password-requirements-edit',
+        strengthBarId: 'editPasswordStrengthBar',
+        confirmStrengthBarId: 'editConfirmStrengthBar',
+        togglePasswordId: 'toggleEditPassword',
+        toggleConfirmId: 'toggleEditConfirm',
+        eyeIconId: 'editEyeIcon',
+        eyeSlashIconId: 'editEyeSlashIcon',
+        confirmEyeIconId: 'editConfirmEyeIcon',
+        confirmEyeSlashIconId: 'editConfirmEyeSlashIcon'
+    });
 });
 
 function toggleActive(checkbox, userId) {
