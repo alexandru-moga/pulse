@@ -182,6 +182,7 @@ class DiscordBot {
      */
     private function assignDiscordRole($discordUserId, $roleId) {
         if (!$this->botToken || !$this->guildId) {
+            error_log("Discord role assignment failed: Bot token or guild ID not configured");
             return false;
         }
         
@@ -202,7 +203,12 @@ class DiscordBot {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
-        return $httpCode === 204;
+        if ($httpCode !== 204) {
+            error_log("Discord role assignment failed for user {$discordUserId}, role {$roleId}: HTTP {$httpCode}, Response: {$response}");
+            return false;
+        }
+        
+        return true;
     }
     
     /**
@@ -737,6 +743,7 @@ class DiscordBot {
      */
     private function removeDiscordRole($discordUserId, $roleId) {
         if (!$this->botToken || !$this->guildId) {
+            error_log("Discord role removal failed: Bot token or guild ID not configured");
             return false;
         }
         
@@ -757,7 +764,12 @@ class DiscordBot {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
-        return $httpCode === 204;
+        if ($httpCode !== 204) {
+            error_log("Discord role removal failed for user {$discordUserId}, role {$roleId}: HTTP {$httpCode}, Response: {$response}");
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -1138,23 +1150,35 @@ class DiscordBot {
             // Get all users who should have this role (linked and meet criteria)
             $stmt = $this->db->prepare($query);
             $stmt->execute($params);
-            $usersWhoShouldHaveRole = $stmt->fetchAll(PDO::FETCH_COLUMN, 2); // discord_id column
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Extract discord_id values from the results
+            $usersWhoShouldHaveRole = [];
+            foreach ($results as $row) {
+                if (!empty($row['discord_id'])) {
+                    $usersWhoShouldHaveRole[] = $row['discord_id'];
+                }
+            }
             
             // Get all Discord users who currently have this role
             $currentRoleMembers = $this->getGuildMembersWithRole($roleId);
             
             if (!$currentRoleMembers['success']) {
-                error_log("Failed to get current role members: " . $currentRoleMembers['error']);
+                error_log("Failed to get current role members for role {$roleId}: " . $currentRoleMembers['error']);
                 return ['added' => 0, 'removed' => 0];
             }
             
             $currentDiscordIds = $currentRoleMembers['members'];
+            
+            // Debug logging
+            error_log("Role sync for role {$roleId}: Should have role: " . count($usersWhoShouldHaveRole) . " users, Currently have role: " . count($currentDiscordIds) . " users");
             
             // Add role to users who should have it but don't
             foreach ($usersWhoShouldHaveRole as $discordId) {
                 if (!in_array($discordId, $currentDiscordIds)) {
                     if ($this->assignDiscordRole($discordId, $roleId)) {
                         $added++;
+                        error_log("Added role {$roleId} to user {$discordId}");
                     }
                 }
             }
@@ -1164,6 +1188,7 @@ class DiscordBot {
                 if (!in_array($discordId, $usersWhoShouldHaveRole)) {
                     if ($this->removeDiscordRole($discordId, $roleId)) {
                         $removed++;
+                        error_log("Removed role {$roleId} from user {$discordId}");
                     }
                 }
             }
@@ -1173,6 +1198,114 @@ class DiscordBot {
         } catch (Exception $e) {
             error_log("Discord specific role sync failed: " . $e->getMessage());
             return ['added' => 0, 'removed' => 0];
+        }
+    }
+
+    /**
+     * Debug method to test role sync functionality
+     */
+    public function debugRoleSync($roleId) {
+        try {
+            error_log("=== DEBUG ROLE SYNC FOR ROLE {$roleId} ===");
+            
+            // Test getting current role members
+            $currentMembers = $this->getGuildMembersWithRole($roleId);
+            if (!$currentMembers['success']) {
+                error_log("Failed to get current role members: " . $currentMembers['error']);
+                return ['success' => false, 'error' => $currentMembers['error']];
+            }
+            
+            error_log("Current role members: " . json_encode($currentMembers['members']));
+            
+            // Test getting users who should have role from database
+            $stmt = $this->db->prepare("
+                SELECT dl.discord_id, u.username, pa.status, pa.pizza_grant
+                FROM discord_links dl
+                JOIN users u ON dl.user_id = u.id
+                LEFT JOIN project_assignments pa ON u.id = pa.user_id
+                WHERE dl.discord_id IS NOT NULL
+                ORDER BY u.username
+            ");
+            $stmt->execute();
+            $allLinkedUsers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("All linked users in database: " . json_encode($allLinkedUsers));
+            
+            return [
+                'success' => true,
+                'current_members' => $currentMembers['members'],
+                'linked_users' => $allLinkedUsers
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Debug role sync failed: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Check bot permissions in the guild
+     */
+    public function checkBotPermissions() {
+        if (!$this->botToken || !$this->guildId) {
+            return ['success' => false, 'error' => 'Bot token or guild ID not configured'];
+        }
+        
+        try {
+            // Get bot's guild member info
+            $url = "https://discord.com/api/v10/users/@me/guilds/{$this->guildId}/member";
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bot ' . $this->botToken
+                ]
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode !== 200) {
+                return ['success' => false, 'error' => "Failed to get bot member info: HTTP {$httpCode}"];
+            }
+            
+            $memberInfo = json_decode($response, true);
+            
+            // Get guild info to check permissions
+            $url = "https://discord.com/api/v10/guilds/{$this->guildId}";
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bot ' . $this->botToken
+                ]
+            ]);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode !== 200) {
+                return ['success' => false, 'error' => "Failed to get guild info: HTTP {$httpCode}"];
+            }
+            
+            $guildInfo = json_decode($response, true);
+            
+            return [
+                'success' => true,
+                'member_info' => $memberInfo,
+                'guild_info' => $guildInfo,
+                'bot_roles' => $memberInfo['roles'] ?? []
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Failed to check bot permissions: " . $e->getMessage());
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 }
