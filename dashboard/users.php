@@ -22,30 +22,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
-    // Validate password
-    $passwordValidation = PasswordValidator::validate($_POST['password'] ?? '');
-    if (!$passwordValidation['valid']) {
-        $createError = $passwordValidation['message'];
+    $password = $_POST['password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+    
+    if ($password !== $confirmPassword) {
+        $createError = "Passwords do not match.";
     } else {
-        $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-        $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
-        $exists->execute([$data['email']]);
-        if ($exists->fetch()) {
-            $createError = "A user with this email already exists.";
+        // Validate password
+        $passwordValidation = PasswordValidator::validate($password);
+        if (!$passwordValidation['valid']) {
+            $createError = $passwordValidation['message'];
         } else {
-        $stmt = $db->prepare("INSERT INTO users
-            (first_name, last_name, email, password, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $data['first_name'], $data['last_name'], $data['email'], $data['password'],
-            $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
-            $data['hcb_member'], $data['birthdate'], $data['class'],
-            $data['phone'], $data['role'], $data['description'], $data['active_member']
-        ]);
-        header("Location: users.php?created=1");
-        exit();
-    }
+            $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+
+            $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
+            $exists->execute([$data['email']]);
+            if ($exists->fetch()) {
+                $createError = "A user with this email already exists.";
+            } else {
+            $stmt = $db->prepare("INSERT INTO users
+                (first_name, last_name, email, password, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $data['first_name'], $data['last_name'], $data['email'], $data['password'],
+                $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
+                $data['hcb_member'], $data['birthdate'], $data['class'],
+                $data['phone'], $data['role'], $data['description'], $data['active_member']
+            ]);
+            header("Location: users.php?created=1");
+            exit();
+        }
+        }
     }
 }
 
@@ -69,19 +76,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
     $updatePassword = !empty($_POST['password']);
     if ($updatePassword) {
-        // Validate password
-        $passwordValidation = PasswordValidator::validate($_POST['password']);
-        if (!$passwordValidation['valid']) {
-            $editError = $passwordValidation['message'];
+        $password = $_POST['password'];
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        if ($password !== $confirmPassword) {
+            $editError = "Passwords do not match.";
         } else {
-            $data['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $stmt = $db->prepare("UPDATE users SET
-                first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
-                WHERE id=?");
-            $params = array_values($data);
-            $params[] = $id;
-            $stmt->execute($params);
-            $editSuccess = "User updated successfully!";
+            // Validate password
+            $passwordValidation = PasswordValidator::validate($password);
+            if (!$passwordValidation['valid']) {
+                $editError = $passwordValidation['message'];
+            } else {
+                $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $db->prepare("UPDATE users SET
+                    first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+                    WHERE id=?");
+                $params = array_values($data);
+                $params[] = $id;
+                $stmt->execute($params);
+                $editSuccess = "User updated successfully!";
+            }
         }
     } else {
         $stmt = $db->prepare("UPDATE users SET
@@ -274,8 +288,48 @@ include __DIR__ . '/components/dashboard-header.php';
                         </div>
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" name="password" id="password" required minlength="8"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            <div class="mt-1 relative">
+                                <input type="password" name="password" id="password" required minlength="8"
+                                       class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <button type="button" 
+                                        id="toggleCreatePassword" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                    <svg id="createEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    <svg id="createEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Password Strength Indicator -->
+                            <div id="createPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="createPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="createConfirmPasswordSection">
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <div class="mt-1 relative">
+                                <input type="password" name="confirm_password" id="confirm_password" required minlength="8"
+                                       class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <button type="button" 
+                                        id="toggleCreateConfirm" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                    <svg id="createConfirmEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    <svg id="createConfirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Confirm Password Strength Indicator -->
+                            <div id="createConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                <div id="createConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
                             <!-- Password Requirements -->
                             <div id="password-requirements-create" class="text-xs text-gray-500 mt-1">
                                 <p class="mb-2">Password must contain:</p>
@@ -414,8 +468,48 @@ include __DIR__ . '/components/dashboard-header.php';
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                                 <p class="text-xs text-gray-500 mb-1">Leave blank to keep current password</p>
-                                <input type="password" name="password" id="edit-password" minlength="8"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <div class="mt-1 relative">
+                                    <input type="password" name="password" id="edit-password" minlength="8"
+                                           class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    <button type="button" 
+                                            id="toggleEditPassword" 
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        <svg id="editEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        <svg id="editEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <!-- Password Strength Indicator -->
+                                <div id="editPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="editPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div id="editConfirmPasswordSection">
+                                <label for="edit_confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                                <div class="mt-1 relative">
+                                    <input type="password" name="confirm_password" id="edit_confirm_password" minlength="8"
+                                           class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    <button type="button" 
+                                            id="toggleEditConfirm" 
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        <svg id="editConfirmEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        <svg id="editConfirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <!-- Confirm Password Strength Indicator -->
+                                <div id="editConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="editConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
                                 <!-- Password Requirements -->
                                 <div id="password-requirements-edit" class="text-xs text-gray-500 mt-1">
                                     <p class="mb-2">Password must contain:</p>
@@ -647,13 +741,138 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-function setupPasswordValidation(passwordFieldId, requirementsSelector) {
+// Function to calculate password strength
+function calculateStrength(password) {
+    let score = 0;
+    const checks = {
+        minLength: password.length >= 8,
+        hasUppercase: /[A-Z]/.test(password),
+        hasLowercase: /[a-z]/.test(password),
+        hasNumber: /[0-9]/.test(password),
+        hasSpecialChar: /[^A-Za-z0-9]/.test(password)
+    };
+    
+    // Calculate score based on requirements met
+    Object.values(checks).forEach(check => {
+        if (check) score += 20;
+    });
+    
+    return { score, checks };
+}
+
+// Function to update strength indicator
+function updateStrengthIndicator(strengthBar, password, isConfirm = false, mainPassword = '') {
+    if (!password) {
+        strengthBar.style.width = '0%';
+        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-gray-300';
+        return;
+    }
+    
+    let strength;
+    if (isConfirm) {
+        // For confirm field, check if it matches the main password
+        if (password === mainPassword && mainPassword.length > 0) {
+            strength = calculateStrength(password);
+        } else {
+            strengthBar.style.width = '100%';
+            strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
+            return;
+        }
+    } else {
+        strength = calculateStrength(password);
+    }
+    
+    const { score } = strength;
+    strengthBar.style.width = score + '%';
+    
+    // Update color based on strength
+    if (score < 40) {
+        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
+    } else if (score < 80) {
+        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-yellow-500';
+    } else {
+        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-green-500';
+    }
+}
+
+function setupPasswordValidation(passwordFieldId, confirmFieldId, confirmSectionId, requirementsSelector, strengthBarId, confirmStrengthBarId, togglePasswordId, toggleConfirmId, eyeIconId, eyeSlashIconId, confirmEyeIconId, confirmEyeSlashIconId) {
     const passwordField = document.getElementById(passwordFieldId);
+    const confirmField = document.getElementById(confirmFieldId);
+    const confirmSection = document.getElementById(confirmSectionId);
     const requirements = document.querySelectorAll(requirementsSelector + ' .requirement-item');
+    const strengthBar = document.getElementById(strengthBarId);
+    const confirmStrengthBar = document.getElementById(confirmStrengthBarId);
+    
+    // Visibility toggle elements
+    const togglePassword = document.getElementById(togglePasswordId);
+    const toggleConfirm = document.getElementById(toggleConfirmId);
+    const eyeIcon = document.getElementById(eyeIconId);
+    const eyeSlashIcon = document.getElementById(eyeSlashIconId);
+    const confirmEyeIcon = document.getElementById(confirmEyeIconId);
+    const confirmEyeSlashIcon = document.getElementById(confirmEyeSlashIconId);
+    
+    let passwordVisible = false;
+    let confirmVisible = false;
+    
+    // Toggle password visibility
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function() {
+            passwordVisible = !passwordVisible;
+            
+            if (passwordVisible) {
+                passwordField.type = 'text';
+                eyeIcon.classList.add('hidden');
+                eyeSlashIcon.classList.remove('hidden');
+                
+                // Hide confirm password section
+                if (confirmSection) {
+                    confirmSection.style.display = 'none';
+                }
+                
+                // Auto-fill confirm password
+                if (confirmField) {
+                    confirmField.value = passwordField.value;
+                }
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('hidden');
+                eyeSlashIcon.classList.add('hidden');
+                
+                // Show confirm password section
+                if (confirmSection) {
+                    confirmSection.style.display = 'block';
+                }
+            }
+        });
+    }
+    
+    // Toggle confirm password visibility
+    if (toggleConfirm) {
+        toggleConfirm.addEventListener('click', function() {
+            if (!passwordVisible) {
+                confirmVisible = !confirmVisible;
+                
+                if (confirmVisible) {
+                    confirmField.type = 'text';
+                    confirmEyeIcon.classList.add('hidden');
+                    confirmEyeSlashIcon.classList.remove('hidden');
+                } else {
+                    confirmField.type = 'password';
+                    confirmEyeIcon.classList.remove('hidden');
+                    confirmEyeSlashIcon.classList.add('hidden');
+                }
+            }
+        });
+    }
     
     if (passwordField) {
         passwordField.addEventListener('input', function() {
             const password = this.value;
+            
+            // Update strength indicator
+            if (strengthBar) {
+                updateStrengthIndicator(strengthBar, password);
+            }
             
             // Check each requirement
             const checks = {
@@ -698,16 +917,61 @@ function setupPasswordValidation(passwordFieldId, requirementsSelector) {
             } else {
                 passwordField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
             }
+            
+            // Auto-fill confirm password when main password is visible
+            if (passwordVisible && confirmField) {
+                confirmField.value = password;
+            }
+            
+            // Update confirm field strength indicator if it has content
+            if (confirmField && confirmField.value && confirmStrengthBar) {
+                updateStrengthIndicator(confirmStrengthBar, confirmField.value, true, password);
+            }
+        });
+    }
+    
+    // Confirm password validation
+    if (confirmField) {
+        confirmField.addEventListener('input', function() {
+            const confirmPassword = this.value;
+            const mainPassword = passwordField.value;
+            
+            if (confirmStrengthBar) {
+                updateStrengthIndicator(confirmStrengthBar, confirmPassword, true, mainPassword);
+            }
+            
+            // Update confirm field border color based on match
+            if (confirmPassword.length > 0) {
+                if (confirmPassword === mainPassword && mainPassword.length > 0) {
+                    confirmField.classList.remove('border-red-300', 'focus:border-red-300');
+                    confirmField.classList.add('border-green-300', 'focus:border-green-300');
+                } else {
+                    confirmField.classList.remove('border-green-300', 'focus:border-green-300');
+                    confirmField.classList.add('border-red-300', 'focus:border-red-300');
+                }
+            } else {
+                confirmField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
+            }
         });
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     // Setup validation for create user form
-    setupPasswordValidation('password', '#password-requirements-create');
+    setupPasswordValidation(
+        'password', 'confirm_password', 'createConfirmPasswordSection', '#password-requirements-create',
+        'createPasswordStrengthBar', 'createConfirmStrengthBar',
+        'toggleCreatePassword', 'toggleCreateConfirm',
+        'createEyeIcon', 'createEyeSlashIcon', 'createConfirmEyeIcon', 'createConfirmEyeSlashIcon'
+    );
     
     // Setup validation for edit user form
-    setupPasswordValidation('edit-password', '#password-requirements-edit');
+    setupPasswordValidation(
+        'edit-password', 'edit_confirm_password', 'editConfirmPasswordSection', '#password-requirements-edit',
+        'editPasswordStrengthBar', 'editConfirmStrengthBar',
+        'toggleEditPassword', 'toggleEditConfirm',
+        'editEyeIcon', 'editEyeSlashIcon', 'editConfirmEyeIcon', 'editConfirmEyeSlashIcon'
+    );
 });
 
 function toggleActive(checkbox, userId) {

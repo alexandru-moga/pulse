@@ -115,9 +115,13 @@ if ($token) {
                             </svg>
                         </button>
                     </div>
+                    <!-- Password Strength Indicator -->
+                    <div id="passwordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="passwordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
                 </div>
 
-                <div>
+                <div id="confirmPasswordSection">
                     <label for="confirm" class="block text-sm font-medium text-gray-700">
                         Confirm Password
                     </label>
@@ -140,6 +144,10 @@ if ($token) {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
                             </svg>
                         </button>
+                    </div>
+                    <!-- Confirm Password Strength Indicator -->
+                    <div id="confirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="confirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
                 </div>
 
@@ -194,7 +202,12 @@ if ($token) {
         document.addEventListener('DOMContentLoaded', function() {
             const passwordField = document.getElementById('password');
             const confirmField = document.getElementById('confirm');
+            const confirmPasswordSection = document.getElementById('confirmPasswordSection');
             const requirements = document.querySelectorAll('.requirement-item');
+            
+            // Strength indicator elements
+            const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+            const confirmStrengthBar = document.getElementById('confirmStrengthBar');
             
             // Password visibility toggle functionality
             const togglePassword = document.getElementById('togglePassword');
@@ -207,6 +220,61 @@ if ($token) {
             let passwordVisible = false;
             let confirmVisible = false;
             
+            // Function to calculate password strength
+            function calculateStrength(password) {
+                let score = 0;
+                const checks = {
+                    minLength: password.length >= 8,
+                    hasUppercase: /[A-Z]/.test(password),
+                    hasLowercase: /[a-z]/.test(password),
+                    hasNumber: /[0-9]/.test(password),
+                    hasSpecialChar: /[^A-Za-z0-9]/.test(password)
+                };
+                
+                // Calculate score based on requirements met
+                Object.values(checks).forEach(check => {
+                    if (check) score += 20;
+                });
+                
+                return { score, checks };
+            }
+            
+            // Function to update strength indicator
+            function updateStrengthIndicator(strengthBar, password, isConfirm = false) {
+                if (!password) {
+                    strengthBar.style.width = '0%';
+                    strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-gray-300';
+                    return;
+                }
+                
+                let strength;
+                if (isConfirm) {
+                    // For confirm field, check if it matches the main password
+                    const mainPassword = passwordField.value;
+                    if (password === mainPassword && mainPassword.length > 0) {
+                        strength = calculateStrength(password);
+                    } else {
+                        strengthBar.style.width = '100%';
+                        strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
+                        return;
+                    }
+                } else {
+                    strength = calculateStrength(password);
+                }
+                
+                const { score } = strength;
+                strengthBar.style.width = score + '%';
+                
+                // Update color based on strength
+                if (score < 40) {
+                    strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-red-500';
+                } else if (score < 80) {
+                    strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-yellow-500';
+                } else {
+                    strengthBar.className = 'h-full rounded-full transition-all duration-300 bg-green-500';
+                }
+            }
+            
             // Toggle main password visibility
             togglePassword.addEventListener('click', function() {
                 passwordVisible = !passwordVisible;
@@ -216,45 +284,43 @@ if ($token) {
                     eyeIcon.classList.add('hidden');
                     eyeSlashIcon.classList.remove('hidden');
                     
-                    // Disable confirm password when main password is visible
-                    confirmField.disabled = true;
-                    confirmField.classList.add('bg-gray-100', 'cursor-not-allowed');
-                    confirmField.placeholder = 'Disabled - password is visible above';
-                    toggleConfirm.style.display = 'none';
+                    // Hide the entire confirm password section
+                    confirmPasswordSection.style.display = 'none';
+                    
+                    // Auto-fill confirm password
+                    confirmField.value = passwordField.value;
                 } else {
                     passwordField.type = 'password';
                     eyeIcon.classList.remove('hidden');
                     eyeSlashIcon.classList.add('hidden');
                     
-                    // Re-enable confirm password when main password is hidden
-                    confirmField.disabled = false;
-                    confirmField.classList.remove('bg-gray-100', 'cursor-not-allowed');
-                    confirmField.placeholder = 'Confirm new password';
-                    toggleConfirm.style.display = 'flex';
+                    // Show the confirm password section
+                    confirmPasswordSection.style.display = 'block';
                 }
             });
             
-            // Toggle confirm password visibility (only works when not disabled)
+            // Toggle confirm password visibility
             toggleConfirm.addEventListener('click', function() {
-                if (!confirmField.disabled) {
-                    confirmVisible = !confirmVisible;
-                    
-                    if (confirmVisible) {
-                        confirmField.type = 'text';
-                        confirmEyeIcon.classList.add('hidden');
-                        confirmEyeSlashIcon.classList.remove('hidden');
-                    } else {
-                        confirmField.type = 'password';
-                        confirmEyeIcon.classList.remove('hidden');
-                        confirmEyeSlashIcon.classList.add('hidden');
-                    }
+                confirmVisible = !confirmVisible;
+                
+                if (confirmVisible) {
+                    confirmField.type = 'text';
+                    confirmEyeIcon.classList.add('hidden');
+                    confirmEyeSlashIcon.classList.remove('hidden');
+                } else {
+                    confirmField.type = 'password';
+                    confirmEyeIcon.classList.remove('hidden');
+                    confirmEyeSlashIcon.classList.add('hidden');
                 }
             });
             
-            // Password validation functionality
+            // Password validation and strength functionality
             if (passwordField) {
                 passwordField.addEventListener('input', function() {
                     const password = this.value;
+                    
+                    // Update strength indicator
+                    updateStrengthIndicator(passwordStrengthBar, password);
                     
                     // Check each requirement
                     const checks = {
@@ -303,6 +369,33 @@ if ($token) {
                     // Auto-fill confirm password when main password is visible
                     if (passwordVisible) {
                         confirmField.value = password;
+                    }
+                    
+                    // Update confirm field strength indicator if it has content
+                    if (confirmField.value) {
+                        updateStrengthIndicator(confirmStrengthBar, confirmField.value, true);
+                    }
+                });
+            }
+            
+            // Confirm password validation
+            if (confirmField) {
+                confirmField.addEventListener('input', function() {
+                    const confirmPassword = this.value;
+                    updateStrengthIndicator(confirmStrengthBar, confirmPassword, true);
+                    
+                    // Update confirm field border color based on match
+                    const mainPassword = passwordField.value;
+                    if (confirmPassword.length > 0) {
+                        if (confirmPassword === mainPassword && mainPassword.length > 0) {
+                            confirmField.classList.remove('border-red-300', 'focus:border-red-300');
+                            confirmField.classList.add('border-green-300', 'focus:border-green-300');
+                        } else {
+                            confirmField.classList.remove('border-green-300', 'focus:border-green-300');
+                            confirmField.classList.add('border-red-300', 'focus:border-red-300');
+                        }
+                    } else {
+                        confirmField.classList.remove('border-red-300', 'focus:border-red-300', 'border-green-300', 'focus:border-green-300');
                     }
                 });
             }
