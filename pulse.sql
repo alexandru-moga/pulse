@@ -60,17 +60,7 @@ INSERT INTO `pages` (`id`, `name`, `title`, `description`, `table_name`, `module
 (2, 'members', 'Members', 'Our PULSE community members', 'page_members', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
 (3, 'apply', 'Apply', 'Apply for a PULSE project', 'page_apply', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
 (4, 'contact', 'Contact', 'Get in touch with PULSE', 'page_contact', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(5, 'dashboard', 'Dashboard', 'Member dashboard', NULL, NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(12, 'dashboard/login', 'Login', 'User login page', NULL, NULL, 1, '2025-05-28 09:21:51', 5, 'guest'),
-(13, 'dashboard/forgot', 'Forgot Password', 'Reset your password', NULL, NULL, 1, '2025-05-28 09:21:51', 5, 'guest'),
-(14, 'dashboard/index', 'Profile', 'User profile page', NULL, NULL, 1, '2025-05-28 09:27:57', 5, 'Member, Co-leader, Leader'),
-(15, 'dashboard/change-password', 'Change Password', 'Change your password', NULL, NULL, 1, '2025-05-28 09:27:57', 5, 'Member, Co-leader, Leader'),
-(16, 'dashboard/projects', 'My Projects', 'Your assigned projects', NULL, NULL, 1, '2025-05-28 09:27:57', 5, 'Member, Co-leader, Leader'),
-(17, 'dashboard/users', 'User Management', 'Manage users', NULL, NULL, 1, '2025-05-28 09:27:57', 5, 'Co-leader, Leader'),
-(19, 'dashboard/applications', 'Applications', 'Applications', NULL, NULL, 1, '2025-06-08 05:17:14', 5, 'Co-leader, Leader'),
-(20, 'dashboard/contact_messages', 'Contact Messages', 'Contact Messages', NULL, NULL, 1, '2025-06-09 20:32:26', 5, 'Co-leader, Leader'),
-(21, 'dashboard/settings', 'Settings', 'Settings', NULL, NULL, 1, '2025-06-10 07:43:09', 5, 'Co-leader, Leader'),
-(30, 'dashboard/logout', 'Logout', 'Logout', NULL, NULL, 1, '2025-05-31 18:40:41', 5, 'Member, Co-leader, Leader');
+(5, 'dashboard/index', 'Dashboard', 'Member dashboard', NULL, NULL, 1, '2025-05-10 17:47:05', NULL, NULL);
 
 CREATE TABLE `page_apply` (
   `id` int(11) NOT NULL,
