@@ -294,3 +294,25 @@ CREATE TABLE IF NOT EXISTS `google_links` (
   UNIQUE KEY `google_id` (`google_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Add certificate downloads tracking table
+CREATE TABLE IF NOT EXISTS certificate_downloads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    project_id INT NOT NULL,
+    certificate_type ENUM('project_accepted', 'project_completed') DEFAULT 'project_accepted',
+    downloaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    download_count INT DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_certificate (user_id, project_id, certificate_type)
+);
+
+-- Add certificate settings to settings table
+INSERT INTO settings (name, value) VALUES 
+('certificate_enabled', '1'),
+('certificate_title', 'Certificate of Achievement'),
+('certificate_org_name', 'PULSE'),
+('certificate_signature_name', 'Leadership Team'),
+('certificate_signature_title', 'Director')
+ON DUPLICATE KEY UPDATE value = value;
