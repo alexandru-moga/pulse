@@ -135,7 +135,8 @@ class CertificateGenerator {
             // Certificate border - Hack Club red
             $pdf->setLineWidth(1);
             $pdf->setDrawColor(235, 72, 85); // Hack Club red
-            $pdf->RoundedRect(10, 10, 277, 190, 5, '1111', 'D');
+            // Simply use a regular rectangle instead of rounded rectangle
+            $pdf->Rect(10, 10, 277, 190, 'D');
             
             // Title
             $pdf->setFont('helvetica', 'B', 28);
@@ -252,5 +253,7 @@ class CertificateGenerator {
         } catch (PDOException $e) {
             return ['total_downloads' => 0, 'unique_projects' => 0];
         }
+    }
+}        }
     }
 }
