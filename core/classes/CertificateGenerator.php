@@ -78,18 +78,27 @@ class CertificateGenerator {
     
     private function createPDF($data) {
         try {
-            // Ensure no output has been sent
-            if (headers_sent()) {
-                throw new Exception('Cannot generate PDF - headers already sent');
+            // Clean any output buffers
+            while (ob_get_level()) {
+                ob_end_clean();
             }
             
             // Create new PDF document in landscape orientation
             $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
             
+            // Set certificate data
+            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+            if (empty($fullName)) {
+                $fullName = 'Certificate Recipient';
+            }
+            $projectTitle = $data['title'] ?? 'Project';
+            
+            $pdf->setCertificateData($fullName, $projectTitle);
+            
             // Set document information
             $pdf->setCreator('PULSE Certificate System');
             $pdf->setAuthor($this->settings['certificate_org_name'] ?? 'PULSE');
-            $pdf->setTitle('Certificate of Achievement');
+            $pdf->setTitle('Certificate of Achievement - ' . $projectTitle);
             $pdf->setSubject('Project Completion Certificate');
             
             // Remove default header/footer
@@ -103,36 +112,27 @@ class CertificateGenerator {
             // Add a page
             $pdf->AddPage();
             
-            // Set background color (light cream)
-            $pdf->setFillColor(255, 250, 240);
-            $pdf->Rect(0, 0, 297, 210, 'F');
-            
-            // Add decorative border
-            $pdf->setLineWidth(2);
-            $pdf->setDrawColor(220, 53, 69); // Primary red color
-            $pdf->Rect(10, 10, 277, 190);
-            
-            $pdf->setLineWidth(1);
-            $pdf->setDrawColor(255, 140, 55); // Accent color
-            $pdf->Rect(15, 15, 267, 180);
-            
-            // Title
-            $pdf->setFont('helvetica', 'B', 28);
-            $pdf->setTextColor(220, 53, 69);
-            $pdf->SetY(40);
-            $pdf->Cell(0, 15, 'CERTIFICATE OF ACHIEVEMENT', 0, 1, 'C');
-            
-            // Subtitle
-            $pdf->setFont('helvetica', '', 14);
-            $pdf->setTextColor(100, 100, 100);
-            $pdf->SetY(60);
-            $pdf->Cell(0, 8, 'This certifies that', 0, 1, 'C');
-            
-            // Recipient name
-            $pdf->setFont('helvetica', 'B', 24);
-            $pdf->setTextColor(51, 51, 51);
-            $pdf->SetY(75);
-            $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+            return $pdf;
+        } catch (Exception $e) {
+            throw new Exception('Failed to generate certificate: ' . $e->getMessage());
+        }
+    }
+    
+    public function getCertificateStats($userId) {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as total_downloads,
+                       COUNT(DISTINCT project_id) as unique_projects
+                FROM certificate_downloads 
+                WHERE user_id = ?
+            ");
+            $stmt->execute([$userId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total_downloads' => 0, 'unique_projects' => 0];
+        } catch (PDOException $e) {
+            return ['total_downloads' => 0, 'unique_projects' => 0];
+        }
+    }
+}
             if (empty($fullName)) {
                 $fullName = 'Certificate Recipient';
             }
