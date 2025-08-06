@@ -110,137 +110,161 @@ class CertificateGenerator {
             // Add a page
             $pdf->AddPage();
 
-            // Modern background (subtle gradient)
-            $pdf->Rect(0, 0, 297, 210, 'F', [], [245, 247, 250]);
-            $pdf->SetFillColor(235, 72, 85);
-            $pdf->Rect(0, 0, 297, 40, 'F'); // Top colored header
+            // Light background color (cream/off-white)
+            $pdf->Rect(0, 0, 297, 210, 'F', [], [248, 248, 245]);
 
-            // Add logo (centered in header)
+            // Decorative border frame (outer)
+            $pdf->setLineWidth(1.5);
+            $pdf->setDrawColor(204, 153, 102); // Gold/bronze color
+            $pdf->Rect(15, 15, 267, 180, 'D');
+
+            // Inner decorative border
+            $pdf->setLineWidth(0.5);
+            $pdf->setDrawColor(204, 153, 102);
+            $pdf->Rect(20, 20, 257, 170, 'D');
+
+            // Corner decorative elements (simple geometric pattern)
+            $this->addCornerDecorations($pdf);
+
+            // Add Hack Club logo in top left
             $logoPath = __DIR__ . '/../../assets/images/hackclub-logo.png';
             if (file_exists($logoPath)) {
-                $pdf->Image($logoPath, 10, 5, 35, '', '', '', '', false, 300, '', false, false, 0);
-            }
-            // Organization name in header
-            $pdf->SetFont('helvetica', 'B', 22);
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetX(50);
-            $pdf->SetY(10);
-            $orgName = $this->settings['certificate_org_name'] ?? 'PULSE';
-            $pdf->Cell(200, 20, strtoupper($orgName), 0, 0, 'C', false);
-
-            // Decorative banner
-            $bannerPath = __DIR__ . '/../../assets/images/flag-banner.png';
-            if (file_exists($bannerPath)) {
-                $pdf->Image($bannerPath, 210, 10, 70, '', '', '', '', false, 300, '', false, false, 0);
+                $pdf->Image($logoPath, 25, 25, 25, '', '', '', '', false, 300, '', false, false, 0);
             }
 
-            // Subtle pattern background
-            $backgroundPath = __DIR__ . '/../../assets/images/certificate-bg.png';
-            if (file_exists($backgroundPath)) {
-                $pdf->Image($backgroundPath, 0, 40, 297, 170, '', '', '', false, 300, '', false, false, 0);
-            }
-
-            // Certificate border
-            $pdf->setLineWidth(1.5);
-            $pdf->setDrawColor(235, 72, 85);
-            $pdf->Rect(10, 10, 277, 190, 'D');
-
-            // Title
-            $pdf->SetFont('helvetica', 'B', 32);
-            $pdf->SetTextColor(51, 51, 51);
-            $pdf->SetY(55);
-            $pdf->Cell(0, 18, 'Certificate of Achievement', 0, 1, 'C');
-
-            // Subtitle
-            $pdf->SetFont('helvetica', '', 16);
-            $pdf->SetTextColor(80, 80, 80);
-            $pdf->SetY(80);
-            $pdf->Cell(0, 10, 'This certifies that', 0, 1, 'C');
-
-            // Recipient name
-            $pdf->SetFont('helvetica', 'B', 26);
-            $pdf->SetTextColor(17, 17, 17);
-            $pdf->SetY(95);
-            $pdf->Cell(0, 14, strtoupper($fullName), 0, 1, 'C');
-
-            // Achievement text
-            $pdf->SetFont('helvetica', '', 16);
-            $pdf->SetTextColor(80, 80, 80);
-            $pdf->SetY(115);
-            $pdf->Cell(0, 10, 'has successfully completed the project', 0, 1, 'C');
-
-            // Project title
-            $pdf->SetFont('helvetica', 'B', 22);
-            $pdf->SetTextColor(235, 72, 85);
-            $pdf->SetY(130);
-            $pdf->Cell(0, 12, '"' . $projectTitle . '"', 0, 1, 'C');
-
-            // Additional text
+            // Top decorative flourish (center)
             $pdf->SetFont('helvetica', '', 14);
-            $pdf->SetTextColor(51, 51, 51);
-            $pdf->SetY(145);
-            $status = ($data['status'] ?? 'completed') === 'completed' ? 'completed' : 'accepted';
-            if (($data['pizza_grant'] ?? '') === 'received') {
-                $pdf->Cell(0, 8, 'Project ' . $status . ' with Pizza Grant recognition', 0, 1, 'C');
-            } else {
-                $pdf->Cell(0, 8, 'Project ' . $status . ' successfully', 0, 1, 'C');
-            }
+            $pdf->SetTextColor(204, 153, 102);
+            $pdf->SetX(0);
+            $pdf->SetY(35);
+            $pdf->Cell(297, 10, '❦ ❦ ❦', 0, 0, 'C');
 
-            // Date
-            $pdf->SetY(160);
-            $date = date('F j, Y', strtotime($data['updated_at'] ?? 'now'));
+            // Main title "CERTIFICATE"
+            $pdf->SetFont('helvetica', 'B', 36);
+            $pdf->SetTextColor(184, 134, 11); // Gold color
+            $pdf->SetX(0);
+            $pdf->SetY(55);
+            $pdf->Cell(297, 20, 'CERTIFICATE', 0, 0, 'C');
+
+            // Subtitle "OF ACHIEVEMENT"
+            $pdf->SetFont('helvetica', 'B', 16);
+            $pdf->SetTextColor(184, 134, 11);
+            $pdf->SetX(0);
+            $pdf->SetY(75);
+            $pdf->Cell(297, 10, '— OF ACHIEVEMENT —', 0, 0, 'C');
+
+            // "This certificate is awarded to" text
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetTextColor(100, 100, 100);
+            $pdf->SetX(0);
+            $pdf->SetY(95);
+            $pdf->Cell(297, 10, 'This certificate is awarded to', 0, 0, 'C');
+
+            // Recipient name (elegant script-like font)
+            $pdf->SetFont('helvetica', 'BI', 32);
+            $pdf->SetTextColor(51, 51, 51);
+            $pdf->SetX(0);
+            $pdf->SetY(110);
+            $pdf->Cell(297, 20, $fullName, 0, 0, 'C');
+
+            // Achievement description
             $pdf->SetFont('helvetica', '', 13);
             $pdf->SetTextColor(80, 80, 80);
-            $pdf->Cell(0, 8, 'Awarded on ' . $date, 0, 1, 'C');
-
-            // Add mascot
-            $dinoPath = __DIR__ . '/../../assets/images/hack-club-dino.png';
-            if (file_exists($dinoPath)) {
-                $pdf->Image($dinoPath, 20, 155, 35, '', '', '', '', false, 300, '', false, false, 0);
+            $pdf->SetX(0);
+            $pdf->SetY(135);
+            
+            // Multi-line achievement text
+            $achievementText = "For successfully completing the project\n" . 
+                              '"' . $projectTitle . '"\n' .
+                              "in Hack Club's development program.";
+            
+            $lines = explode("\n", $achievementText);
+            $lineHeight = 6;
+            $startY = 135;
+            
+            foreach ($lines as $i => $line) {
+                $pdf->SetY($startY + ($i * $lineHeight));
+                if ($i == 1) { // Project title line
+                    $pdf->SetFont('helvetica', 'B', 13);
+                    $pdf->SetTextColor(51, 51, 51);
+                } else {
+                    $pdf->SetFont('helvetica', '', 13);
+                    $pdf->SetTextColor(80, 80, 80);
+                }
+                $pdf->Cell(297, $lineHeight, $line, 0, 0, 'C');
             }
-            // Add confetti
-            $confettiPath = __DIR__ . '/../../assets/images/confetti.png';
-            if (file_exists($confettiPath)) {
-                $pdf->Image($confettiPath, 230, 155, 50, '', '', '', '', false, 300, '', false, false, 0);
-            }
 
-            // Signature line
-            $pdf->SetLineWidth(0.2);
-            $pdf->Line(118.5, 178, 178.5, 178);
-
-            $pdf->SetFont('helvetica', 'B', 12);
+            // Signature section
+            $pdf->SetFont('helvetica', 'BI', 16);
             $pdf->SetTextColor(51, 51, 51);
-            $pdf->SetY(180);
-            $signatureName = $this->settings['certificate_signature_name'] ?? 'Leadership Team';
-            $pdf->Cell(0, 5, $signatureName, 0, 1, 'C');
+            $pdf->SetX(170);
+            $pdf->SetY(170);
+            $signatureName = $this->settings['certificate_signature_name'] ?? 'Thomas Stubblefield';
+            $pdf->Cell(80, 8, $signatureName, 0, 0, 'C');
 
+            // Signature title
+            $pdf->SetFont('helvetica', '', 12);
+            $pdf->SetTextColor(51, 51, 51);
+            $pdf->SetX(170);
+            $pdf->SetY(178);
+            $signatureTitle = $this->settings['certificate_signature_title'] ?? 'Organiser';
+            $pdf->Cell(80, 6, $signatureTitle, 0, 0, 'C');
+
+            // Date (bottom left area)
             $pdf->SetFont('helvetica', '', 11);
-            $pdf->SetTextColor(51, 51, 51);
-            $signatureTitle = $this->settings['certificate_signature_title'] ?? 'Director';
-            $pdf->Cell(0, 5, $signatureTitle, 0, 1, 'C');
+            $pdf->SetTextColor(100, 100, 100);
+            $pdf->SetX(30);
+            $pdf->SetY(185);
+            $date = date('F j, Y', strtotime($data['updated_at'] ?? 'now'));
+            $pdf->Cell(100, 6, 'Awarded on ' . $date, 0, 0, 'L');
 
-            // Add QR code with verification link if set
-            $verificationUrl = $this->settings['certificate_verification_url'] ?? '';
-            if (!empty($verificationUrl)) {
-                $style = array(
-                    'border' => false,
-                    'padding' => 0,
-                    'fgcolor' => array(51, 51, 51),
-                    'bgcolor' => false
-                );
-                $pdf->write2DBarcode($verificationUrl . '?id=' . md5($fullName . $projectTitle . $date),
-                                     'QRCODE,M', 250, 175, 30, 30, $style);
-                $pdf->SetFont('helvetica', '', 8);
-                $pdf->SetTextColor(100, 100, 100);
-                $pdf->Text(250, 205, 'Verify Certificate');
-            }
+            // Organization name (bottom)
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->SetTextColor(184, 134, 11);
+            $pdf->SetX(0);
+            $pdf->SetY(185);
+            $orgName = $this->settings['certificate_org_name'] ?? 'PULSE';
+            $pdf->Cell(297, 6, strtoupper($orgName), 0, 0, 'C');
 
             return $pdf;
         } catch (Exception $e) {
             throw new Exception('Failed to generate certificate: ' . $e->getMessage());
         }
     }
-    
+
+    private function addCornerDecorations($pdf) {
+        $pdf->setLineWidth(0.3);
+        $pdf->setDrawColor(204, 153, 102);
+        
+        // Top-left corner decoration
+        for ($i = 0; $i < 3; $i++) {
+            $offset = $i * 3;
+            $pdf->Line(25 + $offset, 25, 35 + $offset, 25);
+            $pdf->Line(25, 25 + $offset, 25, 35 + $offset);
+        }
+        
+        // Top-right corner decoration
+        for ($i = 0; $i < 3; $i++) {
+            $offset = $i * 3;
+            $pdf->Line(272 - $offset, 25, 262 - $offset, 25);
+            $pdf->Line(272, 25 + $offset, 272, 35 + $offset);
+        }
+        
+        // Bottom-left corner decoration
+        for ($i = 0; $i < 3; $i++) {
+            $offset = $i * 3;
+            $pdf->Line(25 + $offset, 185, 35 + $offset, 185);
+            $pdf->Line(25, 185 - $offset, 25, 175 - $offset);
+        }
+        
+        // Bottom-right corner decoration
+        for ($i = 0; $i < 3; $i++) {
+            $offset = $i * 3;
+            $pdf->Line(272 - $offset, 185, 262 - $offset, 185);
+            $pdf->Line(272, 185 - $offset, 272, 175 - $offset);
+        }
+    }
+
     public function getCertificateStats($userId) {
         try {
             $stmt = $this->db->prepare("
