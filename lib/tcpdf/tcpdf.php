@@ -47,4 +47,65 @@ class TCPDF {
     public function Image($file, $x = '', $y = '', $w = 0, $h = 0) {
         // Placeholder
     }
+    
+    // Add missing methods
+    public function setCreator($creator) {
+        // Placeholder
+    }
+    
+    public function setAuthor($author) {
+        // Placeholder
+    }
+    
+    public function setTitle($title) {
+        // Placeholder
+    }
+    
+    public function setSubject($subject) {
+        // Placeholder
+    }
+    
+    public function setPrintHeader($boolean) {
+        // Placeholder
+    }
+    
+    public function setPrintFooter($boolean) {
+        // Placeholder
+    }
+    
+    public function setMargins($left, $top, $right) {
+        // Placeholder
+    }
+    
+    public function setAutoPageBreak($auto, $margin = 0) {
+        // Placeholder
+    }
+    
+    public function setFillColor($r, $g, $b) {
+        // Placeholder
+    }
+    
+    public function Rect($x, $y, $w, $h, $style = '') {
+        // Placeholder
+    }
+    
+    public function setLineWidth($width) {
+        // Placeholder
+    }
+    
+    public function setDrawColor($r, $g, $b) {
+        // Placeholder
+    }
+    
+    public function setFont($family, $style = '', $size = 0) {
+        // Placeholder - same as SetFont but lowercase
+    }
+    
+    public function setTextColor($r, $g, $b) {
+        // Placeholder
+    }
+    
+    public function Line($x1, $y1, $x2, $y2) {
+        // Placeholder
+    }
 }
