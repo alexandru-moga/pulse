@@ -78,6 +78,11 @@ class CertificateGenerator {
     
     private function createPDF($data) {
         try {
+            // Ensure no output has been sent
+            if (headers_sent()) {
+                throw new Exception('Cannot generate PDF - headers already sent');
+            }
+            
             // Create new PDF document in landscape orientation
             $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
             

@@ -5,16 +5,18 @@ checkLoggedIn();
 
 global $db, $currentUser, $settings;
 
-$pageTitle = 'My Certificates';
-include __DIR__ . '/components/dashboard-header.php';
-
 $success = $error = null;
 
-// Handle certificate download
+// Handle certificate download BEFORE any HTML output
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['download_certificate'])) {
     $projectId = intval($_POST['project_id']);
     
     try {
+        // Clear any output buffers
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
         $certificateGenerator = new CertificateGenerator($db);
         $pdf = $certificateGenerator->generateProjectCertificate($currentUser->id, $projectId);
         
@@ -25,13 +27,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['download_certificate'
         
         $filename = 'certificate_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $project['title']) . '.pdf';
         
+        // Send headers and output PDF
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: private, max-age=0, must-revalidate');
+        header('Pragma: public');
+        
         $pdf->Output($filename, 'D');
-        exit;
+        exit; // Important: Exit immediately after PDF output
         
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
 }
+
+$pageTitle = 'My Certificates';
+include __DIR__ . '/components/dashboard-header.php';
 
 // Get user's eligible projects (accepted or completed)
 $stmt = $db->prepare("
