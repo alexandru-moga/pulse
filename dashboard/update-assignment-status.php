@@ -58,12 +58,12 @@ try {
     
     // Update or insert assignment
     $stmt = $db->prepare("
-        INSERT INTO project_assignments (user_id, project_id, status, pizza_grant, updated_at) 
-        VALUES (?, ?, ?, ?, NOW()) 
+        INSERT INTO project_assignments (user_id, project_id, status, pizza_grant) 
+        VALUES (?, ?, ?, ?) 
         ON DUPLICATE KEY UPDATE 
         status = VALUES(status), 
         pizza_grant = VALUES(pizza_grant), 
-        updated_at = NOW()
+        updated_at = CURRENT_TIMESTAMP
     ");
     
     $result = $stmt->execute([$userId, $projectId, $status, $pizzaGrant]);

@@ -203,6 +203,8 @@ CREATE TABLE project_assignments (
     user_id INT NOT NULL,
     status ENUM('not_participating','waiting','rejected','accepted','completed') DEFAULT 'waiting',
     pizza_grant ENUM('none','applied','received') DEFAULT 'none',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

@@ -22,7 +22,8 @@ class CertificateGenerator {
         // Get user and project data
         $stmt = $this->db->prepare("
             SELECT u.first_name, u.last_name, u.email, p.title, p.description, 
-                   pa.status, pa.pizza_grant, pa.updated_at
+                   pa.status, pa.pizza_grant, 
+                   COALESCE(pa.updated_at, pa.created_at, CURRENT_TIMESTAMP) as updated_at
             FROM users u 
             JOIN project_assignments pa ON u.id = pa.user_id 
             JOIN projects p ON pa.project_id = p.id 

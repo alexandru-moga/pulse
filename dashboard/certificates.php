@@ -36,13 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['download_certificate'
 // Get user's eligible projects (accepted or completed)
 $stmt = $db->prepare("
     SELECT p.id, p.title, p.description, p.reward_amount, p.reward_description,
-           pa.status, pa.pizza_grant, pa.updated_at,
+           pa.status, pa.pizza_grant, 
+           COALESCE(pa.updated_at, pa.created_at, CURRENT_TIMESTAMP) as updated_at,
            cd.download_count, cd.downloaded_at
     FROM projects p
     JOIN project_assignments pa ON pa.project_id = p.id
     LEFT JOIN certificate_downloads cd ON cd.user_id = pa.user_id AND cd.project_id = p.id
     WHERE pa.user_id = ? AND pa.status IN ('accepted', 'completed')
-    ORDER BY pa.updated_at DESC
+    ORDER BY COALESCE(pa.updated_at, pa.created_at) DESC
 ");
 $stmt->execute([$currentUser->id]);
 $eligibleProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
