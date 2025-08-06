@@ -153,5 +153,4 @@ class TCPDF {
     public function setDrawColor($r, $g, $b) {}
     public function setTextColor($r, $g, $b) {}
     public function Line($x1, $y1, $x2, $y2) {}
-    public function setFont($family, $style = '', $size = 0) {}
 }
