@@ -121,8 +121,8 @@ class CertificateGenerator {
                 $pdf->Image($logoPath, 10, 5, 35, '', '', '', '', false, 300, '', false, false, 0);
             }
             // Organization name in header
-            $pdf->setFont('helvetica', 'B', 22);
-            $pdf->setTextColor(255, 255, 255);
+            $pdf->SetFont('helvetica', 'B', 22);
+            $pdf->SetTextColor(255, 255, 255);
             $pdf->SetXY(50, 10);
             $orgName = $this->settings['certificate_org_name'] ?? 'PULSE';
             $pdf->Cell(200, 20, strtoupper($orgName), 0, 0, 'C', false);
@@ -145,38 +145,38 @@ class CertificateGenerator {
             $pdf->Rect(10, 10, 277, 190, 'D');
 
             // Title
-            $pdf->setFont('helvetica', 'B', 32);
-            $pdf->setTextColor(51, 51, 51);
+            $pdf->SetFont('helvetica', 'B', 32);
+            $pdf->SetTextColor(51, 51, 51);
             $pdf->SetY(55);
             $pdf->Cell(0, 18, 'Certificate of Achievement', 0, 1, 'C');
 
             // Subtitle
-            $pdf->setFont('helvetica', '', 16);
-            $pdf->setTextColor(80, 80, 80);
+            $pdf->SetFont('helvetica', '', 16);
+            $pdf->SetTextColor(80, 80, 80);
             $pdf->SetY(80);
             $pdf->Cell(0, 10, 'This certifies that', 0, 1, 'C');
 
             // Recipient name
-            $pdf->setFont('helvetica', 'B', 26);
-            $pdf->setTextColor(17, 17, 17);
+            $pdf->SetFont('helvetica', 'B', 26);
+            $pdf->SetTextColor(17, 17, 17);
             $pdf->SetY(95);
             $pdf->Cell(0, 14, strtoupper($fullName), 0, 1, 'C');
 
             // Achievement text
-            $pdf->setFont('helvetica', '', 16);
-            $pdf->setTextColor(80, 80, 80);
+            $pdf->SetFont('helvetica', '', 16);
+            $pdf->SetTextColor(80, 80, 80);
             $pdf->SetY(115);
             $pdf->Cell(0, 10, 'has successfully completed the project', 0, 1, 'C');
 
             // Project title
-            $pdf->setFont('helvetica', 'B', 22);
-            $pdf->setTextColor(235, 72, 85);
+            $pdf->SetFont('helvetica', 'B', 22);
+            $pdf->SetTextColor(235, 72, 85);
             $pdf->SetY(130);
             $pdf->Cell(0, 12, '"' . $projectTitle . '"', 0, 1, 'C');
 
             // Additional text
-            $pdf->setFont('helvetica', '', 14);
-            $pdf->setTextColor(51, 51, 51);
+            $pdf->SetFont('helvetica', '', 14);
+            $pdf->SetTextColor(51, 51, 51);
             $pdf->SetY(145);
             $status = ($data['status'] ?? 'completed') === 'completed' ? 'completed' : 'accepted';
             if (($data['pizza_grant'] ?? '') === 'received') {
@@ -188,8 +188,8 @@ class CertificateGenerator {
             // Date
             $pdf->SetY(160);
             $date = date('F j, Y', strtotime($data['updated_at'] ?? 'now'));
-            $pdf->setFont('helvetica', '', 13);
-            $pdf->setTextColor(80, 80, 80);
+            $pdf->SetFont('helvetica', '', 13);
+            $pdf->SetTextColor(80, 80, 80);
             $pdf->Cell(0, 8, 'Awarded on ' . $date, 0, 1, 'C');
 
             // Add mascot
@@ -204,17 +204,17 @@ class CertificateGenerator {
             }
 
             // Signature line
-            $pdf->setLineWidth(0.2);
+            $pdf->SetLineWidth(0.2);
             $pdf->Line(118.5, 178, 178.5, 178);
 
-            $pdf->setFont('helvetica', 'B', 12);
-            $pdf->setTextColor(51, 51, 51);
+            $pdf->SetFont('helvetica', 'B', 12);
+            $pdf->SetTextColor(51, 51, 51);
             $pdf->SetY(180);
             $signatureName = $this->settings['certificate_signature_name'] ?? 'Leadership Team';
             $pdf->Cell(0, 5, $signatureName, 0, 1, 'C');
 
-            $pdf->setFont('helvetica', '', 11);
-            $pdf->setTextColor(51, 51, 51);
+            $pdf->SetFont('helvetica', '', 11);
+            $pdf->SetTextColor(51, 51, 51);
             $signatureTitle = $this->settings['certificate_signature_title'] ?? 'Director';
             $pdf->Cell(0, 5, $signatureTitle, 0, 1, 'C');
 
@@ -229,8 +229,8 @@ class CertificateGenerator {
                 );
                 $pdf->write2DBarcode($verificationUrl . '?id=' . md5($fullName . $projectTitle . $date),
                                      'QRCODE,M', 250, 175, 30, 30, $style);
-                $pdf->setFont('helvetica', '', 8);
-                $pdf->setTextColor(100, 100, 100);
+                $pdf->SetFont('helvetica', '', 8);
+                $pdf->SetTextColor(100, 100, 100);
                 $pdf->Text(250, 205, 'Verify Certificate');
             }
 
