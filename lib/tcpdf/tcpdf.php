@@ -85,18 +85,21 @@ class TCPDF {
         $content .= "(This certifies that) Tj\n";
         $content .= "0 -40 Td\n";
         $content .= "/F1 20 Tf\n";
-        $content .= "(" . ($this->recipientName ?? 'Certificate Recipient') . ") Tj\n";
+        $content .= "(" . ($this->recipientName ?: 'Certificate Recipient') . ") Tj\n";
         $content .= "0 -40 Td\n";
         $content .= "/F1 16 Tf\n";
         $content .= "(has successfully completed the project) Tj\n";
         $content .= "0 -40 Td\n";
         $content .= "/F1 18 Tf\n";
-        $content .= "(\"" . ($this->projectTitle ?? 'Project') . "\") Tj\n";
+        $content .= "(\"" . ($this->projectTitle ?: 'Project') . "\") Tj\n";
         $content .= "0 -60 Td\n";
         $content .= "/F1 12 Tf\n";
         $content .= "(Awarded on " . date('F j, Y') . ") Tj\n";
         $content .= "0 -40 Td\n";
         $content .= "(PULSE) Tj\n";
+        // Add a placeholder for logo image (not rendered in basic PDF, but for completeness)
+        $content .= "0 -40 Td\n";
+        $content .= "(Logo: [not shown in simple PDF]) Tj\n";
         $content .= "ET\n";
         
         $pdf .= "5 0 obj\n";
