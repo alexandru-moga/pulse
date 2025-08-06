@@ -112,30 +112,26 @@ class CertificateGenerator {
             // Add a page
             $pdf->AddPage();
             
-            return $pdf;
-        } catch (Exception $e) {
-            throw new Exception('Failed to generate certificate: ' . $e->getMessage());
-        }
-    }
-    
-    public function getCertificateStats($userId) {
-        try {
-            $stmt = $this->db->prepare("
-                SELECT COUNT(*) as total_downloads,
-                       COUNT(DISTINCT project_id) as unique_projects
-                FROM certificate_downloads 
-                WHERE user_id = ?
-            ");
-            $stmt->execute([$userId]);
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total_downloads' => 0, 'unique_projects' => 0];
-        } catch (PDOException $e) {
-            return ['total_downloads' => 0, 'unique_projects' => 0];
-        }
-    }
-}
-            if (empty($fullName)) {
-                $fullName = 'Certificate Recipient';
-            }
+            // Certificate styling and content
+            $pdf->setFillColor(255, 255, 255);
+            $pdf->Rect(0, 0, 297, 210, 'F');
+            
+            // Title
+            $pdf->setFont('helvetica', 'B', 24);
+            $pdf->setTextColor(220, 53, 69);
+            $pdf->SetY(40);
+            $pdf->Cell(0, 15, 'CERTIFICATE OF ACHIEVEMENT', 0, 1, 'C');
+            
+            // Subtitle
+            $pdf->setFont('helvetica', '', 16);
+            $pdf->setTextColor(100, 100, 100);
+            $pdf->SetY(65);
+            $pdf->Cell(0, 8, 'This certifies that', 0, 1, 'C');
+            
+            // Recipient name
+            $pdf->setFont('helvetica', 'B', 20);
+            $pdf->setTextColor(0, 0, 0);
+            $pdf->SetY(80);
             $pdf->Cell(0, 12, strtoupper($fullName), 0, 1, 'C');
             
             // Achievement text
@@ -148,7 +144,6 @@ class CertificateGenerator {
             $pdf->setFont('helvetica', 'B', 18);
             $pdf->setTextColor(220, 53, 69);
             $pdf->SetY(110);
-            $projectTitle = $data['title'] ?? 'Project';
             $pdf->Cell(0, 10, '"' . $projectTitle . '"', 0, 1, 'C');
             
             // Additional text
@@ -207,6 +202,11 @@ class CertificateGenerator {
             ");
             $stmt->execute([$userId]);
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: ['total_downloads' => 0, 'unique_projects' => 0];
+        } catch (PDOException $e) {
+            return ['total_downloads' => 0, 'unique_projects' => 0];
+        }
+    }
+}
         } catch (PDOException $e) {
             return ['total_downloads' => 0, 'unique_projects' => 0];
         }
