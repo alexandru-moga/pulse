@@ -59,10 +59,10 @@ class CertificateGenerator {
         $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
         
         // Set document information - using correct TCPDF methods
-        $pdf->setCreator('PULSE Certificate System');
-        $pdf->setAuthor($this->settings['certificate_org_name'] ?? 'PULSE');
-        $pdf->setTitle('Certificate of Achievement');
-        $pdf->setSubject('Project Completion Certificate');
+        $pdf->SetCreator('PULSE Certificate System');
+        $pdf->SetAuthor($this->settings['certificate_org_name'] ?? 'PULSE');
+        $pdf->SetTitle('Certificate of Achievement');
+        $pdf->SetSubject('Project Completion Certificate');
         
         // Remove default header/footer
         $pdf->setPrintHeader(false);
