@@ -97,14 +97,14 @@ class TCPDF {
         // Placeholder
     }
     
-    public function setFont($family, $style = '', $size = 0) {
-        // Placeholder - same as SetFont but lowercase
-    }
-    
     public function setTextColor($r, $g, $b) {
         // Placeholder
     }
     
+    public function Line($x1, $y1, $x2, $y2) {
+        // Placeholder
+    }
+}
     public function Line($x1, $y1, $x2, $y2) {
         // Placeholder
     }
