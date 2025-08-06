@@ -123,7 +123,8 @@ class CertificateGenerator {
             // Organization name in header
             $pdf->SetFont('helvetica', 'B', 22);
             $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetXY(50, 10);
+            $pdf->SetX(50);
+            $pdf->SetY(10);
             $orgName = $this->settings['certificate_org_name'] ?? 'PULSE';
             $pdf->Cell(200, 20, strtoupper($orgName), 0, 0, 'C', false);
 
