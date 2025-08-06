@@ -58,71 +58,71 @@ class CertificateGenerator {
         // Create new PDF document in landscape orientation
         $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
         
-        // Set document information
-        $pdf->SetCreator('PULSE Certificate System');
-        $pdf->SetAuthor($this->settings['certificate_org_name'] ?? 'PULSE');
-        $pdf->SetTitle('Certificate of Achievement');
-        $pdf->SetSubject('Project Completion Certificate');
+        // Set document information - using correct TCPDF methods
+        $pdf->setCreator('PULSE Certificate System');
+        $pdf->setAuthor($this->settings['certificate_org_name'] ?? 'PULSE');
+        $pdf->setTitle('Certificate of Achievement');
+        $pdf->setSubject('Project Completion Certificate');
         
         // Remove default header/footer
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         
         // Set margins
-        $pdf->SetMargins(20, 20, 20);
-        $pdf->SetAutoPageBreak(false, 0);
+        $pdf->setMargins(20, 20, 20);
+        $pdf->setAutoPageBreak(false, 0);
         
         // Add a page
         $pdf->AddPage();
         
         // Set background color (light cream)
-        $pdf->SetFillColor(255, 250, 240);
+        $pdf->setFillColor(255, 250, 240);
         $pdf->Rect(0, 0, 297, 210, 'F');
         
         // Add decorative border
-        $pdf->SetLineWidth(2);
-        $pdf->SetDrawColor(220, 53, 69); // Primary red color
+        $pdf->setLineWidth(2);
+        $pdf->setDrawColor(220, 53, 69); // Primary red color
         $pdf->Rect(10, 10, 277, 190);
         
-        $pdf->SetLineWidth(1);
-        $pdf->SetDrawColor(255, 140, 55); // Accent color
+        $pdf->setLineWidth(1);
+        $pdf->setDrawColor(255, 140, 55); // Accent color
         $pdf->Rect(15, 15, 267, 180);
         
         // Title
-        $pdf->SetFont('helvetica', 'B', 28);
-        $pdf->SetTextColor(220, 53, 69);
-        $pdf->SetY(40);
+        $pdf->setFont('helvetica', 'B', 28);
+        $pdf->setTextColor(220, 53, 69);
+        $pdf->setY(40);
         $pdf->Cell(0, 15, 'CERTIFICATE OF ACHIEVEMENT', 0, 1, 'C');
         
         // Subtitle
-        $pdf->SetFont('helvetica', '', 14);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->SetY(60);
+        $pdf->setFont('helvetica', '', 14);
+        $pdf->setTextColor(100, 100, 100);
+        $pdf->setY(60);
         $pdf->Cell(0, 8, 'This certifies that', 0, 1, 'C');
         
         // Recipient name
-        $pdf->SetFont('helvetica', 'B', 24);
-        $pdf->SetTextColor(51, 51, 51);
-        $pdf->SetY(75);
+        $pdf->setFont('helvetica', 'B', 24);
+        $pdf->setTextColor(51, 51, 51);
+        $pdf->setY(75);
         $fullName = $data['first_name'] . ' ' . $data['last_name'];
         $pdf->Cell(0, 12, strtoupper($fullName), 0, 1, 'C');
         
         // Achievement text
-        $pdf->SetFont('helvetica', '', 14);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->SetY(95);
+        $pdf->setFont('helvetica', '', 14);
+        $pdf->setTextColor(100, 100, 100);
+        $pdf->setY(95);
         $pdf->Cell(0, 8, 'has successfully completed the project', 0, 1, 'C');
         
         // Project title
-        $pdf->SetFont('helvetica', 'B', 18);
-        $pdf->SetTextColor(220, 53, 69);
-        $pdf->SetY(110);
+        $pdf->setFont('helvetica', 'B', 18);
+        $pdf->setTextColor(220, 53, 69);
+        $pdf->setY(110);
         $pdf->Cell(0, 10, '"' . $data['title'] . '"', 0, 1, 'C');
         
         // Additional text
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->SetY(130);
+        $pdf->setFont('helvetica', '', 12);
+        $pdf->setTextColor(100, 100, 100);
+        $pdf->setY(130);
         $status = $data['status'] === 'completed' ? 'completed' : 'accepted';
         if ($data['pizza_grant'] === 'received') {
             $pdf->Cell(0, 6, 'Project ' . $status . ' with Pizza Grant recognition', 0, 1, 'C');
@@ -131,29 +131,29 @@ class CertificateGenerator {
         }
         
         // Date
-        $pdf->SetY(145);
+        $pdf->setY(145);
         $date = date('F j, Y', strtotime($data['updated_at']));
         $pdf->Cell(0, 6, 'Awarded on ' . $date, 0, 1, 'C');
         
         // Organization name
-        $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->SetTextColor(220, 53, 69);
-        $pdf->SetY(165);
+        $pdf->setFont('helvetica', 'B', 16);
+        $pdf->setTextColor(220, 53, 69);
+        $pdf->setY(165);
         $orgName = $this->settings['certificate_org_name'] ?? 'PULSE';
         $pdf->Cell(0, 8, $orgName, 0, 1, 'C');
         
         // Signature line
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->SetTextColor(100, 100, 100);
-        $pdf->SetY(180);
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->setTextColor(100, 100, 100);
+        $pdf->setY(180);
         $signatureName = $this->settings['certificate_signature_name'] ?? 'Leadership Team';
         $signatureTitle = $this->settings['certificate_signature_title'] ?? 'Director';
         $pdf->Cell(0, 4, $signatureName, 0, 1, 'C');
         $pdf->Cell(0, 4, $signatureTitle, 0, 1, 'C');
         
         // Add decorative elements (simple lines)
-        $pdf->SetLineWidth(0.5);
-        $pdf->SetDrawColor(220, 53, 69);
+        $pdf->setLineWidth(0.5);
+        $pdf->setDrawColor(220, 53, 69);
         // Top decorative line
         $pdf->Line(100, 55, 197, 55);
         // Bottom decorative line
