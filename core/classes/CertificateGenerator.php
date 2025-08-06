@@ -254,6 +254,6 @@ class CertificateGenerator {
             return ['total_downloads' => 0, 'unique_projects' => 0];
         }
     }
-}        }
+}
     }
 }
