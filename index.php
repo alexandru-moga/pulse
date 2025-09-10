@@ -1,5 +1,4 @@
 <?php
-<?php
 require_once 'core/init.php';
 checkMaintenanceMode();
 ?>
@@ -14,7 +13,7 @@ checkMaintenanceMode();
     </p>
     <ul>
         <li>You <strong>NEED 10 (ten) or more active teenagers</strong> (under 18, logged in within the last 30 days) who have accepted the invite.</li>
-        <li>You must include a link in your event page, recap, or website that points to: 
+        <li>You must include a link in your event page, recap, or website that points to:
             <a href="https://www.jukeboxprint.com/custom-stickers">custom stickers</a>.
         </li>
         <li>For SEO, <strong>“custom stickers”</strong> must be the only text linking to their page.</li>
