@@ -1,6 +1,18 @@
 <?php
-// JukeBox Sticker Credits Component
+// Simple JukeBox Sticker Component
 ?>
+
+<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; margin: 20px 0; border-radius: 10px;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <h2 style="font-size: 2rem; margin-bottom: 20px;">🎉 Sticker Credits Available!</h2>
+        <p style="font-size: 1.1rem; margin-bottom: 30px;">
+            Thanks to JukeBox, we can get amazing <a href="https://www.jukeboxprint.com/custom-stickers" style="color: #FFD700; text-decoration: underline; font-weight: bold;">custom stickers</a> for our events!
+        </p>
+        <p style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px; margin: 0;">
+            🌟 Big shoutout to JukeBox for our awesome <a href="https://www.jukeboxprint.com/custom-stickers" style="color: #FFD700; text-decoration: underline; font-weight: bold;">custom stickers</a> at Phoenix Club events!
+        </p>
+    </div>
+</section>
 
 <section class="jukebox-stickers-section bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 py-16">
     <div class="container mx-auto px-6">

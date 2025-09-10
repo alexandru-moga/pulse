@@ -316,6 +316,24 @@ class ComponentManager {
                     )
                 )
             ),
+            'stickers' => array(
+                'name' => 'JukeBox Stickers',
+                'description' => 'JukeBox custom stickers partnership announcement',
+                'category' => 'content',
+                'icon' => '🏷️',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Section Title',
+                        'default' => 'Sticker Credits Available!'
+                    ),
+                    'description' => array(
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                        'default' => 'Thanks to JukeBox, we can get amazing custom stickers for our events!'
+                    )
+                )
+            ),
             
             // Special effects components
             'mouse_effects' => array(
