@@ -186,23 +186,28 @@ select[multiple] {
   padding: 2rem;
   margin: 2rem 0;
   border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
 }
+
 .jukebox-announcement h2 {
   color: #ec3750;
   margin-top: 0;
 }
+
 .jukebox-announcement ul {
   margin-left: 1.5rem;
 }
+
 .jukebox-announcement li {
   margin-bottom: 0.5rem;
   font-size: 1rem;
 }
+
 .jukebox-announcement a {
   color: #ec3750;
   text-decoration: underline;
 }
+
 .jukebox-announcement button {
   background: #0078d4;
   color: #fff;
@@ -213,6 +218,7 @@ select[multiple] {
   font-size: 1rem;
   margin-top: 1rem;
 }
+
 .jukebox-announcement p,
 .jukebox-announcement strong {
   color: #fff;
@@ -224,9 +230,11 @@ body.dark .jukebox-announcement {
   border-color: #333;
   color: #fff;
 }
+
 body.dark .jukebox-announcement h2 {
   color: #ff8c37;
 }
+
 body.dark .jukebox-announcement a {
   color: #ff8c37;
 }
