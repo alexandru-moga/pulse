@@ -1,10 +1,12 @@
 <?php
 
-class ComponentManager {
+class ComponentManager
+{
     private $componentsPath;
     private $components;
-    
-    public function __construct($componentsPath = null) {
+
+    public function __construct($componentsPath = null)
+    {
         // Handle legacy usage where a database object might be passed
         if (is_object($componentsPath)) {
             $this->componentsPath = __DIR__ . '/../../components/';
@@ -13,8 +15,9 @@ class ComponentManager {
         }
         $this->initializeComponents();
     }
-    
-    private function initializeComponents() {
+
+    private function initializeComponents()
+    {
         $this->components = array(
             'hero' => array(
                 'name' => 'Hero Section',
@@ -138,7 +141,7 @@ class ComponentManager {
                     )
                 )
             ),
-        
+
             // Layout Components
             'header' => array(
                 'name' => 'Site Header',
@@ -176,7 +179,7 @@ class ComponentManager {
                     )
                 )
             ),
-            
+
             // Section Components  
             'about_section' => array(
                 'name' => 'About Section',
@@ -334,7 +337,7 @@ class ComponentManager {
                     )
                 )
             ),
-            
+
             // Special effects components
             'mouse_effects' => array(
                 'name' => 'Mouse Effects',
@@ -404,16 +407,19 @@ class ComponentManager {
             )
         );
     }
-    
-    public function getComponent($type) {
+
+    public function getComponent($type)
+    {
         return isset($this->components[$type]) ? $this->components[$type] : null;
     }
-    
-    public function getComponents() {
+
+    public function getComponents()
+    {
         return $this->components;
     }
-    
-    public function getComponentsByCategory($category) {
+
+    public function getComponentsByCategory($category)
+    {
         $filtered = array();
         foreach ($this->components as $key => $component) {
             if ($component['category'] === $category) {
@@ -422,8 +428,9 @@ class ComponentManager {
         }
         return $filtered;
     }
-    
-    public function renderComponent($componentType, $componentName, $props = array()) {
+
+    public function renderComponent($componentType, $componentName, $props = array())
+    {
         // Handle legacy method signature where $componentType might be the component name directly
         if (is_array($componentName)) {
             // Legacy usage: renderComponent('hero', $data, $blockId)
@@ -432,34 +439,38 @@ class ComponentManager {
             $blockId = $props;
             return $this->render($type, $data, $blockId);
         }
-        
+
         $componentPath = $this->componentsPath . $componentType . '/' . $componentName . '.php';
-        
+
         if (!file_exists($componentPath)) {
             throw new Exception("Component not found: " . $componentPath);
         }
-        
+
         extract($props);
-        
+
         ob_start();
         include $componentPath;
         return ob_get_clean();
     }
-    
-    public function renderBlock($blockName, $props = array()) {
+
+    public function renderBlock($blockName, $props = array())
+    {
         return $this->renderComponent('blocks', $blockName, $props);
     }
-    
-    public function componentExists($componentType, $componentName) {
+
+    public function componentExists($componentType, $componentName)
+    {
         $componentPath = $this->componentsPath . $componentType . '/' . $componentName . '.php';
         return file_exists($componentPath);
     }
-    
-    public function getComponentPath($componentType, $componentName) {
+
+    public function getComponentPath($componentType, $componentName)
+    {
         return $this->componentsPath . $componentType . '/' . $componentName . '.php';
     }
-    
-    public function render($type, $data = array(), $blockId = null) {
+
+    public function render($type, $data = array(), $blockId = null)
+    {
         $component = $this->getComponent($type);
         if (!$component) {
             return '<div class="text-center p-8 text-gray-500 bg-gray-50 rounded">
@@ -468,20 +479,20 @@ class ComponentManager {
                         <p class="text-sm">Component type: ' . htmlspecialchars($type) . '</p>
                     </div>';
         }
-        
+
         $componentFile = $this->componentsPath . 'blocks/' . $type . '.php';
         if (file_exists($componentFile)) {
             foreach ($data as $key => $value) {
                 $$key = $value;
             }
-            
+
             $blockData = array('id' => $blockId, 'type' => $type, 'data' => $data);
-            
+
             ob_start();
             include $componentFile;
             return ob_get_clean();
         }
-        
+
         return '<div class="text-center p-8 text-gray-500 bg-gray-50 rounded">
                     <div class="text-6xl mb-4">' . htmlspecialchars($component['icon']) . '</div>
                     <h3 class="text-lg font-medium">' . htmlspecialchars($component['name']) . '</h3>

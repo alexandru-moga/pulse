@@ -25,7 +25,7 @@
                         </li>
                         <li>
                             <span class="checkmark">✓</span>
-                            You must include a link pointing to: 
+                            You must include a link pointing to:
                             <a href="https://www.jukeboxprint.com/custom-stickers" target="_blank" rel="noopener">custom stickers</a>
                         </li>
                     </ul>
@@ -56,11 +56,11 @@
                 <h3>⚠️ Important SEO Guidelines</h3>
                 <div class="guidelines-content">
                     <div class="guideline correct">
-                        <strong>✅ Correct:</strong> Big shoutout to Jukebox for our 
+                        <strong>✅ Correct:</strong> Big shoutout to Jukebox for our
                         <code>&lt;a href="https://www.jukeboxprint.com/custom-stickers"&gt;custom stickers&lt;/a&gt;</code>!
                     </div>
                     <div class="guideline wrong">
-                        <strong>❌ Wrong:</strong> 
+                        <strong>❌ Wrong:</strong>
                         <code>&lt;a href="https://www.jukeboxprint.com/custom-stickers"&gt;Big shoutout to Jukebox for our custom stickers&lt;/a&gt;</code>!
                     </div>
                     <p><strong>Only "custom stickers" should link to their page</strong> - no other text should hyperlink to JukeBox.</p>

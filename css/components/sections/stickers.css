@@ -257,15 +257,15 @@
     .stickers-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .stickers-header h2 {
         font-size: 2rem;
     }
-    
+
     .examples-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .details-grid {
         grid-template-columns: 1fr;
     }
@@ -275,16 +275,16 @@
     .jukebox-stickers {
         padding: 2rem 0;
     }
-    
+
     .stickers-card {
         padding: 1.5rem;
     }
-    
+
     .requirements-list li {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .checkmark {
         margin-bottom: 0.5rem;
     }
