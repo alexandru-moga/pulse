@@ -164,7 +164,8 @@ INSERT INTO `settings` (`id`, `name`, `value`) VALUES
 (25, 'discord_guild_id', ''),
 (26, 'discord_member_role_id', ''),
 (27, 'discord_co_leader_role_id', ''),
-(28, 'discord_leader_role_id', '');
+(28, 'discord_leader_role_id', ''),
+(29, 'automatic_certificates', '1');
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,

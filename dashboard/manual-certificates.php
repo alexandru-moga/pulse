@@ -5,7 +5,7 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser, $settings;
 
-$pageTitle = 'Manual Certificate Management';
+$pageTitle = 'Assigned Certificate Management';
 include __DIR__ . '/components/dashboard-header.php';
 
 $success = $error = null;
@@ -122,7 +122,7 @@ $certificates = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Page Header -->
     <div class="bg-gradient-to-r from-primary to-red-600 rounded-lg shadow-lg p-8 text-white">
         <div class="max-w-4xl">
-            <h1 class="text-3xl font-bold mb-2">Manual Certificate Management</h1>
+            <h1 class="text-3xl font-bold mb-2">Assigned Certificate Management</h1>
             <p class="text-red-100">Upload and manage certificates for members</p>
         </div>
     </div>
