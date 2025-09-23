@@ -610,17 +610,39 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             // Touch events for mobile
                             let touchStartX = 0;
                             let touchEndX = 0;
+                            let touchStartY = 0;
+                            let touchEndY = 0;
+                            let touchStartTime = 0;
+                            let isScrolling = false;
 
                             // Swipe to close sidebar on mobile
                             sidebar.addEventListener('touchstart', function(e) {
                                 touchStartX = e.changedTouches[0].screenX;
+                                touchStartY = e.changedTouches[0].screenY;
+                                touchStartTime = Date.now();
+                                isScrolling = false;
+                            }, {
+                                passive: true
+                            });
+
+                            sidebar.addEventListener('touchmove', function(e) {
+                                // Detect if user is scrolling vertically
+                                const currentY = e.changedTouches[0].screenY;
+                                if (Math.abs(currentY - touchStartY) > 10) {
+                                    isScrolling = true;
+                                }
                             }, {
                                 passive: true
                             });
 
                             sidebar.addEventListener('touchend', function(e) {
                                 touchEndX = e.changedTouches[0].screenX;
-                                if (isMobile() && sidebarOpen && touchStartX - touchEndX > 50) {
+                                touchEndY = e.changedTouches[0].screenY;
+                                
+                                // Only close if not scrolling and it's a horizontal swipe
+                                if (isMobile() && sidebarOpen && !isScrolling && 
+                                    touchStartX - touchEndX > 50 && 
+                                    Math.abs(touchEndY - touchStartY) < 100) {
                                     // Swipe left to close
                                     closeSidebar();
                                 }
@@ -632,16 +654,38 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             document.addEventListener('touchstart', function(e) {
                                 if (isMobile() && !sidebarOpen && e.touches[0].clientX < 20) {
                                     touchStartX = e.touches[0].screenX;
+                                    touchStartY = e.touches[0].screenY;
+                                    touchStartTime = Date.now();
+                                    isScrolling = false;
+                                }
+                            }, {
+                                passive: true
+                            });
+
+                            document.addEventListener('touchmove', function(e) {
+                                // Detect if user is scrolling vertically
+                                if (touchStartX < 20) {
+                                    const currentY = e.touches[0].screenY;
+                                    if (Math.abs(currentY - touchStartY) > 10) {
+                                        isScrolling = true;
+                                    }
                                 }
                             }, {
                                 passive: true
                             });
 
                             document.addEventListener('touchend', function(e) {
-                                if (isMobile() && !sidebarOpen && touchStartX < 20 &&
-                                    e.changedTouches[0].screenX - touchStartX > 50) {
-                                    // Swipe right from edge to open
-                                    toggleSidebar();
+                                if (isMobile() && !sidebarOpen && touchStartX < 20 && !isScrolling) {
+                                    touchEndX = e.changedTouches[0].screenX;
+                                    touchEndY = e.changedTouches[0].screenY;
+                                    const swipeDistance = touchEndX - touchStartX;
+                                    const verticalDistance = Math.abs(touchEndY - touchStartY);
+                                    const swipeTime = Date.now() - touchStartTime;
+                                    
+                                    // Only open if it's a clear horizontal swipe, not vertical scroll
+                                    if (swipeDistance > 50 && verticalDistance < 100 && swipeTime < 300) {
+                                        toggleSidebar();
+                                    }
                                 }
                             }, {
                                 passive: true
