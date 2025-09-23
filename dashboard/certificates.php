@@ -105,7 +105,7 @@ try {
         <div class="max-w-4xl">
             <h1 class="text-3xl font-bold mb-2">My Certificates</h1>
             <p class="text-red-100 mb-6">Download your achievement certificates for completed projects</p>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-<?= $automaticCertificatesEnabled ? '4' : '2' ?> gap-6">
                 <?php if ($automaticCertificatesEnabled): ?>
                     <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
                         <div class="text-2xl font-bold"><?= $stats['unique_projects'] + $stats['manual_certificates'] ?></div>

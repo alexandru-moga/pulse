@@ -56,7 +56,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 <?= $currentUser->active_member == 1 ? 'lg:grid-cols-4' : 'lg:grid-cols-2' ?> gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
