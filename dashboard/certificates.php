@@ -8,7 +8,7 @@ global $db, $currentUser, $settings;
 $success = $error = null;
 
 // Handle certificate download BEFORE any HTML output
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['download_certificate'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_P['download_certificate'])) {
     // Check if automatic certificates are enabled
     if (($settings['automatic_certificates'] ?? '1') !== '1') {
         $error = "Automatic certificate generation is currently disabled.";
@@ -146,19 +146,6 @@ try {
     </div>
 
     <!-- Notifications -->
-    <?php if (!$automaticCertificatesEnabled): ?>
-        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <div class="flex">
-                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">Automatic Certificates Disabled</h3>
-                    <p class="text-sm text-yellow-700 mt-1">Project certificates are currently disabled by an administrator. You can still access any assigned certificates that have been uploaded for you.</p>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
 
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
@@ -338,46 +325,6 @@ try {
                 </div>
             </div>
         <?php endif; ?>
-    </div>
-
-    <!-- Certificate Info -->
-    <div class="bg-blue-50 rounded-lg p-6">
-        <div class="flex">
-            <svg class="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">About Certificates</h3>
-                <div class="mt-2 text-sm text-blue-700 space-y-2">
-                    <p>🏆 <strong>Project Certificates:</strong> Generated automatically for projects with "Accepted" or "Completed" status.</p>
-                    <p>� <strong>Manual Certificates:</strong> Special certificates uploaded by administrators for specific achievements.</p>
-                    <p>📄 <strong>Format:</strong> Certificates are available as PDF files or high-quality images.</p>
-                    <p>🎖️ <strong>Recognition:</strong> Pizza Grant recipients receive special recognition on their project certificates.</p>
-                    <p>📊 <strong>Tracking:</strong> Download counts and dates are tracked for your records.</p>
-                    <p>🔄 <strong>Re-download:</strong> You can download your certificates multiple times whenever needed.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Certificate Info -->
-    <div class="bg-blue-50 rounded-lg p-6">
-        <div class="flex">
-            <svg class="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-blue-800">About Certificates</h3>
-                <div class="mt-2 text-sm text-blue-700 space-y-2">
-                    <p>🏆 <strong>Project Certificates:</strong> Generated automatically for projects with "Accepted" or "Completed" status when automatic certificates are enabled.</p>
-                    <p>📋 <strong>Assigned Certificates:</strong> Special certificates uploaded by administrators for specific achievements.</p>
-                    <p>📄 <strong>Format:</strong> Certificates are available as PDF files or high-quality images.</p>
-                    <p>🎖️ <strong>Recognition:</strong> Pizza Grant recipients receive special recognition on their project certificates.</p>
-                    <p>📊 <strong>Tracking:</strong> Download counts and dates are tracked for your records.</p>
-                    <p>🔄 <strong>Re-download:</strong> You can download your certificates multiple times whenever needed.</p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
