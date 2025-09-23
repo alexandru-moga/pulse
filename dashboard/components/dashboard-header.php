@@ -224,6 +224,15 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         }
 
         @media (min-width: 769px) {
+            .sidebar {
+                position: relative;
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+
             .main-content {
                 margin-left: 16rem;
                 /* 256px sidebar width */
@@ -544,6 +553,27 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
                             let sidebarOpen = false;
 
+                            // Load saved sidebar state for desktop
+                            function loadSidebarState() {
+                                if (!isMobile()) {
+                                    const savedState = localStorage.getItem('sidebarOpen');
+                                    if (savedState !== null) {
+                                        sidebarOpen = savedState === 'true';
+                                    } else {
+                                        sidebarOpen = true; // Default to open on desktop
+                                    }
+                                } else {
+                                    sidebarOpen = false; // Always start closed on mobile
+                                }
+                            }
+
+                            // Save sidebar state for desktop
+                            function saveSidebarState() {
+                                if (!isMobile()) {
+                                    localStorage.setItem('sidebarOpen', sidebarOpen.toString());
+                                }
+                            }
+
                             // Check if we're on mobile
                             function isMobile() {
                                 return window.innerWidth <= 768;
@@ -563,6 +593,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             // Toggle sidebar
                             function toggleSidebar() {
                                 sidebarOpen = !sidebarOpen;
+                                saveSidebarState(); // Save state for desktop
 
                                 if (isMobile()) {
                                     // Mobile behavior - overlay
@@ -582,7 +613,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                         document.body.style.overflow = '';
                                     }
                                 } else {
-                                    // Desktop behavior - push content
+                                    // Desktop behavior - actually hide/show sidebar
                                     if (sidebarOpen) {
                                         sidebar.classList.remove('sidebar-hidden');
                                         mainContent.classList.remove('main-content-expanded');
@@ -638,10 +669,10 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             sidebar.addEventListener('touchend', function(e) {
                                 touchEndX = e.changedTouches[0].screenX;
                                 touchEndY = e.changedTouches[0].screenY;
-                                
+
                                 // Only close if not scrolling and it's a horizontal swipe
-                                if (isMobile() && sidebarOpen && !isScrolling && 
-                                    touchStartX - touchEndX > 50 && 
+                                if (isMobile() && sidebarOpen && !isScrolling &&
+                                    touchStartX - touchEndX > 50 &&
                                     Math.abs(touchEndY - touchStartY) < 100) {
                                     // Swipe left to close
                                     closeSidebar();
@@ -651,63 +682,116 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             });
 
                             // Swipe to open sidebar from screen edge
+                            let edgeTouchActive = false;
+
                             document.addEventListener('touchstart', function(e) {
-                                if (isMobile() && !sidebarOpen && e.touches[0].clientX < 20) {
+                                if (isMobile() && !sidebarOpen && e.touches[0].clientX < 15) {
                                     touchStartX = e.touches[0].screenX;
                                     touchStartY = e.touches[0].screenY;
                                     touchStartTime = Date.now();
                                     isScrolling = false;
+                                    edgeTouchActive = true;
+                                } else {
+                                    edgeTouchActive = false;
                                 }
                             }, {
                                 passive: true
                             });
 
                             document.addEventListener('touchmove', function(e) {
-                                // Detect if user is scrolling vertically
-                                if (touchStartX < 20) {
+                                // Only track if we started at the edge
+                                if (edgeTouchActive && touchStartX < 15) {
                                     const currentY = e.touches[0].screenY;
-                                    if (Math.abs(currentY - touchStartY) > 10) {
+                                    const currentX = e.touches[0].screenX;
+                                    const verticalMovement = Math.abs(currentY - touchStartY);
+                                    const horizontalMovement = Math.abs(currentX - touchStartX);
+
+                                    // If vertical movement is greater than horizontal, it's a scroll
+                                    if (verticalMovement > 15 || (verticalMovement > horizontalMovement && verticalMovement > 5)) {
                                         isScrolling = true;
+                                        edgeTouchActive = false;
                                     }
+                                } else if (touchStartX >= 15) {
+                                    // Not an edge touch, definitely scrolling
+                                    isScrolling = true;
+                                    edgeTouchActive = false;
                                 }
                             }, {
                                 passive: true
                             });
 
                             document.addEventListener('touchend', function(e) {
-                                if (isMobile() && !sidebarOpen && touchStartX < 20 && !isScrolling) {
+                                if (isMobile() && !sidebarOpen && edgeTouchActive && !isScrolling && touchStartX < 15) {
                                     touchEndX = e.changedTouches[0].screenX;
                                     touchEndY = e.changedTouches[0].screenY;
                                     const swipeDistance = touchEndX - touchStartX;
                                     const verticalDistance = Math.abs(touchEndY - touchStartY);
                                     const swipeTime = Date.now() - touchStartTime;
-                                    
-                                    // Only open if it's a clear horizontal swipe, not vertical scroll
-                                    if (swipeDistance > 50 && verticalDistance < 100 && swipeTime < 300) {
+
+                                    // Very strict criteria for opening sidebar
+                                    if (swipeDistance > 80 && verticalDistance < 50 && swipeTime < 250) {
                                         toggleSidebar();
                                     }
                                 }
+                                edgeTouchActive = false;
                             }, {
                                 passive: true
                             });
 
                             // Handle window resize
                             window.addEventListener('resize', function() {
-                                if (!isMobile() && sidebarOpen) {
-                                    // Reset mobile styles when switching to desktop
-                                    sidebarOverlay.classList.add('hidden', 'opacity-0');
-                                    document.body.style.overflow = '';
-                                } else if (isMobile() && !sidebarOpen) {
-                                    // Reset desktop styles when switching to mobile
-                                    mainContent.classList.remove('main-content-expanded');
+                                const wasMobile = document.body.classList.contains('mobile-view');
+                                const isMobileNow = isMobile();
+
+                                if (wasMobile !== isMobileNow) {
+                                    // Mode changed
+                                    if (isMobileNow) {
+                                        // Switching to mobile
+                                        document.body.classList.add('mobile-view');
+                                        sidebar.classList.add('sidebar-hidden');
+                                        sidebarOverlay.classList.add('hidden', 'opacity-0');
+                                        mainContent.classList.remove('main-content-expanded');
+                                        document.body.style.overflow = '';
+                                        sidebarOpen = false;
+                                    } else {
+                                        // Switching to desktop
+                                        document.body.classList.remove('mobile-view');
+                                        sidebarOverlay.classList.add('hidden', 'opacity-0');
+                                        document.body.style.overflow = '';
+
+                                        // Load desktop state
+                                        loadSidebarState();
+                                        if (sidebarOpen) {
+                                            sidebar.classList.remove('sidebar-hidden');
+                                            mainContent.classList.remove('main-content-expanded');
+                                        } else {
+                                            sidebar.classList.add('sidebar-hidden');
+                                            mainContent.classList.add('main-content-expanded');
+                                        }
+                                    }
+                                    updateHamburgerIcon();
                                 }
-                                updateHamburgerIcon();
                             });
 
                             // Initialize sidebar state
+                            loadSidebarState();
+
+                            // Track mobile state for resize handling
                             if (isMobile()) {
+                                document.body.classList.add('mobile-view');
                                 sidebar.classList.add('sidebar-hidden');
                                 sidebarOverlay.classList.add('hidden', 'opacity-0');
+                                sidebarOpen = false; // Always closed on mobile initially
+                            } else {
+                                document.body.classList.remove('mobile-view');
+                                // Apply saved desktop state
+                                if (sidebarOpen) {
+                                    sidebar.classList.remove('sidebar-hidden');
+                                    mainContent.classList.remove('main-content-expanded');
+                                } else {
+                                    sidebar.classList.add('sidebar-hidden');
+                                    mainContent.classList.add('main-content-expanded');
+                                }
                             }
                             updateHamburgerIcon();
 
