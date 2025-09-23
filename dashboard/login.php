@@ -235,6 +235,9 @@ $slackConfigured = $slack->isConfigured();
             ← Back to main site
         </a>
     </div>
+
+    <!-- Cookie Consent -->
+    <?php include __DIR__ . '/../components/cookie-consent.php'; ?>
 </body>
 
 </html>

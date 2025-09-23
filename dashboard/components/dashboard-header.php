@@ -243,7 +243,8 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                 margin-left: 0;
                 transition: margin-left 0.3s ease-in-out;
                 flex: 1;
-                min-width: 0; /* Prevent flex item from overflowing */
+                min-width: 0;
+                /* Prevent flex item from overflowing */
             }
 
             .main-content-expanded {

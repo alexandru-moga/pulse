@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
                 $mail->isHTML(true);
                 $mail->Subject = 'Reset Your ' . htmlspecialchars($settings['site_title']) . ' Password';
-                
+
                 // Modern HTML email template matching the reset page design
                 $emailBody = '
                 <!DOCTYPE html>
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </body>
                 </html>';
-                
+
                 $mail->Body = $emailBody;
 
                 $mail->send();
@@ -244,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -267,17 +268,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             max-width: 400px;
             margin: 0 auto;
         }
-        
+
         /* Ensure proper spacing between form elements */
-        .form-spacing > * + * {
+        .form-spacing>*+* {
             margin-top: 1.5rem;
         }
-        
+
         /* Prevent button overlap */
         button[type="submit"] {
             margin-top: 1rem;
         }
-        
+
         /* Ensure proper spacing for dividers */
         .divider-section {
             margin-top: 1.5rem;
@@ -285,12 +286,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <div class="flex justify-center">
-            <img src="<?= $settings['site_url'] ?>/images/logo.svg" 
-                 alt="<?= htmlspecialchars($settings['site_title']) ?> Logo" 
-                 class="h-16 w-auto">
+            <img src="<?= $settings['site_url'] ?>/images/logo.svg"
+                alt="<?= htmlspecialchars($settings['site_title']) ?> Logo"
+                class="h-16 w-auto">
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Reset your password
@@ -348,20 +350,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Email address
                     </label>
                     <div class="mt-1">
-                        <input id="email" 
-                               name="email" 
-                               type="email" 
-                               autocomplete="email" 
-                               required
-                               value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                               placeholder="Enter your email address">
+                        <input id="email"
+                            name="email"
+                            type="email"
+                            autocomplete="email"
+                            required
+                            value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            placeholder="Enter your email address">
                     </div>
                 </div>
 
                 <div>
-                    <button type="submit" 
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <button type="submit"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         Send Reset Link
                     </button>
                 </div>
@@ -380,8 +382,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="mt-6 text-center">
-                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
-                       class="font-medium text-primary hover:text-red-500">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php"
+                        class="font-medium text-primary hover:text-red-500">
                         Sign in to your account
                     </a>
                 </div>
@@ -390,10 +392,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="mt-8 text-center">
-        <a href="<?= $settings['site_url'] ?>" 
-           class="text-sm text-gray-500 hover:text-gray-700">
+        <a href="<?= $settings['site_url'] ?>"
+            class="text-sm text-gray-500 hover:text-gray-700">
             ← Back to main site
         </a>
     </div>
+
+    <!-- Cookie Consent -->
+    <?php include __DIR__ . '/../components/cookie-consent.php'; ?>
 </body>
+
 </html>

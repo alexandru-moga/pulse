@@ -56,7 +56,7 @@ if (!in_array($pizzaGrant, $validPizzaGrants)) {
 }
 
 try {
-    
+
     // Update or insert assignment
     $stmt = $db->prepare("
         INSERT INTO project_assignments (user_id, project_id, status, pizza_grant) 
@@ -66,34 +66,32 @@ try {
         pizza_grant = VALUES(pizza_grant), 
         updated_at = CURRENT_TIMESTAMP
     ");
-    
+
     $result = $stmt->execute([$userId, $projectId, $status, $pizzaGrant]);
-    
+
     if ($result) {
         // Check if user has Discord linked for role assignment
         $stmt = $db->prepare("SELECT discord_id FROM discord_links WHERE user_id = ?");
         $stmt->execute([$userId]);
         $discordLink = $stmt->fetch();
-        
+
         $response = [
-            'success' => true, 
+            'success' => true,
             'message' => 'Assignment updated successfully',
             'user_name' => $user['first_name'] . ' ' . $user['last_name'],
             'project_name' => $project['title'],
             'discord_linked' => $discordLink ? true : false
         ];
-        
+
         if (!$discordLink && $status === 'accepted') {
             $response['warning'] = 'User does not have Discord linked - cannot assign Discord roles';
         }
-        
+
         echo json_encode($response);
     } else {
         echo json_encode(['success' => false, 'error' => 'Failed to update assignment']);
     }
-    
 } catch (Exception $e) {
     error_log("Assignment update error: " . $e->getMessage());
     echo json_encode(['success' => false, 'error' => 'Database error occurred']);
 }
-?>

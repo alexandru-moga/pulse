@@ -262,6 +262,9 @@ if ($token) {
             });
         });
     </script>
+
+    <!-- Cookie Consent -->
+    <?php include __DIR__ . '/../components/cookie-consent.php'; ?>
 </body>
 
 </html>
