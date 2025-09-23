@@ -7,7 +7,7 @@
 ?>
 
 <!-- Cookie Consent Banner -->
-<div id="cookieConsent" class="cookie-consent" style="display: none;">
+<div id="cookieConsent" class="cookie-consent" style="display: none; position: fixed !important; bottom: 20px !important; right: 20px !important; z-index: 2147483647 !important; pointer-events: auto !important; visibility: visible !important; opacity: 1 !important;">
     <div class="cookie-consent-content">
         <div class="cookie-consent-text">
             <h3>🍪 We use cookies</h3>
@@ -89,15 +89,23 @@
 <style>
     /* Cookie Consent Styles */
     .cookie-consent {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
         background: #1a1a1a;
         color: #ffffff;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        z-index: 10000;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        z-index: 2147483647 !important; /* Maximum z-index value */
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 400px;
+        width: calc(100vw - 40px);
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         max-width: 400px;
         width: calc(100vw - 40px);
@@ -177,7 +185,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: 10001;
+        z-index: 2147483647;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -435,6 +443,7 @@
         const savePrefsBtn = document.getElementById('cookieSavePreferences');
         const acceptAllModalBtn = document.getElementById('cookieAcceptAllModal');
         const settingsLink = document.getElementById('cookieSettingsLink');
+        const footerSettingsLink = document.getElementById('cookieSettingsFooter');
         const modalOverlay = consentModal.querySelector('.cookie-modal-overlay');
 
         // Check if consent has been given
@@ -442,6 +451,16 @@
             const consent = getCookie(COOKIE_NAME);
             if (!consent) {
                 showConsentBanner();
+                
+                // Debug: Log that banner should be shown
+                console.log('Cookie consent banner should be visible');
+                
+                // Force show after a short delay to ensure DOM is ready
+                setTimeout(function() {
+                    if (consentBanner && consentBanner.style.display === 'none') {
+                        consentBanner.style.display = 'block';
+                    }
+                }, 100);
             } else {
                 applyCookieSettings(JSON.parse(consent));
             }
@@ -449,7 +468,22 @@
 
         // Show consent banner
         function showConsentBanner() {
-            consentBanner.style.display = 'block';
+            if (consentBanner) {
+                consentBanner.style.display = 'block';
+                consentBanner.style.visibility = 'visible';
+                consentBanner.style.opacity = '1';
+                consentBanner.style.transform = 'none';
+                consentBanner.style.pointerEvents = 'auto';
+                
+                // Ensure it's not hidden by any parent containers
+                let parent = consentBanner.parentElement;
+                while (parent && parent !== document.body) {
+                    if (getComputedStyle(parent).overflow === 'hidden') {
+                        parent.style.overflow = 'visible';
+                    }
+                    parent = parent.parentElement;
+                }
+            }
         }
 
         // Hide consent banner
@@ -597,6 +631,13 @@
             });
         }
 
+        if (footerSettingsLink) {
+            footerSettingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showPreferencesModal();
+            });
+        }
+
         if (modalOverlay) {
             modalOverlay.addEventListener('click', hidePreferencesModal);
         }
@@ -609,10 +650,49 @@
         });
 
         // Initialize on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', checkCookieConsent);
-        } else {
+        function initializeCookieConsent() {
+            // Ensure banner is properly positioned
+            if (consentBanner && !getCookie(COOKIE_NAME)) {
+                // Force the banner to be properly positioned and visible
+                consentBanner.style.cssText = `
+                    display: block !important;
+                    position: fixed !important;
+                    bottom: 20px !important;
+                    right: 20px !important;
+                    z-index: 2147483647 !important;
+                    pointer-events: auto !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    transform: none !important;
+                `;
+                
+                // Also ensure parent containers don't interfere
+                let parent = consentBanner.parentElement;
+                while (parent && parent !== document.body) {
+                    const styles = getComputedStyle(parent);
+                    if (styles.overflow === 'hidden' || styles.position === 'relative') {
+                        parent.style.overflow = 'visible';
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+            
             checkCookieConsent();
         }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCookieConsent);
+        } else {
+            initializeCookieConsent();
+        }
+
+        // Additional failsafe - check again on window load
+        window.addEventListener('load', function() {
+            const consent = getCookie(COOKIE_NAME);
+            if (!consent && consentBanner) {
+                consentBanner.style.display = 'block';
+                console.log('Cookie banner failsafe activated');
+            }
+        });
     })();
 </script>

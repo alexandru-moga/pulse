@@ -43,7 +43,7 @@ $footerContent = $footer->getFooterContent();
                 © <?= date('Y') ?> <?= htmlspecialchars($settings['site_title']) ?> •
                 Powered by <a href="https://github.com/alexandru-moga/pulse"
                     class="credit-link">Pulse</a> •
-                <?php include __DIR__ . '/../cookie-consent.php'; ?>
+                <a href="#" id="cookieSettingsFooter" class="credit-link">Cookie Settings</a>
             </p>
             <?php if ($footerContent['credits']['show_attribution'] ?? false): ?>
                 <p class="attribution">
