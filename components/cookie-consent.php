@@ -90,54 +90,55 @@
     /* Cookie Consent Styles */
     .cookie-consent {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 20px;
+        right: 20px;
         background: #1a1a1a;
         color: #ffffff;
         padding: 20px;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         z-index: 10000;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 400px;
+        width: calc(100vw - 40px);
     }
 
     .cookie-consent-content {
-        max-width: 1200px;
-        margin: 0 auto;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
+        flex-direction: column;
+        gap: 16px;
     }
 
     .cookie-consent-text h3 {
         margin: 0 0 8px 0;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
     }
 
     .cookie-consent-text p {
         margin: 0;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1.4;
         opacity: 0.9;
     }
 
     .cookie-consent-buttons {
         display: flex;
-        gap: 12px;
-        flex-shrink: 0;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .cookie-btn {
-        padding: 10px 20px;
+        padding: 8px 16px;
         border: none;
         border-radius: 6px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
         white-space: nowrap;
+        flex: 1;
+        min-width: 80px;
     }
 
     .cookie-btn-accept {
@@ -348,20 +349,34 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+        .cookie-consent {
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+            max-width: none;
+            width: auto;
+        }
+
         .cookie-consent-content {
-            flex-direction: column;
-            align-items: stretch;
-            text-align: center;
+            gap: 12px;
+        }
+
+        .cookie-consent-text h3 {
+            font-size: 14px;
+        }
+
+        .cookie-consent-text p {
+            font-size: 12px;
         }
 
         .cookie-consent-buttons {
-            justify-content: center;
-            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .cookie-btn {
-            flex: 1;
-            min-width: 120px;
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 70px;
         }
 
         .cookie-modal-content {
