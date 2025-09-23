@@ -227,20 +227,25 @@ $currentFile = basename($_SERVER['PHP_SELF']);
             .sidebar {
                 position: relative;
                 transition: transform 0.3s ease-in-out;
+                flex-shrink: 0;
+                /* Prevent sidebar from shrinking */
             }
 
             .sidebar-hidden {
                 transform: translateX(-100%);
+                margin-left: -16rem;
+                /* Pull back the hidden sidebar */
             }
 
             .main-content {
-                margin-left: 16rem;
-                /* 256px sidebar width */
+                margin-left: 0;
+                /* No margin needed */
                 transition: margin-left 0.3s ease-in-out;
             }
 
             .main-content-expanded {
                 margin-left: 0;
+                /* Keep it at 0 since we're using flex layout */
             }
         }
     </style>
@@ -613,13 +618,11 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                         document.body.style.overflow = '';
                                     }
                                 } else {
-                                    // Desktop behavior - actually hide/show sidebar
+                                    // Desktop behavior - simply hide/show sidebar with flex layout
                                     if (sidebarOpen) {
                                         sidebar.classList.remove('sidebar-hidden');
-                                        mainContent.classList.remove('main-content-expanded');
                                     } else {
                                         sidebar.classList.add('sidebar-hidden');
-                                        mainContent.classList.add('main-content-expanded');
                                     }
                                 }
 
@@ -750,7 +753,6 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                         document.body.classList.add('mobile-view');
                                         sidebar.classList.add('sidebar-hidden');
                                         sidebarOverlay.classList.add('hidden', 'opacity-0');
-                                        mainContent.classList.remove('main-content-expanded');
                                         document.body.style.overflow = '';
                                         sidebarOpen = false;
                                     } else {
@@ -763,10 +765,8 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                         loadSidebarState();
                                         if (sidebarOpen) {
                                             sidebar.classList.remove('sidebar-hidden');
-                                            mainContent.classList.remove('main-content-expanded');
                                         } else {
                                             sidebar.classList.add('sidebar-hidden');
-                                            mainContent.classList.add('main-content-expanded');
                                         }
                                     }
                                     updateHamburgerIcon();
@@ -787,10 +787,8 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                 // Apply saved desktop state
                                 if (sidebarOpen) {
                                     sidebar.classList.remove('sidebar-hidden');
-                                    mainContent.classList.remove('main-content-expanded');
                                 } else {
                                     sidebar.classList.add('sidebar-hidden');
-                                    mainContent.classList.add('main-content-expanded');
                                 }
                             }
                             updateHamburgerIcon();
