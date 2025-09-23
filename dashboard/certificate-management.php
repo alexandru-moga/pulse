@@ -19,12 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_settings'])) {
         'certificate_signature_name' => $_POST['certificate_signature_name'],
         'certificate_signature_title' => $_POST['certificate_signature_title']
     ];
-    
+
     foreach ($settingsToUpdate as $name => $value) {
         $stmt = $db->prepare("UPDATE settings SET value = ? WHERE name = ?");
         $stmt->execute([$value, $name]);
     }
-    
+
     $success = "Certificate settings updated successfully!";
 }
 
@@ -59,6 +59,15 @@ $recentDownloads = $db->query("
             <div>
                 <h2 class="text-xl font-semibold text-gray-900">Certificate Management</h2>
                 <p class="text-gray-600 mt-1">Configure certificate settings and view download statistics</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="manual-certificates.php"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    Manage Manual Certificates
+                </a>
             </div>
         </div>
     </div>
@@ -145,9 +154,9 @@ $recentDownloads = $db->query("
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="flex items-center">
-                            <input type="checkbox" name="certificate_enabled" value="1" 
-                                   <?= ($certificateSettings['certificate_enabled'] ?? '1') === '1' ? 'checked' : '' ?>
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <input type="checkbox" name="certificate_enabled" value="1"
+                                <?= ($certificateSettings['certificate_enabled'] ?? '1') === '1' ? 'checked' : '' ?>
+                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                             <span class="ml-2 text-sm font-medium text-gray-700">Enable Certificate Downloads</span>
                         </label>
                         <p class="mt-1 text-sm text-gray-500">Allow users to download certificates for their projects</p>
@@ -157,33 +166,33 @@ $recentDownloads = $db->query("
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Certificate Title</label>
-                        <input type="text" name="certificate_title" 
-                               value="<?= htmlspecialchars($certificateSettings['certificate_title'] ?? 'Certificate of Achievement') ?>"
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                        <input type="text" name="certificate_title"
+                            value="<?= htmlspecialchars($certificateSettings['certificate_title'] ?? 'Certificate of Achievement') ?>"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Organization Name</label>
-                        <input type="text" name="certificate_org_name" 
-                               value="<?= htmlspecialchars($certificateSettings['certificate_org_name'] ?? 'PULSE') ?>"
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                        <input type="text" name="certificate_org_name"
+                            value="<?= htmlspecialchars($certificateSettings['certificate_org_name'] ?? 'PULSE') ?>"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Signature Name</label>
-                        <input type="text" name="certificate_signature_name" 
-                               value="<?= htmlspecialchars($certificateSettings['certificate_signature_name'] ?? 'Leadership Team') ?>"
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                        <input type="text" name="certificate_signature_name"
+                            value="<?= htmlspecialchars($certificateSettings['certificate_signature_name'] ?? 'Leadership Team') ?>"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Signature Title</label>
-                        <input type="text" name="certificate_signature_title" 
-                               value="<?= htmlspecialchars($certificateSettings['certificate_signature_title'] ?? 'Director') ?>"
-                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
+                        <input type="text" name="certificate_signature_title"
+                            value="<?= htmlspecialchars($certificateSettings['certificate_signature_title'] ?? 'Director') ?>"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary">
                     </div>
                 </div>
 
                 <div class="flex justify-end">
                     <button type="submit" name="update_settings"
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         Save Settings
                     </button>
                 </div>
