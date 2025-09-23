@@ -106,15 +106,6 @@
         transform: none !important;
     }
 
-    font-family: -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-    max-width: 400px;
-    width: calc(100vw - 40px);
-    }
-
     .cookie-consent-content {
         display: flex;
         flex-direction: column;
