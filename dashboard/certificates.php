@@ -9,55 +9,67 @@ $success = $error = null;
 
 // Handle certificate download BEFORE any HTML output
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['download_certificate'])) {
-    $projectId = intval($_POST['project_id']);
+    // Check if automatic certificates are enabled
+    if (($settings['automatic_certificates'] ?? '1') !== '1') {
+        $error = "Automatic certificate generation is currently disabled.";
+    } else {
+        $projectId = intval($_POST['project_id']);
 
-    try {
-        // Clear any output buffers
-        while (ob_get_level()) {
-            ob_end_clean();
+        try {
+            // Clear any output buffers
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+
+            $certificateGenerator = new CertificateGenerator($db);
+            $pdf = $certificateGenerator->generateProjectCertificate($currentUser->id, $projectId);
+
+            // Get project title for filename
+            $stmt = $db->prepare("SELECT title FROM projects WHERE id = ?");
+            $stmt->execute([$projectId]);
+            $project = $stmt->fetch();
+
+            $filename = 'certificate_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $project['title']) . '.pdf';
+
+            // Send headers and output PDF
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            $pdf->Output($filename, 'D');
+            exit; // Important: Exit immediately after PDF output
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
         }
-
-        $certificateGenerator = new CertificateGenerator($db);
-        $pdf = $certificateGenerator->generateProjectCertificate($currentUser->id, $projectId);
-
-        // Get project title for filename
-        $stmt = $db->prepare("SELECT title FROM projects WHERE id = ?");
-        $stmt->execute([$projectId]);
-        $project = $stmt->fetch();
-
-        $filename = 'certificate_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $project['title']) . '.pdf';
-
-        // Send headers and output PDF
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: private, max-age=0, must-revalidate');
-        header('Pragma: public');
-
-        $pdf->Output($filename, 'D');
-        exit; // Important: Exit immediately after PDF output
-
-    } catch (Exception $e) {
-        $error = $e->getMessage();
     }
 }
 
 $pageTitle = 'My Certificates';
 include __DIR__ . '/components/dashboard-header.php';
 
-// Get user's eligible projects (accepted or completed)
-$stmt = $db->prepare("
-    SELECT p.id, p.title, p.description, p.reward_amount, p.reward_description,
-           pa.status, pa.pizza_grant, 
-           COALESCE(pa.updated_at, pa.created_at, CURRENT_TIMESTAMP) as updated_at,
-           cd.download_count, cd.downloaded_at
-    FROM projects p
-    JOIN project_assignments pa ON pa.project_id = p.id
-    LEFT JOIN certificate_downloads cd ON cd.user_id = pa.user_id AND cd.project_id = p.id
-    WHERE pa.user_id = ? AND pa.status IN ('accepted', 'completed')
-    ORDER BY COALESCE(pa.updated_at, pa.created_at) DESC
-");
-$stmt->execute([$currentUser->id]);
-$eligibleProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Check if automatic certificates are enabled
+$automaticCertificatesEnabled = ($settings['automatic_certificates'] ?? '1') === '1';
+
+// Get user's eligible projects (accepted or completed) - only if automatic certificates are enabled
+if ($automaticCertificatesEnabled) {
+    $stmt = $db->prepare("
+        SELECT p.id, p.title, p.description, p.reward_amount, p.reward_description,
+               pa.status, pa.pizza_grant, 
+               COALESCE(pa.updated_at, pa.created_at, CURRENT_TIMESTAMP) as updated_at,
+               cd.download_count, cd.downloaded_at
+        FROM projects p
+        JOIN project_assignments pa ON pa.project_id = p.id
+        LEFT JOIN certificate_downloads cd ON cd.user_id = pa.user_id AND cd.project_id = p.id
+        WHERE pa.user_id = ? AND pa.status IN ('accepted', 'completed')
+        ORDER BY COALESCE(pa.updated_at, pa.created_at) DESC
+    ");
+    $stmt->execute([$currentUser->id]);
+    $eligibleProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $eligibleProjects = [];
+}
 
 // Get manual certificates for this user
 $stmt = $db->prepare("
@@ -73,8 +85,12 @@ $manualCertificates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get certificate statistics
 try {
-    $certificateGenerator = new CertificateGenerator($db);
-    $stats = $certificateGenerator->getCertificateStats($currentUser->id);
+    if ($automaticCertificatesEnabled) {
+        $certificateGenerator = new CertificateGenerator($db);
+        $stats = $certificateGenerator->getCertificateStats($currentUser->id);
+    } else {
+        $stats = ['total_downloads' => 0, 'unique_projects' => 0];
+    }
     // Add manual certificates to stats
     $stats['manual_certificates'] = count($manualCertificates);
     $stats['manual_downloads'] = array_sum(array_column($manualCertificates, 'download_count'));
@@ -90,27 +106,60 @@ try {
             <h1 class="text-3xl font-bold mb-2">My Certificates</h1>
             <p class="text-red-100 mb-6">Download your achievement certificates for completed projects</p>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-2xl font-bold"><?= $stats['unique_projects'] + $stats['manual_certificates'] ?></div>
-                    <div class="text-red-100 text-sm">Total Certificates</div>
-                </div>
-                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-2xl font-bold"><?= $stats['unique_projects'] ?></div>
-                    <div class="text-red-100 text-sm">Project Certificates</div>
-                </div>
-                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-2xl font-bold"><?= $stats['manual_certificates'] ?></div>
-                    <div class="text-red-100 text-sm">Assigned Certificates</div>
-                </div>
-                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-2xl font-bold"><?= $stats['total_downloads'] + $stats['manual_downloads'] ?></div>
-                    <div class="text-red-100 text-sm">Total Downloads</div>
-                </div>
+                <?php if ($automaticCertificatesEnabled): ?>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['unique_projects'] + $stats['manual_certificates'] ?></div>
+                        <div class="text-red-100 text-sm">Total Certificates</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['unique_projects'] ?></div>
+                        <div class="text-red-100 text-sm">Project Certificates</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['manual_certificates'] ?></div>
+                        <div class="text-red-100 text-sm">Assigned Certificates</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['total_downloads'] + $stats['manual_downloads'] ?></div>
+                        <div class="text-red-100 text-sm">Total Downloads</div>
+                    </div>
+                <?php else: ?>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['manual_certificates'] ?></div>
+                        <div class="text-red-100 text-sm">Available Certificates</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= count($eligibleProjects) ?></div>
+                        <div class="text-red-100 text-sm">Completed Projects</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= $stats['manual_downloads'] ?></div>
+                        <div class="text-red-100 text-sm">Downloads</div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 border-2 border-yellow-300">
+                        <div class="text-lg font-bold text-yellow-200">⚠️ DISABLED</div>
+                        <div class="text-red-100 text-sm">Auto Certificates</div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
     <!-- Notifications -->
+    <?php if (!$automaticCertificatesEnabled): ?>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Automatic Certificates Disabled</h3>
+                    <p class="text-sm text-yellow-700 mt-1">Project certificates are currently disabled by an administrator. You can still access any assigned certificates that have been uploaded for you.</p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <?php if ($success): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
