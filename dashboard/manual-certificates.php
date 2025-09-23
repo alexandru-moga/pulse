@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_certificate'])
 $stmt = $db->prepare("
     SELECT id, first_name, last_name, email 
     FROM users 
-    WHERE role IN ('Member', 'Alumni') 
+    WHERE role IN ('Member', 'Co-leader', 'Leader', 'Alumni') 
     ORDER BY first_name, last_name
 ");
 $stmt->execute();
