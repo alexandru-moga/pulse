@@ -179,19 +179,85 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         .dark .border-blue-200 {
             border-color: #1d4ed8 !important;
         }
+
+        /* Sidebar Toggle Styles */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+
+        /* Hamburger animation */
+        #sidebarToggle svg {
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 50;
+            }
+
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+                transition: opacity 0.3s ease-in-out;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-content {
+                margin-left: 16rem;
+                /* 256px sidebar width */
+                transition: margin-left 0.3s ease-in-out;
+            }
+
+            .main-content-expanded {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 h-full">
+    <!-- Sidebar Overlay for Mobile -->
+    <div id="sidebarOverlay" class="sidebar-overlay hidden opacity-0"></div>
+
     <div class="flex h-screen">
-        <div class="w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
+        <div id="sidebar" class="sidebar w-64 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center space-x-3">
-                    <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="<?= htmlspecialchars($settings['site_title']) ?>" class="h-8 w-8">
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($settings['site_title']) ?></h1>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Dashboard</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <img src="<?= $settings['site_url'] ?>/images/logo.svg" alt="<?= htmlspecialchars($settings['site_title']) ?>" class="h-8 w-8">
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($settings['site_title']) ?></h1>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Dashboard</p>
+                        </div>
                     </div>
+                    <!-- Close button for mobile -->
+                    <button id="sidebarClose" class="md:hidden p-2 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -394,13 +460,24 @@ $currentFile = basename($_SERVER['PHP_SELF']);
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div id="mainContent" class="main-content flex-1 flex flex-col overflow-hidden">
             <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                            <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
-                        </h1>
+                        <div class="flex items-center space-x-4">
+                            <!-- Hamburger Menu Button -->
+                            <button id="sidebarToggle" class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100 transition-colors">
+                                <svg id="hamburgerIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                                <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                                <?= htmlspecialchars($pageTitle ?? 'Dashboard') ?>
+                            </h1>
+                        </div>
                         <div class="flex items-center space-x-4">
                             <button id="darkModeToggle" class="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-100 transition-colors">
                                 <svg id="lightIcon" class="w-6 h-6 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,3 +532,146 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const sidebarToggle = document.getElementById('sidebarToggle');
+                            const sidebarClose = document.getElementById('sidebarClose');
+                            const sidebar = document.getElementById('sidebar');
+                            const sidebarOverlay = document.getElementById('sidebarOverlay');
+                            const mainContent = document.getElementById('mainContent');
+                            const hamburgerIcon = document.getElementById('hamburgerIcon');
+                            const closeIcon = document.getElementById('closeIcon');
+
+                            let sidebarOpen = false;
+
+                            // Check if we're on mobile
+                            function isMobile() {
+                                return window.innerWidth <= 768;
+                            }
+
+                            // Update hamburger icon
+                            function updateHamburgerIcon() {
+                                if (sidebarOpen && isMobile()) {
+                                    hamburgerIcon.classList.add('hidden');
+                                    closeIcon.classList.remove('hidden');
+                                } else {
+                                    hamburgerIcon.classList.remove('hidden');
+                                    closeIcon.classList.add('hidden');
+                                }
+                            }
+
+                            // Toggle sidebar
+                            function toggleSidebar() {
+                                sidebarOpen = !sidebarOpen;
+
+                                if (isMobile()) {
+                                    // Mobile behavior - overlay
+                                    if (sidebarOpen) {
+                                        sidebar.classList.remove('sidebar-hidden');
+                                        sidebarOverlay.classList.remove('hidden');
+                                        setTimeout(() => {
+                                            sidebarOverlay.classList.remove('opacity-0');
+                                        }, 10);
+                                        document.body.style.overflow = 'hidden';
+                                    } else {
+                                        sidebar.classList.add('sidebar-hidden');
+                                        sidebarOverlay.classList.add('opacity-0');
+                                        setTimeout(() => {
+                                            sidebarOverlay.classList.add('hidden');
+                                        }, 300);
+                                        document.body.style.overflow = '';
+                                    }
+                                } else {
+                                    // Desktop behavior - push content
+                                    if (sidebarOpen) {
+                                        sidebar.classList.remove('sidebar-hidden');
+                                        mainContent.classList.remove('main-content-expanded');
+                                    } else {
+                                        sidebar.classList.add('sidebar-hidden');
+                                        mainContent.classList.add('main-content-expanded');
+                                    }
+                                }
+
+                                updateHamburgerIcon();
+                            }
+
+                            // Close sidebar
+                            function closeSidebar() {
+                                if (sidebarOpen) {
+                                    toggleSidebar();
+                                }
+                            }
+
+                            // Event listeners
+                            sidebarToggle.addEventListener('click', toggleSidebar);
+                            sidebarClose.addEventListener('click', closeSidebar);
+                            sidebarOverlay.addEventListener('click', closeSidebar);
+
+                            // Touch events for mobile
+                            let touchStartX = 0;
+                            let touchEndX = 0;
+
+                            // Swipe to close sidebar on mobile
+                            sidebar.addEventListener('touchstart', function(e) {
+                                touchStartX = e.changedTouches[0].screenX;
+                            }, {
+                                passive: true
+                            });
+
+                            sidebar.addEventListener('touchend', function(e) {
+                                touchEndX = e.changedTouches[0].screenX;
+                                if (isMobile() && sidebarOpen && touchStartX - touchEndX > 50) {
+                                    // Swipe left to close
+                                    closeSidebar();
+                                }
+                            }, {
+                                passive: true
+                            });
+
+                            // Swipe to open sidebar from screen edge
+                            document.addEventListener('touchstart', function(e) {
+                                if (isMobile() && !sidebarOpen && e.touches[0].clientX < 20) {
+                                    touchStartX = e.touches[0].screenX;
+                                }
+                            }, {
+                                passive: true
+                            });
+
+                            document.addEventListener('touchend', function(e) {
+                                if (isMobile() && !sidebarOpen && touchStartX < 20 &&
+                                    e.changedTouches[0].screenX - touchStartX > 50) {
+                                    // Swipe right from edge to open
+                                    toggleSidebar();
+                                }
+                            }, {
+                                passive: true
+                            });
+
+                            // Handle window resize
+                            window.addEventListener('resize', function() {
+                                if (!isMobile() && sidebarOpen) {
+                                    // Reset mobile styles when switching to desktop
+                                    sidebarOverlay.classList.add('hidden', 'opacity-0');
+                                    document.body.style.overflow = '';
+                                } else if (isMobile() && !sidebarOpen) {
+                                    // Reset desktop styles when switching to mobile
+                                    mainContent.classList.remove('main-content-expanded');
+                                }
+                                updateHamburgerIcon();
+                            });
+
+                            // Initialize sidebar state
+                            if (isMobile()) {
+                                sidebar.classList.add('sidebar-hidden');
+                                sidebarOverlay.classList.add('hidden', 'opacity-0');
+                            }
+                            updateHamburgerIcon();
+
+                            // Escape key to close sidebar on mobile
+                            document.addEventListener('keydown', function(e) {
+                                if (e.key === 'Escape' && isMobile() && sidebarOpen) {
+                                    closeSidebar();
+                                }
+                            });
+                        });
+                    </script>
