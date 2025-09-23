@@ -97,7 +97,8 @@
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        z-index: 2147483647 !important; /* Maximum z-index value */
+        z-index: 2147483647 !important;
+        /* Maximum z-index value */
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         max-width: 400px;
         width: calc(100vw - 40px);
@@ -106,9 +107,14 @@
         opacity: 1 !important;
         transform: none !important;
     }
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        max-width: 400px;
-        width: calc(100vw - 40px);
+
+    font-family: -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+    max-width: 400px;
+    width: calc(100vw - 40px);
     }
 
     .cookie-consent-content {
@@ -451,10 +457,10 @@
             const consent = getCookie(COOKIE_NAME);
             if (!consent) {
                 showConsentBanner();
-                
+
                 // Debug: Log that banner should be shown
                 console.log('Cookie consent banner should be visible');
-                
+
                 // Force show after a short delay to ensure DOM is ready
                 setTimeout(function() {
                     if (consentBanner && consentBanner.style.display === 'none') {
@@ -474,7 +480,7 @@
                 consentBanner.style.opacity = '1';
                 consentBanner.style.transform = 'none';
                 consentBanner.style.pointerEvents = 'auto';
-                
+
                 // Ensure it's not hidden by any parent containers
                 let parent = consentBanner.parentElement;
                 while (parent && parent !== document.body) {
@@ -665,7 +671,7 @@
                     opacity: 1 !important;
                     transform: none !important;
                 `;
-                
+
                 // Also ensure parent containers don't interfere
                 let parent = consentBanner.parentElement;
                 while (parent && parent !== document.body) {
@@ -676,7 +682,7 @@
                     parent = parent.parentElement;
                 }
             }
-            
+
             checkCookieConsent();
         }
 
