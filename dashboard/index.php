@@ -42,7 +42,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
             </div>
         </div>
     <?php endif; ?>
-    
+
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -52,14 +52,16 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                 <p class="text-gray-600 dark:text-gray-300 mt-1">Dashboard overview and statistics</p>
             </div>
             <div class="flex space-x-3">
-                <a href="<?= $settings['site_url'] ?>/dashboard/projects.php" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600">
+                <a href="<?= $settings['site_url'] ?>/dashboard/projects.php"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600">
                     View Projects
                 </a>
-                <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    Edit Profile
-                </a>
+                <?php if ($currentUser->active_member == 1): ?>
+                    <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        Edit Profile
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -149,7 +151,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
-                
+
                 <div class="space-y-4">
                     <div class="flex items-center space-x-4">
                         <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
@@ -164,34 +166,35 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                             <p class="text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($currentUser->role ?? 'Member') ?></p>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                             <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($currentUser->email ?? 'Not provided') ?></p>
                         </div>
-                        
+
                         <?php if ($currentUser->school): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
-                            <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($currentUser->school) ?></p>
-                        </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($currentUser->school) ?></p>
+                            </div>
                         <?php endif; ?>
-                        
+
                         <?php if ($currentUser->description): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">About Me</label>
-                            <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= nl2br(htmlspecialchars($currentUser->description)) ?></p>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">About Me</label>
+                                <p class="mt-1 text-sm text-gray-900 dark:text-white"><?= nl2br(htmlspecialchars($currentUser->description)) ?></p>
+                            </div> <?php endif; ?>
+                    </div>
+
+                    <?php if ($currentUser->active_member == 1): ?>
+                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
+                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Edit Profile
+                            </a>
                         </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php" 
-                           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                            Edit Profile
-                        </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -201,8 +204,8 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
             </div>
             <div class="p-6">
                 <div class="space-y-3">
-                    <a href="<?= $settings['site_url'] ?>/dashboard/projects.php" 
-                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/projects.php"
+                        class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
@@ -212,8 +215,8 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                         </div>
                     </a>
 
-                    <a href="<?= $settings['site_url'] ?>/dashboard/events.php" 
-                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/events.php"
+                        class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
@@ -223,8 +226,8 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                         </div>
                     </a>
 
-                    <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php" 
-                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php"
+                        class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                         <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
@@ -235,27 +238,27 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
                     </a>
 
                     <?php if (in_array($currentUser->role, ['Leader', 'Co-leader'])): ?>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/applications.php" 
-                       class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Review Applications</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400"><?= $totalApplications ?> pending applications</p>
-                        </div>
-                    </a>
+                        <a href="<?= $settings['site_url'] ?>/dashboard/applications.php"
+                            class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Review Applications</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400"><?= $totalApplications ?> pending applications</p>
+                            </div>
+                        </a>
                     <?php endif; ?>
 
                     <?php if (!empty($recentProjects)): ?>
-                    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Recent Projects</h4>
-                        <div class="space-y-1">
-                            <?php foreach (array_slice($recentProjects, 0, 3) as $project): ?>
-                                <div class="text-sm text-gray-600 dark:text-gray-400"><?= htmlspecialchars($project['title']) ?></div>
-                            <?php endforeach; ?>
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Recent Projects</h4>
+                            <div class="space-y-1">
+                                <?php foreach (array_slice($recentProjects, 0, 3) as $project): ?>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400"><?= htmlspecialchars($project['title']) ?></div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
-                    </div>
                     <?php endif; ?>
                 </div>
             </div>

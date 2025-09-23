@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
             $db->prepare("UPDATE users SET password = ? WHERE id = ?")
-               ->execute([$hashed, $currentUser->id]);
+                ->execute([$hashed, $currentUser->id]);
             $success = "Password updated successfully!";
         }
     }
@@ -63,32 +63,32 @@ include __DIR__ . '/components/dashboard-header.php';
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
         </div>
-        
+
         <form method="post" class="p-6" autocomplete="off">
             <div class="grid grid-cols-1 gap-6 max-w-lg">
                 <div>
                     <label for="old_password" class="block text-sm font-medium text-gray-700">Current Password</label>
-                    <input type="password" 
-                           id="old_password" 
-                           name="old_password" 
-                           required 
-                           autocomplete="current-password"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                    <input type="password"
+                        id="old_password"
+                        name="old_password"
+                        required
+                        autocomplete="current-password"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
                 </div>
 
                 <div>
                     <label for="new_password" class="block text-sm font-medium text-gray-700">New Password</label>
                     <div class="mt-1 relative">
-                        <input type="password" 
-                               id="new_password" 
-                               name="new_password" 
-                               required 
-                               minlength="8"
-                               autocomplete="new-password"
-                               class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                        <button type="button" 
-                                id="toggleNewPassword" 
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <input type="password"
+                            id="new_password"
+                            name="new_password"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                            class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                        <button type="button"
+                            id="toggleNewPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg id="newEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -107,16 +107,16 @@ include __DIR__ . '/components/dashboard-header.php';
                 <div id="confirmPasswordSection">
                     <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
                     <div class="mt-1 relative">
-                        <input type="password" 
-                               id="confirm_password" 
-                               name="confirm_password" 
-                               required 
-                               minlength="8"
-                               autocomplete="new-password"
-                               class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
-                        <button type="button" 
-                                id="toggleConfirmPassword" 
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                        <input type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                            class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                        <button type="button"
+                            id="toggleConfirmPassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg id="confirmNewEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -130,7 +130,7 @@ include __DIR__ . '/components/dashboard-header.php';
                     <div id="confirmPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
                         <div id="confirmPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
-                </div> 
+                </div>
 
                 <!-- Password Requirements -->
                 <div id="password-requirements" class="text-xs text-gray-500 mt-1">
@@ -158,22 +158,22 @@ include __DIR__ . '/components/dashboard-header.php';
                         </li>
                     </ul>
                 </div>
-                        <li class="requirement-item flex items-center" data-check="hasSpecialChar">
-                            <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                            <span>At least 1 special character</span>
-                        </li>
-                    </ul>
-                </div>
+                <li class="requirement-item flex items-center" data-check="hasSpecialChar">
+                    <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                    <span>At least 1 special character</span>
+                </li>
+                </ul>
             </div>
-
-            <div class="flex justify-start mt-8 pt-6 border-t border-gray-200">
-                <button type="submit" 
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    Change Password
-                </button>
-            </div>
-        </form>
     </div>
+
+    <div class="flex justify-start mt-8 pt-6 border-t border-gray-200">
+        <button type="submit"
+            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            Change Password
+        </button>
+    </div>
+    </form>
+</div>
 </div>
 
 <script src="<?= $settings['site_url'] ?>/js/password-validation.js"></script>

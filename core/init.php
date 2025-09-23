@@ -74,33 +74,39 @@ if (isset($_SESSION['user_id'])) {
     $currentUser = User::getById($_SESSION['user_id']);
 }
 
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']);
 }
 
-function isActiveUser() {
+function isActiveUser()
+{
     global $currentUser;
     return $currentUser && $currentUser->active_member == 1;
 }
 
-function isInactiveUser() {
+function isInactiveUser()
+{
     global $currentUser;
     return $currentUser && $currentUser->active_member == 0;
 }
 
-function isAdmin() {
+function isAdmin()
+{
     global $currentUser;
     return $currentUser && in_array($currentUser->role, ['Leader', 'Co-leader']);
 }
 
-function checkLoggedIn() {
+function checkLoggedIn()
+{
     if (!isset($_SESSION['user_id'])) {
         header("Location: /dashboard/login.php");
         exit();
     }
 }
 
-function checkActiveUser() {
+function checkActiveUser()
+{
     global $currentUser;
     if (!$currentUser || $currentUser->active_member == 0) {
         header("HTTP/1.1 403 Forbidden");
@@ -108,21 +114,28 @@ function checkActiveUser() {
     }
 }
 
-function checkActiveOrLimitedAccess() {
+function checkActiveOrLimitedAccess()
+{
     global $currentUser;
     if (!$currentUser) {
         header("Location: /dashboard/login.php");
         exit();
     }
-    
+
     // Allow inactive users limited access to their own data
     if ($currentUser->active_member == 0) {
         // Define allowed pages for inactive users
         $allowedPages = [
-            'index.php', 'profile-edit.php', 'change-password.php', 'logout.php',
-            'certificates.php', 'download-manual-certificate.php', 'projects.php', 'events.php'
+            'index.php',
+            'profile-edit.php',
+            'change-password.php',
+            'logout.php',
+            'certificates.php',
+            'download-manual-certificate.php',
+            'projects.php',
+            'events.php'
         ];
-        
+
         $currentPage = basename($_SERVER['SCRIPT_NAME']);
         if (!in_array($currentPage, $allowedPages)) {
             header("HTTP/1.1 403 Forbidden");
@@ -131,7 +144,8 @@ function checkActiveOrLimitedAccess() {
     }
 }
 
-function checkRole($allowedRoles) {
+function checkRole($allowedRoles)
+{
     global $currentUser;
     if (!$currentUser || !in_array($currentUser->role, (array)$allowedRoles)) {
         header("HTTP/1.1 403 Forbidden");
@@ -139,7 +153,8 @@ function checkRole($allowedRoles) {
     }
 }
 
-function getRequestScheme() {
+function getRequestScheme()
+{
     if (
         (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
         (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
@@ -150,29 +165,31 @@ function getRequestScheme() {
     ) {
         return 'https';
     }
-    
+
     if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'dev.alexandru-moga.me') !== false) {
         return 'https';
     }
-    
+
     return 'http';
 }
 
-function checkMaintenanceMode() {
+function checkMaintenanceMode()
+{
     global $settings, $currentUser;
-    
+
     if (!isset($settings['maintenance_mode']) || $settings['maintenance_mode'] !== '1') {
         return;
     }
-    
+
     if ($currentUser && in_array($currentUser->role, ['Leader', 'Co-leader'])) {
         return;
     }
-    
+
     http_response_code(503);
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="en">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -191,6 +208,7 @@ function checkMaintenanceMode() {
             }
         </script>
     </head>
+
     <body class="bg-gray-50">
         <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full space-y-8 text-center">
@@ -201,7 +219,7 @@ function checkMaintenanceMode() {
                         We're currently performing scheduled maintenance to improve your experience.
                     </p>
                 </div>
-                
+
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                     <div class="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900 rounded-full mb-4">
                         <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,17 +228,17 @@ function checkMaintenanceMode() {
                     </div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Site Under Maintenance</h3>
                     <p class="text-gray-600 dark:text-gray-300 mb-4">
-                        Our website is temporarily unavailable while we make some improvements. 
+                        Our website is temporarily unavailable while we make some improvements.
                         Please check back shortly.
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         Expected completion: Shortly
                     </p>
                 </div>
-                
+
                 <div class="text-center">
-                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/login.php"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
@@ -230,7 +248,8 @@ function checkMaintenanceMode() {
             </div>
         </div>
     </body>
+
     </html>
-    <?php
+<?php
     exit();
 }
