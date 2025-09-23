@@ -140,7 +140,7 @@ foreach ($myProjects as $project) {
         <div class="max-w-4xl">
             <h1 class="text-3xl font-bold mb-2">You Build, We Reward.</h1>
             <p class="text-red-100 mb-6">Find your next project opportunity and the rewards that come with it.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-<?= $currentUser->active_member == 1 ? '3' : '2' ?> gap-6">
                 <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
                     <div class="text-2xl font-bold">$<?= number_format($totalMoney, 2) ?></div>
                     <div class="text-red-100 text-sm">Total Earned</div>
@@ -149,10 +149,12 @@ foreach ($myProjects as $project) {
                     <div class="text-2xl font-bold"><?= count($myProjects) ?></div>
                     <div class="text-red-100 text-sm">Projects Joined</div>
                 </div>
-                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                    <div class="text-2xl font-bold"><?= count($availableProjects) ?></div>
-                    <div class="text-red-100 text-sm">Available Projects</div>
-                </div>
+                <?php if ($currentUser->active_member == 1): ?>
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                        <div class="text-2xl font-bold"><?= count($availableProjects) ?></div>
+                        <div class="text-red-100 text-sm">Available Projects</div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

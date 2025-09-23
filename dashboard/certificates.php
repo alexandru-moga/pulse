@@ -129,16 +129,8 @@ try {
                         <div class="text-red-100 text-sm">Available Certificates</div>
                     </div>
                     <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-                        <div class="text-2xl font-bold"><?= count($eligibleProjects) ?></div>
-                        <div class="text-red-100 text-sm">Completed Projects</div>
-                    </div>
-                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
                         <div class="text-2xl font-bold"><?= $stats['manual_downloads'] ?></div>
-                        <div class="text-red-100 text-sm">Downloads</div>
-                    </div>
-                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 border-2 border-yellow-300">
-                        <div class="text-lg font-bold text-yellow-200">⚠️ DISABLED</div>
-                        <div class="text-red-100 text-sm">Auto Certificates</div>
+                        <div class="text-red-100 text-sm">Total Downloads</div>
                     </div>
                 <?php endif; ?>
             </div>
