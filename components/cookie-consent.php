@@ -83,8 +83,6 @@
     </div>
 </div>
 
-<!-- Cookie Settings Link (for footer) -->
-<a href="#" id="cookieSettingsLink" class="cookie-settings-link">Cookie Settings</a>
 
 <style>
     /* Cookie Consent Styles */
@@ -347,20 +345,6 @@
         justify-content: flex-end;
     }
 
-    /* Cookie Settings Link */
-    .cookie-settings-link {
-        color: inherit;
-        text-decoration: none;
-        font-size: 14px;
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-    }
-
-    .cookie-settings-link:hover {
-        opacity: 1;
-        text-decoration: underline;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
         .cookie-consent {
@@ -448,7 +432,6 @@
         const modalClose = document.getElementById('cookieModalClose');
         const savePrefsBtn = document.getElementById('cookieSavePreferences');
         const acceptAllModalBtn = document.getElementById('cookieAcceptAllModal');
-        const settingsLink = document.getElementById('cookieSettingsLink');
         const footerSettingsLink = document.getElementById('cookieSettingsFooter');
         const modalOverlay = consentModal.querySelector('.cookie-modal-overlay');
 
@@ -628,13 +611,6 @@
 
         if (acceptAllModalBtn) {
             acceptAllModalBtn.addEventListener('click', acceptAllCookies);
-        }
-
-        if (settingsLink) {
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                showPreferencesModal();
-            });
         }
 
         if (footerSettingsLink) {
