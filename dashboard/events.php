@@ -79,6 +79,8 @@ function getAssignedYsws($db, $event_id)
                             New Event
                         </a>
                     </div>
+                <?php elseif ($currentUser->active_member == 0): ?>
+                    <p class="mt-1 text-sm text-gray-500">You did not participate in any events yet.</p>
                 <?php else: ?>
                     <p class="mt-1 text-sm text-gray-500">No events have been scheduled yet.</p>
                 <?php endif; ?>

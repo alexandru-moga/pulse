@@ -25,7 +25,7 @@ $stmt = $db->prepare(
     "SELECT p.*, pa.status, pa.pizza_grant 
      FROM projects p
      JOIN project_assignments pa ON pa.project_id = p.id
-     WHERE pa.user_id = ?"
+     WHERE pa.user_id = ? AND pa.status != 'Not_participating'"
 );
 $stmt->execute([$currentUser->id]);
 $myProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
