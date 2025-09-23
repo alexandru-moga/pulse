@@ -685,7 +685,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             let edgeTouchActive = false;
 
                             document.addEventListener('touchstart', function(e) {
-                                if (isMobile() && !sidebarOpen && e.touches[0].clientX < 15) {
+                                if (isMobile() && !sidebarOpen && e.touches[0].clientX < 10) { // Even stricter - only 10px from edge
                                     touchStartX = e.touches[0].screenX;
                                     touchStartY = e.touches[0].screenY;
                                     touchStartTime = Date.now();
@@ -700,19 +700,19 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
                             document.addEventListener('touchmove', function(e) {
                                 // Only track if we started at the edge
-                                if (edgeTouchActive && touchStartX < 15) {
+                                if (edgeTouchActive && touchStartX < 10) { // Match the stricter edge detection
                                     const currentY = e.touches[0].screenY;
                                     const currentX = e.touches[0].screenX;
                                     const verticalMovement = Math.abs(currentY - touchStartY);
                                     const horizontalMovement = Math.abs(currentX - touchStartX);
 
-                                    // If vertical movement is greater than horizontal, it's a scroll
-                                    if (verticalMovement > 15 || (verticalMovement > horizontalMovement && verticalMovement > 5)) {
+                                    // Much more strict vertical movement detection
+                                    if (verticalMovement > 8 || (verticalMovement > horizontalMovement && verticalMovement > 3)) {
                                         isScrolling = true;
                                         edgeTouchActive = false;
                                     }
-                                } else if (touchStartX >= 15) {
-                                    // Not an edge touch, definitely scrolling
+                                } else if (touchStartX >= 10) {
+                                    // Not an edge touch, definitely not sidebar gesture
                                     isScrolling = true;
                                     edgeTouchActive = false;
                                 }
@@ -721,7 +721,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             });
 
                             document.addEventListener('touchend', function(e) {
-                                if (isMobile() && !sidebarOpen && edgeTouchActive && !isScrolling && touchStartX < 15) {
+                                if (isMobile() && !sidebarOpen && edgeTouchActive && !isScrolling && touchStartX < 10) {
                                     touchEndX = e.changedTouches[0].screenX;
                                     touchEndY = e.changedTouches[0].screenY;
                                     const swipeDistance = touchEndX - touchStartX;
@@ -729,7 +729,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                     const swipeTime = Date.now() - touchStartTime;
 
                                     // Very strict criteria for opening sidebar
-                                    if (swipeDistance > 80 && verticalDistance < 50 && swipeTime < 250) {
+                                    if (swipeDistance > 100 && verticalDistance < 30 && swipeTime < 200) {
                                         toggleSidebar();
                                     }
                                 }
@@ -800,6 +800,19 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                 if (e.key === 'Escape' && isMobile() && sidebarOpen) {
                                     closeSidebar();
                                 }
+                            });
+
+                            // Auto-close sidebar when clicking navigation links on mobile
+                            const sidebarLinks = sidebar.querySelectorAll('a');
+                            sidebarLinks.forEach(link => {
+                                link.addEventListener('click', function() {
+                                    if (isMobile() && sidebarOpen) {
+                                        // Small delay to allow navigation to start before closing
+                                        setTimeout(() => {
+                                            closeSidebar();
+                                        }, 150);
+                                    }
+                                });
                             });
                         });
                     </script>
