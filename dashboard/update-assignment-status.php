@@ -4,6 +4,8 @@ require_once __DIR__ . '/../core/classes/DiscordBot.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
+global $db, $currentUser, $settings;
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -54,7 +56,6 @@ if (!in_array($pizzaGrant, $validPizzaGrants)) {
 }
 
 try {
-    global $db;
     
     // Update or insert assignment
     $stmt = $db->prepare("

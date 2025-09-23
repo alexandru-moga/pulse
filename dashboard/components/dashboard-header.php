@@ -226,26 +226,28 @@ $currentFile = basename($_SERVER['PHP_SELF']);
         @media (min-width: 769px) {
             .sidebar {
                 position: relative;
-                transition: transform 0.3s ease-in-out;
+                transition: all 0.3s ease-in-out;
                 flex-shrink: 0;
-                /* Prevent sidebar from shrinking */
+                width: 16rem;
+                overflow: visible;
             }
 
             .sidebar-hidden {
                 transform: translateX(-100%);
-                margin-left: -16rem;
-                /* Pull back the hidden sidebar */
+                width: 0;
+                min-width: 0;
+                overflow: hidden;
             }
 
             .main-content {
                 margin-left: 0;
-                /* No margin needed */
                 transition: margin-left 0.3s ease-in-out;
+                flex: 1;
+                min-width: 0; /* Prevent flex item from overflowing */
             }
 
             .main-content-expanded {
                 margin-left: 0;
-                /* Keep it at 0 since we're using flex layout */
             }
         }
     </style>
@@ -328,7 +330,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
 
-                    <?php if ($currentUser->active_member == 1): ?>
+                    <?php if ($currentUser && $currentUser->active_member == 1): ?>
                         <li>
                             <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
                                 class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'profile-edit.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
@@ -340,7 +342,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </li>
                     <?php endif; ?>
 
-                    <?php if ($currentUser->active_member == 1): ?>
+                    <?php if ($currentUser && $currentUser->active_member == 1): ?>
                         <li>
                             <a href="<?= $settings['site_url'] ?>/dashboard/edit-integrations.php"
                                 class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'edit-integrations.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
@@ -352,7 +354,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </li>
                     <?php endif; ?>
 
-                    <?php if (in_array($role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1): ?>
+                    <?php if (in_array($role, ['Leader', 'Co-leader']) && $currentUser && $currentUser->active_member == 1): ?>
                         <li class="pt-4">
                             <div class="px-4 py-2">
                                 <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Administration</h3>

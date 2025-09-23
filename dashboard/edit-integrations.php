@@ -1,7 +1,9 @@
 <?php
 require_once '../core/init.php';
 
-if (!isLoggedIn()) {
+global $db, $currentUser, $settings;
+
+if (!isLoggedIn() || !$currentUser) {
     header('Location: /dashboard/login.php');
     exit;
 }

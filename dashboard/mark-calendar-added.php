@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 
+global $db, $currentUser;
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -4,6 +4,12 @@ checkActiveOrLimitedAccess();
 
 global $db, $currentUser;
 
+// Additional safety check for $currentUser
+if (!$currentUser) {
+    http_response_code(403);
+    die('Access denied - not logged in');
+}
+
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     http_response_code(400);
     die('Invalid certificate ID');

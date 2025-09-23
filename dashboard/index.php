@@ -4,6 +4,12 @@ checkActiveOrLimitedAccess();
 
 global $currentUser, $db;
 
+// Additional safety check for $currentUser
+if (!$currentUser) {
+    header('Location: /dashboard/login.php');
+    exit;
+}
+
 $pageTitle = 'Dashboard';
 include __DIR__ . '/components/dashboard-header.php';
 

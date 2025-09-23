@@ -8,6 +8,12 @@ checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 
+// Additional safety check for $currentUser
+if (!$currentUser) {
+    header('Location: /dashboard/login.php');
+    exit;
+}
+
 $success = $error = null;
 
 if (isset($_SESSION['account_link_success'])) {

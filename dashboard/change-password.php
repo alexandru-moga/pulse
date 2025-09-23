@@ -4,6 +4,12 @@ checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 
+// Additional safety check for $currentUser
+if (!$currentUser) {
+    header('Location: /dashboard/login.php');
+    exit;
+}
+
 $success = $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

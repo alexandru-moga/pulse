@@ -5,6 +5,12 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser, $settings;
 
+// Additional safety check for $currentUser
+if (!$currentUser) {
+    header('Location: /dashboard/login.php');
+    exit;
+}
+
 $pageTitle = 'Assigned Certificate Management';
 include __DIR__ . '/components/dashboard-header.php';
 
