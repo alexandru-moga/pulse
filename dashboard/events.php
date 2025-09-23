@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-checkLoggedIn();
+checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 
@@ -8,7 +8,22 @@ $pageTitle = 'Events';
 include __DIR__ . '/components/dashboard-header.php';
 
 $today = date('Y-m-d');
-$events = $db->query("SELECT * FROM events ORDER BY start_datetime ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// For inactive users, show only events they applied for or participated in
+if ($currentUser->active_member == 0) {
+    $stmt = $db->prepare("
+        SELECT DISTINCT e.* 
+        FROM events e
+        INNER JOIN event_applications ea ON e.id = ea.event_id
+        WHERE ea.user_id = ?
+        ORDER BY e.start_datetime ASC
+    ");
+    $stmt->execute([$currentUser->id]);
+    $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // Active users can see all events
+    $events = $db->query("SELECT * FROM events ORDER BY start_datetime ASC")->fetchAll(PDO::FETCH_ASSOC);
+}
 
 function getAssignedYsws($db, $event_id)
 {

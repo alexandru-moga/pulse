@@ -78,6 +78,16 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
+function isActiveUser() {
+    global $currentUser;
+    return $currentUser && $currentUser->active_member == 1;
+}
+
+function isInactiveUser() {
+    global $currentUser;
+    return $currentUser && $currentUser->active_member == 0;
+}
+
 function isAdmin() {
     global $currentUser;
     return $currentUser && in_array($currentUser->role, ['Leader', 'Co-leader']);
@@ -87,6 +97,37 @@ function checkLoggedIn() {
     if (!isset($_SESSION['user_id'])) {
         header("Location: /dashboard/login.php");
         exit();
+    }
+}
+
+function checkActiveUser() {
+    global $currentUser;
+    if (!$currentUser || $currentUser->active_member == 0) {
+        header("HTTP/1.1 403 Forbidden");
+        exit("Access denied - Account not active");
+    }
+}
+
+function checkActiveOrLimitedAccess() {
+    global $currentUser;
+    if (!$currentUser) {
+        header("Location: /dashboard/login.php");
+        exit();
+    }
+    
+    // Allow inactive users limited access to their own data
+    if ($currentUser->active_member == 0) {
+        // Define allowed pages for inactive users
+        $allowedPages = [
+            'index.php', 'profile-edit.php', 'change-password.php', 'logout.php',
+            'certificates.php', 'download-manual-certificate.php', 'projects.php', 'events.php'
+        ];
+        
+        $currentPage = basename($_SERVER['SCRIPT_NAME']);
+        if (!in_array($currentPage, $allowedPages)) {
+            header("HTTP/1.1 403 Forbidden");
+            exit("Access denied - Limited access for inactive accounts. Contact administrator to reactivate your account.");
+        }
     }
 }
 

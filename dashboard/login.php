@@ -22,16 +22,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === '' || $password === '') {
         $error = "Please enter both email and password.";
     } else {
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND active_member = 1");
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            header('Location: index.php');
-            exit();
+        if ($user) {
+            // Debug logging (remove in production)
+            error_log("Login attempt for user: " . $user['email'] . " (ID: " . $user['id'] . ")");
+            error_log("Stored hash: " . substr($user['password'], 0, 20) . "...");
+            error_log("Provided password: " . $password);
+            
+            $passwordMatch = password_verify($password, $user['password']);
+            error_log("Password verification result: " . ($passwordMatch ? 'true' : 'false'));
+            
+            if ($passwordMatch) {
+                $_SESSION['user_id'] = $user['id'];
+                error_log("Login successful for user " . $user['id'] . " (active: " . $user['active_member'] . ")");
+                header('Location: index.php');
+                exit();
+            } else {
+                $error = "Invalid email or password.";
+                error_log("Login failed - password mismatch for user " . $user['id']);
+            }
         } else {
             $error = "Invalid email or password.";
+            error_log("Login failed - user not found for email: " . $email);
         }
     }
 }

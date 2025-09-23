@@ -4,7 +4,7 @@ require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
 require_once __DIR__ . '/../core/classes/GitHubOAuth.php';
 require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
 require_once __DIR__ . '/../core/classes/SlackOAuth.php';
-checkLoggedIn();
+checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 

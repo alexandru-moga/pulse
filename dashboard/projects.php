@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-checkLoggedIn();
+checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 
@@ -30,13 +30,18 @@ $stmt = $db->prepare(
 $stmt->execute([$currentUser->id]);
 $myProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $db->prepare(
-    "SELECT * FROM projects 
-     WHERE id NOT IN (SELECT project_id FROM project_assignments WHERE user_id = ?)
-     ORDER BY id ASC"
-);
-$stmt->execute([$currentUser->id]);
-$unassignedProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Only show unassigned projects to active users
+if ($currentUser->active_member == 1) {
+    $stmt = $db->prepare(
+        "SELECT * FROM projects 
+         WHERE id NOT IN (SELECT project_id FROM project_assignments WHERE user_id = ?)
+         ORDER BY id ASC"
+    );
+    $stmt->execute([$currentUser->id]);
+    $unassignedProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $unassignedProjects = [];
+}
 
 $today = date('Y-m-d');
 $availableProjects = [];

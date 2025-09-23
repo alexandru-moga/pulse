@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-checkLoggedIn();
+checkActiveOrLimitedAccess();
 
 global $db, $currentUser;
 
@@ -28,14 +28,14 @@ try {
     }
 
     // Check if user is authorized to download this certificate
-    // Only the assigned user or admins can download
+    // Only the assigned user or ACTIVE admins can download
     $isAuthorized = false;
 
     if ($certificate['user_id'] == $currentUser->id) {
-        // User is the certificate owner
+        // User is the certificate owner (active or inactive users can download their own)
         $isAuthorized = true;
-    } elseif (in_array($currentUser->role, ['Leader', 'Co-leader'])) {
-        // User is an admin
+    } elseif (in_array($currentUser->role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1) {
+        // User is an active admin
         $isAuthorized = true;
     }
 

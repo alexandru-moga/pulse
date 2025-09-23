@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../core/init.php';
-checkLoggedIn();
+checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
 

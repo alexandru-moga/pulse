@@ -27,9 +27,22 @@ if ($token) {
                 $error = $passwordValidation['message'];
             } else {
                 $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-                $db->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $reset['user_id']]);
-                $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$reset['user_id']]);
-                $success = "Password has been reset successfully.";
+                
+                // Debug logging (remove in production)
+                error_log("Reset password: hashing '$newPassword' for user " . $reset['user_id']);
+                error_log("Generated hash: " . $hashed);
+                
+                $stmt = $db->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $updateResult = $stmt->execute([$hashed, $reset['user_id']]);
+                
+                if ($updateResult) {
+                    $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$reset['user_id']]);
+                    $success = "Password has been reset successfully. You can now login with your new password.";
+                    error_log("Password updated successfully for user " . $reset['user_id']);
+                } else {
+                    $error = "Failed to update password. Please try again.";
+                    error_log("Failed to update password for user " . $reset['user_id']);
+                }
             }
         }
     }
