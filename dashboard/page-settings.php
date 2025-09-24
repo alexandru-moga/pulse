@@ -114,16 +114,90 @@ if ($pageId) {
     </div>
 
     <?php if (!$page): ?>
-        <!-- No Page Selected -->
-        <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-4 mb-2">No Page Selected</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">Select a page ID in the URL to manage its settings</p>
-            <a href="<?= $settings['site_url'] ?>/dashboard/" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
-                Back to Dashboard
-            </a>
+        <!-- Page Selector -->
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-4 mb-2">Select a Page to Edit</h3>
+                <p class="text-gray-500 dark:text-gray-400 mb-8">Choose which page you want to manage settings for</p>
+            </div>
+
+            <?php
+            // Get all available pages
+            $stmt = $db->query("SELECT * FROM pages ORDER BY id ASC");
+            $pages = $stmt->fetchAll();
+            ?>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php foreach ($pages as $pageOption): ?>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="flex-shrink-0">
+                                    <?php 
+                                    // Choose icon based on page name
+                                    $icon = match($pageOption['name']) {
+                                        'index' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>',
+                                        'members' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>',
+                                        'apply' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>',
+                                        'contact' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>',
+                                        default => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>'
+                                    };
+                                    ?>
+                                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <?= $icon ?>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                                        <?= htmlspecialchars($pageOption['title']) ?>
+                                    </h4>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        <?= htmlspecialchars($pageOption['name']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <?php if ($pageOption['description']): ?>
+                                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                                    <?= htmlspecialchars($pageOption['description']) ?>
+                                </p>
+                            <?php endif; ?>
+                            
+                            <div class="flex space-x-3">
+                                <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php?id=<?= $pageOption['id'] ?>"
+                                   class="flex-1 text-center px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                                    Manage Settings
+                                </a>
+                                <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageOption['id'] ?>"
+                                   class="flex-1 text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    Edit Page
+                                </a>
+                            </div>
+                            
+                            <div class="mt-3 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                                <span>ID: <?= $pageOption['id'] ?></span>
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 rounded-full <?= $pageOption['menu_enabled'] ? 'bg-green-400' : 'bg-gray-400' ?> mr-1"></span>
+                                    <?= $pageOption['menu_enabled'] ? 'Menu Enabled' : 'Menu Disabled' ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="<?= $settings['site_url'] ?>/dashboard/" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
     <?php else: ?>
         <!-- Page Found -->
