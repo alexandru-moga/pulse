@@ -49,10 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql = "CREATE TABLE IF NOT EXISTS `$table_name` (
             `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            `block_name` varchar(100) NOT NULL,
-            `block_type` varchar(50) NOT NULL,
-            `content` text DEFAULT NULL,
-            `order_num` int(11) DEFAULT 0,
+            `component_type` varchar(50) NOT NULL,
+            `settings` text DEFAULT NULL,
+            `position` int(11) DEFAULT 0,
             `is_active` tinyint(1) DEFAULT 1
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
         

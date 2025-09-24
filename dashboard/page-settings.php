@@ -13,6 +13,7 @@ $page = null;
 $tableName = null;
 $blocks = [];
 $tableExists = false;
+$needsMigration = false;
 
 if ($pageId) {
     $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
@@ -25,7 +26,18 @@ if ($pageId) {
         $stmt2->execute([$tableName]);
         if ($stmt2->fetch()) {
             $tableExists = true;
-            $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY order_num ASC")->fetchAll();
+            
+            // Check if table needs migration
+            try {
+                $stmt3 = $db->query("DESCRIBE `$tableName`");
+                $columns = $stmt3->fetchAll(PDO::FETCH_COLUMN);
+                $needsMigration = in_array('block_type', $columns);
+            } catch (Exception $e) {
+                // Ignore error
+            }
+            
+            $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY " . 
+                ($needsMigration ? 'order_num' : 'position') . " ASC")->fetchAll();
         }
     }
 }
@@ -73,6 +85,26 @@ if ($pageId) {
                     </div>
                 </div>
             </div>
+        <?php elseif ($needsMigration): ?>
+            <div class="bg-orange-50 dark:bg-orange-900/50 border border-orange-200 dark:border-orange-700 rounded-md p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-orange-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-orange-700 dark:text-orange-200">Migration Required</h3>
+                        <p class="text-sm text-orange-600 dark:text-orange-300 mt-1">
+                            This page uses the old builder format. Please migrate to use the new drag-and-drop builder.
+                        </p>
+                        <div class="mt-3">
+                            <a href="<?= $settings['site_url'] ?>/dashboard/migrate-builder.php" 
+                               class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-orange-700 bg-orange-100 hover:bg-orange-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 dark:bg-orange-800 dark:text-orange-200 dark:hover:bg-orange-700">
+                                Run Migration
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <?php else: ?>
             <!-- Visual Editor Call-to-Action -->
             <div class="bg-gradient-to-r from-primary to-red-600 rounded-lg shadow p-6 text-white">
@@ -81,12 +113,12 @@ if ($pageId) {
                         <h3 class="text-lg font-medium">Visual Page Editor</h3>
                         <p class="mt-1 opacity-90">Use our drag-and-drop editor to build your page with pre-designed components</p>
                     </div>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                    <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>" 
                        class="inline-flex items-center px-4 py-2 border border-white rounded-md text-sm font-medium text-primary bg-white hover:bg-gray-50 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
-                        Edit Page Visually
+                        Drag & Drop Builder
                     </a>
                 </div>
             </div>
@@ -95,19 +127,12 @@ if ($pageId) {
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Components</h3>
                     <div class="flex space-x-3">
-                        <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                        <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>" 
                            class="inline-flex items-center px-3 py-2 border border-primary text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                             </svg>
-                            Visual Editor
-                        </a>
-                        <a href="<?= $settings['site_url'] ?>/dashboard/add-block.php?id=<?= $pageId ?>" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Add Block (Advanced)
+                            Drag & Drop Builder
                         </a>
                     </div>
                 </div>
@@ -120,12 +145,12 @@ if ($pageId) {
                         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No components</h3>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by using the visual editor or adding a block.</p>
                         <div class="mt-6">
-                            <a href="<?= $settings['site_url'] ?>/dashboard/page-editor.php?id=<?= $pageId ?>" 
+                            <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>" 
                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                 </svg>
-                                Start with Visual Editor
+                                Start with Drag & Drop Builder
                             </a>
                         </div>
                     </div>
@@ -136,26 +161,29 @@ if ($pageId) {
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Component Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Content Preview</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Order</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Component Type</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Settings Preview</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Position</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    <?php foreach ($blocks as $block): ?>
+                                    <?php foreach ($blocks as $block): 
+                                        // Support both old and new structures
+                                        $componentType = $block['component_type'] ?? $block['block_type'] ?? 'Unknown';
+                                        $settings = $block['settings'] ?? $block['content'] ?? '';
+                                        $position = $block['position'] ?? $block['order_num'] ?? 0;
+                                    ?>
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['id'] ?? '') ?></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($block['block_name'] ?? '') ?></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['block_type'] ?? '') ?></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($componentType) ?></td>
                                             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
                                                 <div class="max-w-xs">
-                                                    <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($block['content'] ?? '', 0, 120, '...')) ?></pre>
+                                                    <pre class="text-xs whitespace-pre-wrap truncate"><?= htmlspecialchars(mb_strimwidth($settings, 0, 120, '...')) ?></pre>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($block['order_num'] ?? '') ?></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($position) ?></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                 <?php
                                                 $statusColor = ($block['is_active'] ?? 0) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
@@ -167,14 +195,9 @@ if ($pageId) {
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div class="flex items-center space-x-2">
-                                                    <a href="<?= $settings['site_url'] ?>/dashboard/edit-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
+                                                    <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>" 
                                                        class="text-primary hover:text-red-600">
-                                                        Edit
-                                                    </a>
-                                                    <a href="<?= $settings['site_url'] ?>/dashboard/delete-block.php?id=<?= $pageId ?>&block_id=<?= $block['id'] ?>" 
-                                                       onclick="return confirm('Delete this block?')"
-                                                       class="text-red-600 hover:text-red-800">
-                                                        Delete
+                                                        Edit in Builder
                                                     </a>
                                                 </div>
                                             </td>
