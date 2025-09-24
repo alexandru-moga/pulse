@@ -297,7 +297,7 @@ class DragDropBuilder {
                             ${repeaterValue.map((item, index) => this.generateRepeaterItem(name, field, item, index)).join('')}
                         </div>
                         <button type="button" class="ddb-btn-secondary" onclick="window.builder.addRepeaterItem('${name}', '${fieldId}')">
-                            Add ${field.label || 'Item'}
+                            ➕ Add ${field.label || 'Item'}
                         </button>
                         <input type="hidden" id="${fieldId}" name="${name}" value="${this.escapeHtml(JSON.stringify(repeaterValue))}">
                     </div>
@@ -341,7 +341,7 @@ class DragDropBuilder {
                 <div class="ddb-repeater-header">
                     <span>Item ${index + 1}</span>
                     <button type="button" class="ddb-btn-danger" onclick="window.builder.removeRepeaterItem('${fieldName}', ${index})">
-                        Remove
+                        ➖ Remove
                     </button>
                 </div>
                 <div class="ddb-repeater-fields">

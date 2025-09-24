@@ -388,13 +388,18 @@ if ($pageId) {
                         /* Repeater field styles */
                         .ddb-repeater {
                             margin-bottom: 1rem;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 0.5rem;
+                            padding: 1rem;
+                            background: #fafafa;
                         }
                         .ddb-repeater-item {
                             border: 1px solid #d1d5db;
                             border-radius: 0.5rem;
                             padding: 1rem;
-                            margin-bottom: 0.5rem;
-                            background: #f9fafb;
+                            margin-bottom: 0.75rem;
+                            background: white;
+                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                         }
                         .ddb-repeater-header {
                             display: flex;
@@ -407,47 +412,63 @@ if ($pageId) {
                         .ddb-repeater-header span {
                             font-weight: 600;
                             color: #374151;
+                            font-size: 0.875rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
                         }
                         .ddb-repeater-fields {
                             display: grid;
                             gap: 0.75rem;
+                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                         }
                         .ddb-btn-secondary {
-                            background-color: #6b7280;
+                            background-color: #10b981;
                             color: white;
-                            padding: 0.5rem 1rem;
+                            padding: 0.75rem 1rem;
                             border: none;
                             border-radius: 0.375rem;
                             cursor: pointer;
                             font-size: 0.875rem;
-                            margin-top: 0.5rem;
+                            font-weight: 500;
+                            margin-top: 0.75rem;
+                            transition: background-color 0.2s;
                         }
                         .ddb-btn-secondary:hover {
-                            background-color: #4b5563;
+                            background-color: #059669;
                         }
                         .ddb-btn-danger {
-                            background-color: #dc2626;
+                            background-color: #ef4444;
                             color: white;
-                            padding: 0.25rem 0.5rem;
+                            padding: 0.375rem 0.75rem;
                             border: none;
                             border-radius: 0.25rem;
                             cursor: pointer;
                             font-size: 0.75rem;
+                            font-weight: 500;
+                            transition: background-color 0.2s;
                         }
                         .ddb-btn-danger:hover {
-                            background-color: #b91c1c;
+                            background-color: #dc2626;
                         }
                         .ddb-form-control {
                             width: 100%;
-                            padding: 0.5rem;
+                            padding: 0.625rem;
                             border: 1px solid #d1d5db;
                             border-radius: 0.375rem;
                             font-size: 0.875rem;
+                            transition: border-color 0.2s, box-shadow 0.2s;
                         }
                         .ddb-form-control:focus {
                             outline: none;
                             border-color: #3b82f6;
                             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
+                        .ddb-form-label {
+                            display: block;
+                            margin-bottom: 0.5rem;
+                            font-weight: 500;
+                            color: #374151;
+                            font-size: 0.875rem;
                         }
                     </style>
                     

@@ -1,8 +1,8 @@
 <?php
 // Statistics Component Template
-$statsData = $stats ?? array();
+$statsData = $items ?? $stats ?? array();
 
-// If stats is a JSON string, decode it
+// If items/stats is a JSON string, decode it
 if (is_string($statsData)) {
     $decoded = json_decode($statsData, true);
     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {

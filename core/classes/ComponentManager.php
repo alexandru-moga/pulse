@@ -105,9 +105,9 @@ class ComponentManager
                 'category' => 'content',
                 'icon' => '📊',
                 'fields' => array(
-                    'stats' => array(
+                    'items' => array(
                         'type' => 'repeater',
-                        'label' => 'Statistics',
+                        'label' => 'Statistics Items',
                         'default' => '[
                             {"value": "150", "label": "Active Members"},
                             {"value": "25", "label": "Projects Active"},
@@ -117,12 +117,14 @@ class ComponentManager
                             'value' => array(
                                 'type' => 'text',
                                 'label' => 'Value',
-                                'default' => '100'
+                                'default' => '100',
+                                'placeholder' => 'e.g., 150'
                             ),
                             'label' => array(
                                 'type' => 'text',
                                 'label' => 'Label',
-                                'default' => 'Statistic'
+                                'default' => 'Statistic',
+                                'placeholder' => 'e.g., Active Members'
                             )
                         )
                     )
