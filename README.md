@@ -1,3 +1,4 @@
+![Hackatime Stats](https://github-readme-stats.hackclub.dev/api/wakatime?username=1727&api_domain=hackatime.hackclub.com&&custom_title=Hackatime+Stats&layout=compact&cache_seconds=0&langs_count=8&theme=dracula)
 # Pulse
 
 Pulse is a modular PHP web application for building and managing dynamic websites, dashboards, and member portals. - **GitHub Avatars not showing:**  
