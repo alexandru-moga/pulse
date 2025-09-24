@@ -190,6 +190,8 @@ class DragDropBuilder
      */
     public function addComponent($pageId, $componentType, $settings = [], $position = null)
     {
+        error_log("DragDropBuilder::addComponent called with position: " . var_export($position, true));
+        
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
@@ -207,8 +209,8 @@ class DragDropBuilder
         }
         $settings = array_merge($defaultSettings, $settings);
 
-        // Determine position
-        if ($position === null) {
+        // Determine position - ensure it's always an integer
+        if ($position === null || $position === 'end' || !is_numeric($position)) {
             // Check if table uses old or new structure
             $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
             $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -220,6 +222,14 @@ class DragDropBuilder
             $stmt->execute();
             $result = $stmt->fetch();
             $position = ($result['max_pos'] ?? 0) + 1;
+            error_log("Calculated new position: $position");
+        } else {
+            // Ensure position is always an integer
+            $position = intval($position);
+            if ($position <= 0) {
+                $position = 1;
+            }
+            error_log("Using provided position: $position");
         }
 
         // Check table structure and insert component accordingly
@@ -227,7 +237,26 @@ class DragDropBuilder
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $usesOldStructure = in_array('block_type', $columns);
 
+        // Final safety check - ensure position is ALWAYS an integer before database insertion
+        if (!is_numeric($position) || $position === null || $position === 'end' || $position === '') {
+            // Recalculate position if it's invalid
+            $positionColumn = $usesOldStructure ? 'order_num' : 'position';
+            $stmt = $this->db->prepare("SELECT MAX(`$positionColumn`) as max_pos FROM " . $page['table_name']);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            $position = ($result['max_pos'] ?? 0) + 1;
+            error_log("Position was invalid, recalculated to: $position");
+        }
+        
+        // Ensure it's an integer
+        $position = intval($position);
+        if ($position <= 0) {
+            $position = 1;
+        }
+
         try {
+            error_log("About to insert component with final position: " . var_export($position, true));
+            
             if ($usesOldStructure) {
                 // Insert using old structure
                 $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (block_name, block_type, content, order_num, is_active) VALUES (?, ?, ?, ?, 1)");

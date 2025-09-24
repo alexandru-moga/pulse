@@ -58,7 +58,9 @@ class DragDropBuilder {
 
                 const componentType = e.dataTransfer.getData('text/plain');
                 if (componentType) {
-                    this.addComponent(componentType, zone.dataset.position);
+                    // Get position, default to null if not set
+                    const position = zone.dataset.position || null;
+                    this.addComponent(componentType, position);
                 }
             });
         });
@@ -149,10 +151,18 @@ class DragDropBuilder {
     }
 
     addComponent(componentType, position = null) {
+        console.log('Adding component:', componentType, 'at position:', position); // Debug log
+        
+        // Convert 'end' to null on the client side to avoid any server-side issues
+        if (position === 'end' || position === '' || position === undefined) {
+            position = null;
+            console.log('Converted position to null');
+        }
+        
         const data = new FormData();
         data.append('action', 'add_component');
         data.append('component_type', componentType);
-        if (position) {
+        if (position !== null) {
             data.append('position', position);
         }
 

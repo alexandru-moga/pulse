@@ -37,13 +37,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 $componentType = $_POST['component_type'] ?? '';
                 $position = $_POST['position'] ?? null;
                 
-                // Convert 'end' to null for automatic position calculation
-                if ($position === 'end') {
+                // Debug logging
+                error_log("Adding component: $componentType, original position: " . var_export($position, true));
+                
+                // Convert 'end' or any non-numeric values to null for automatic position calculation
+                if ($position === 'end' || $position === '' || !is_numeric($position)) {
                     $position = null;
-                } else if ($position !== null) {
+                } else {
                     // Convert to integer if it's a numeric position
                     $position = intval($position);
                 }
+                
+                error_log("Final position after conversion: " . var_export($position, true));
 
                 $componentId = $builder->addComponent($pageId, $componentType, [], $position);
                 echo json_encode(['success' => true, 'component_id' => $componentId]);
@@ -408,7 +413,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                         <?= $builder->renderComponent($component, true) ?>
                                     </div>
                                 <?php endforeach; ?>
-                                <div class="ddb-drop-zone" data-position="end">
+                                <div class="ddb-drop-zone">
                                     <p>Drop components here to add to the end</p>
                                 </div>
                             <?php endif; ?>
