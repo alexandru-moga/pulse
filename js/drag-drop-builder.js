@@ -235,14 +235,15 @@ class DragDropBuilder {
         this.settingsFields.innerHTML = '';
 
         // Generate form fields
-        Object.entries(component.settings).forEach(([key, field]) => {
+        const componentFields = component.fields || component.settings || {};
+        Object.entries(componentFields).forEach(([key, field]) => {
             const value = settings[key] || field.default || '';
             const fieldHTML = this.generateFormField(key, field, value);
             this.settingsFields.innerHTML += fieldHTML;
         });
 
         // Setup repeater field listeners
-        Object.entries(component.settings).forEach(([key, field]) => {
+        Object.entries(componentFields).forEach(([key, field]) => {
             if (field.type === 'repeater') {
                 this.setupRepeaterFieldListeners(key);
             }
@@ -362,9 +363,12 @@ class DragDropBuilder {
 
     addRepeaterItem(fieldName, fieldId) {
         const component = this.currentComponent; // Use stored component data
-        if (!component || !component.settings[fieldName]) return;
+        if (!component) return;
 
-        const field = component.settings[fieldName];
+        const componentFields = component.fields || component.settings || {};
+        if (!componentFields[fieldName]) return;
+
+        const field = componentFields[fieldName];
         const container = document.getElementById(`${fieldId}-items`);
         const currentItems = container.querySelectorAll('.ddb-repeater-item');
         const newIndex = currentItems.length;

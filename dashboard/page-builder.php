@@ -178,6 +178,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                     $componentConfig = $builder->getComponent($componentType);
                     $settings = json_decode($settingsJson, true) ?: [];
 
+                    // Debug logging for stats component
+                    if ($componentType === 'stats') {
+                        error_log("Stats component debug:");
+                        error_log("Component config: " . json_encode($componentConfig));
+                        error_log("Original settings: " . json_encode($settings));
+                    }
+
                     // Special handling for statistics component migration
                     if ($componentType === 'stats') {
                         // Check if the data is in old format (direct array) vs new format (with 'items' field)
@@ -189,6 +196,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                             $settings = ['items' => []];
                         }
                         // If it already has 'items' field, leave as is
+
+                        error_log("Migrated settings: " . json_encode($settings));
                     }
 
                     echo json_encode([
@@ -412,6 +421,11 @@ include __DIR__ . '/components/dashboard-header.php';
             border-radius: 8px;
             padding: 12px;
             background: #f9fafb;
+            margin-bottom: 16px;
+        }
+
+        .ddb-repeater-items {
+            margin-bottom: 12px;
         }
 
         .ddb-repeater-item {
@@ -420,6 +434,11 @@ include __DIR__ . '/components/dashboard-header.php';
             border-radius: 6px;
             margin-bottom: 12px;
             padding: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .ddb-repeater-item:last-child {
+            margin-bottom: 0;
         }
 
         .ddb-repeater-header {
@@ -429,12 +448,28 @@ include __DIR__ . '/components/dashboard-header.php';
             margin-bottom: 12px;
             font-weight: 600;
             color: #374151;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .ddb-repeater-fields {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+        }
+
+        .ddb-repeater-field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .ddb-repeater-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .ddb-btn-secondary {

@@ -576,6 +576,12 @@ class DragDropBuilder
                 continue;
             }
 
+            // Debug logging for stats component
+            if ($type === 'stats') {
+                error_log("Loading stats component from ComponentManager:");
+                error_log("Component data: " . json_encode($component));
+            }
+
             // Convert ComponentManager format to DragDropBuilder format
             $settings = [];
             if (isset($component['fields'])) {
@@ -600,17 +606,29 @@ class DragDropBuilder
                     // Handle repeater fields
                     if ($field['type'] === 'repeater') {
                         $settings[$fieldName]['fields'] = $field['fields'] ?? [];
+
+                        // Debug logging for stats repeater field
+                        if ($type === 'stats' && $fieldName === 'items') {
+                            error_log("Stats repeater field config: " . json_encode($settings[$fieldName]));
+                        }
                     }
                 }
             }
 
-            $this->registerComponent($type, [
+            $finalConfig = [
                 'name' => $component['name'] ?? ucfirst($type),
                 'icon' => $component['icon'] ?? '📦',
                 'category' => $component['category'] ?? 'content',
                 'description' => $component['description'] ?? 'Component description',
                 'settings' => $settings
-            ]);
+            ];
+
+            // Debug logging for final stats config
+            if ($type === 'stats') {
+                error_log("Final stats component config: " . json_encode($finalConfig));
+            }
+
+            $this->registerComponent($type, $finalConfig);
         }
     }
 }

@@ -136,9 +136,9 @@ if ($pageId) {
                         <div class="p-6">
                             <div class="flex items-center mb-4">
                                 <div class="flex-shrink-0">
-                                    <?php 
+                                    <?php
                                     // Choose icon based on page name
-                                    $icon = match($pageOption['name']) {
+                                    $icon = match ($pageOption['name']) {
                                         'index' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>',
                                         'members' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>',
                                         'apply' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>',
@@ -159,24 +159,24 @@ if ($pageId) {
                                     </p>
                                 </div>
                             </div>
-                            
+
                             <?php if ($pageOption['description']): ?>
                                 <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
                                     <?= htmlspecialchars($pageOption['description']) ?>
                                 </p>
                             <?php endif; ?>
-                            
+
                             <div class="flex space-x-3">
                                 <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php?id=<?= $pageOption['id'] ?>"
-                                   class="flex-1 text-center px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                                    class="flex-1 text-center px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
                                     Manage Settings
                                 </a>
                                 <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageOption['id'] ?>"
-                                   class="flex-1 text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                    class="flex-1 text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                     Edit Page
                                 </a>
                             </div>
-                            
+
                             <div class="mt-3 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                                 <span>ID: <?= $pageOption['id'] ?></span>
                                 <span class="flex items-center">
@@ -188,10 +188,10 @@ if ($pageId) {
                     </div>
                 <?php endforeach; ?>
             </div>
-            
+
             <div class="text-center mt-8">
-                <a href="<?= $settings['site_url'] ?>/dashboard/" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <a href="<?= $settings['site_url'] ?>/dashboard/"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
