@@ -200,3 +200,29 @@ auth/
 └── slack/
     └── index.php          # Slack OAuth handler
 ```
+
+---
+
+## Component System Migration (2025)
+
+Pulse has been migrated from the old component system to a new drag-and-drop component architecture. All legacy components have been successfully migrated.
+
+### Migration Summary
+
+**Migrated Components:**
+- `components/old-components/` → `components/templates/`
+- Updated all component type names from kebab-case to snake_case (e.g., `title-3` → `title_3`)
+- All page data tables (`page_apply`, `page_contact`, `page_index`, `page_members`) updated to use new component types
+
+**New Component System Features:**
+- Drag-and-drop interface in dashboard
+- Standardized template structure in `components/templates/`
+- Centralized component management via `ComponentManager.php`
+- Backward compatibility maintained through `PageManager.php`
+
+**Legacy Components Archived:**
+- Old components moved to `components/archived-components/` for reference
+- New component templates created for all migrated components
+- Database schema updated with new component types
+
+---

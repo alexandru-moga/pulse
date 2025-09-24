@@ -2,7 +2,7 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-CREATE TABLE `applications` (
+CREATE TABLE `(4, 'title-2', 'title_2', '{\r\n  \"first\": \"OUR\",\r\n  \"second\": \"ACTIVITY\"\r\n}', 3, 1),pplications` (
   `id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `first_name` varchar(100) NOT NULL,
@@ -55,12 +55,12 @@ CREATE TABLE `pages` (
   `visibility` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `pages` (`id`, `name`, `title`, `description`, `table_name`, `module_config`, `menu_enabled`, `created_at`, `parent_id`, `visibility`) VALUES
-(1, 'index', 'Home', 'Welcome to PULSE - Programming University Learning & Software Engineering', 'page_index', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(2, 'members', 'Members', 'Our PULSE community members', 'page_members', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(3, 'apply', 'Apply', 'Apply for a PULSE project', 'page_apply', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(4, 'contact', 'Contact', 'Get in touch with PULSE', 'page_contact', NULL, 1, '2025-05-10 17:47:05', NULL, NULL),
-(5, 'dashboard/index', 'Dashboard', 'Member dashboard', NULL, NULL, 1, '2025-05-10 17:47:05', NULL, NULL);
+INSERT INTO `pages` (`id`, `name`, `title`, `description`, `table_name`, `module_config`, `menu_enabled`, `created_at`, `parent_id`, `visibility`, `effects`) VALUES
+(1, 'index', 'Home', 'Welcome to PULSE - Programming University Learning & Software Engineering', 'page_index', NULL, 1, '2025-05-10 17:47:05', NULL, NULL, '["mouse","globe","grid"]'),
+(2, 'members', 'Members', 'Our PULSE community members', 'page_members', NULL, 1, '2025-05-10 17:47:05', NULL, NULL, '["mouse","grid"]'),
+(3, 'apply', 'Apply', 'Apply for a PULSE project', 'page_apply', NULL, 1, '2025-05-10 17:47:05', NULL, NULL, '["mouse","net","grid"]'),
+(4, 'contact', 'Contact', 'Get in touch with PULSE', 'page_contact', NULL, 1, '2025-05-10 17:47:05', NULL, NULL, '["mouse","grid","birds"]'),
+(5, 'dashboard/index', 'Dashboard', 'Member dashboard', NULL, NULL, 1, '2025-05-10 17:47:05', NULL, NULL, '[]');
 
 CREATE TABLE `page_apply` (
   `id` int(11) NOT NULL,
@@ -72,9 +72,9 @@ CREATE TABLE `page_apply` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `page_apply` (`id`, `block_name`, `block_type`, `content`, `order_num`, `is_active`) VALUES
-(11, 'apply_title', 'title-3', '{\"text\": \"Join Phoenix Club\"}', 1, 1),
-(12, 'apply_subtitle', 'heading-3', '{\"text\": \"Ready to start your coding journey with us?.\"}', 2, 1),
-(13, 'apply_form', 'apply-form', '{\n  \"sections\": [\n    {\n      \"title\": \"Personal Information\",\n      \"fields\": [\n        {\n          \"name\": \"first_name\",\n          \"label\": \"First Name\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your first name\",\n          \"required\": true\n        },\n        {\n          \"name\": \"last_name\",\n          \"label\": \"Last Name\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your last name\",\n          \"required\": true\n        }\n      ]\n    },\n    {\n      \"title\": \"Academic Information\",\n      \"fields\": [\n        {\n          \"name\": \"school\",\n          \"label\": \"School\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your school name\",\n          \"required\": true\n        }\n      ]\n    }\n  ]\n}', 3, 1);
+(11, 'apply_title', 'title_3', '{\"text\": \"Join Phoenix Club\"}', 1, 1),
+(12, 'apply_subtitle', 'title', '{\"text\": \"Ready to start your coding journey with us?.\"}', 2, 1),
+(13, 'apply_form', 'apply_form', '{\n  \"sections\": [\n    {\n      \"title\": \"Personal Information\",\n      \"fields\": [\n        {\n          \"name\": \"first_name\",\n          \"label\": \"First Name\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your first name\",\n          \"required\": true\n        },\n        {\n          \"name\": \"last_name\",\n          \"label\": \"Last Name\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your last name\",\n          \"required\": true\n        }\n      ]\n    },\n    {\n      \"title\": \"Academic Information\",\n      \"fields\": [\n        {\n          \"name\": \"school\",\n          \"label\": \"School\",\n          \"type\": \"text\",\n          \"placeholder\": \"Your school name\",\n          \"required\": true\n        }\n      ]\n    }\n  ]\n}', 3, 1);
 
 CREATE TABLE `page_contact` (
   `id` int(11) NOT NULL,
@@ -86,9 +86,9 @@ CREATE TABLE `page_contact` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `page_contact` (`id`, `block_name`, `block_type`, `content`, `order_num`, `is_active`) VALUES
-(1, 'apply_title', 'title-3', '{\"text\": \"Contact us\"}', 1, 1),
-(2, 'subtitle', 'heading-3', '{\"text\": \"Feel free to ask anything.\"}', 2, 1),
-(3, 'contact_form', 'contact-form', '{\n    \"title\": \"Get in Touch\",\n    \"subtitle\": \"We\'ll respond within 24 hours\",\n    \"description\": \"Have a question or want to join our team? Fill out the form below and we\'ll get back to you.\",\n    \"fields\": [\n      {\"name\": \"name\", \"label\": \"Full Name\", \"required\": true, \"placeholder\": \"Your name\"},\n      {\"name\": \"email\", \"label\": \"Email Address\", \"required\": true, \"placeholder\": \"your.email@example.com\"},\n      {\"name\": \"message\", \"label\": \"Message\", \"type\": \"textarea\", \"required\": true, \"placeholder\": \"Write your message here...\"}\n    ],\n    \"button_text\": \"Send Message\"\n}\n', 3, 1);
+(1, 'apply_title', 'title_3', '{\"text\": \"Contact us\"}', 1, 1),
+(2, 'subtitle', 'title', '{\"text\": \"Feel free to ask anything.\"}', 2, 1),
+(3, 'contact_form', 'contact_form', '{\n    \"title\": \"Get in Touch\",\n    \"subtitle\": \"We\'ll respond within 24 hours\",\n    \"description\": \"Have a question or want to join our team? Fill out the form below and we\'ll get back to you.\",\n    \"fields\": [\n      {\"name\": \"name\", \"label\": \"Full Name\", \"required\": true, \"placeholder\": \"Your name\"},\n      {\"name\": \"email\", \"label\": \"Email Address\", \"required\": true, \"placeholder\": \"your.email@example.com\"},\n      {\"name\": \"message\", \"label\": \"Message\", \"type\": \"textarea\", \"required\": true, \"placeholder\": \"Write your message here...\"}\n    ],\n    \"button_text\": \"Send Message\"\n}\n', 3, 1);
 
 CREATE TABLE `page_index` (
   `id` int(11) NOT NULL,
@@ -101,10 +101,10 @@ CREATE TABLE `page_index` (
 
 INSERT INTO `page_index` (`id`, `block_name`, `block_type`, `content`, `order_num`, `is_active`) VALUES
 (1, 'welcome', 'welcome', '{\n  \"title\": \"Welcome to <span class=\\\"text-red-500\\\">PHOENIX</span>\",\n  \"subtitle\": \"STUDENT-LED TECH COMMUNITY\",\n  \"description\": \"Join a vibrant community of students passionate about technology and innovation. We build, learn, and grow together through hackathons, workshops, and collaborative projects.\",\n  \"primaryButton\": {\n    \"text\": \"Get Involved\",\n    \"url\": \"/apply.php\"\n  },\n  \"secondaryButton\": {\n    \"text\": \"Contact us\",\n    \"url\": \"/contact.php\"\n  }\n}', 1, 1),
-(2, 'scroll-arrow', 'scroll-arrow', '[]', 2, 1),
+(2, 'scroll-arrow', 'scroll_arrow', '[]', 2, 1),
 (4, 'title-2', 'title-2', '{\r\n  \"first\": \"OUR\",\r\n  \"second\": \"ACTIVITY\"\r\n}', 3, 1),
 (8, 'active_members', 'stats', '[\n  { \"value\": \"150\", \"label\": \"Active Members\" },\n  { \"value\": \"25\", \"label\": \"Projects Active\" },\n  { \"value\": \"50\", \"label\": \"Projects Completed\" }\n]\n', 8, 1),
-(9, 'title-2', 'title-2', '{\r\n  \"first\": \"OUR\",\r\n  \"second\": \"IMPACT\"\r\n}', 9, 1),
+(9, 'title-2', 'title_2', '{\r\n  \"first\": \"OUR\",\r\n  \"second\": \"IMPACT\"\r\n}', 9, 1),
 (10, 'core_values', 'core_values', '{\n    \"values\": [\n      {\n        \"title\": \"Excellence\",\n        \"description\": \"We strive for excellence in everything we do, pushing boundaries and challenging the status quo.\",\n        \"icon\": \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"24\\\" height=\\\"24\\\" fill=\\\"currentColor\\\" viewBox=\\\"0 0 24 24\\\"><path d=\\\"M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z\\\"/></svg>\"\n      },\n      {\n        \"title\": \"Innovation\",\n        \"description\": \"We embrace innovation, encouraging creative thinking and novel approaches to problem-solving.\",\n        \"icon\": \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"24\\\" height=\\\"24\\\" fill=\\\"currentColor\\\" viewBox=\\\"0 0 24 24\\\"><path d=\\\"M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.5 5h3v7.5h-3v-7.5zm1.5 12.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z\\\"/></svg>\"\n      },\n      {\n        \"title\": \"Integrity\",\n        \"description\": \"We act with integrity in all our dealings, maintaining the highest ethical standards and transparency.\",\n        \"icon\": \"<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"24\\\" height=\\\"24\\\" fill=\\\"currentColor\\\" viewBox=\\\"0 0 24 24\\\"><path d=\\\"M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.31 7.526c-.099-.807.528-1.526 1.348-1.526.771 0 1.377.676 1.28 1.451l-.757 6.053c-.035.283-.276.496-.561.496s-.526-.213-.562-.496l-.748-5.978zm1.31 10.724c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z\\\"/></svg>\"\n      }\n    ]\n  }', 10, 1);
 
 CREATE TABLE `page_members` (
@@ -117,9 +117,9 @@ CREATE TABLE `page_members` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `page_members` (`id`, `block_name`, `block_type`, `content`, `order_num`, `is_active`) VALUES
-(1, 'title', 'title-3', '{\"text\": \"Our members\"}', 1, 1),
-(2, 'members_description', 'heading-3', '{\"text\": \"Meet the talented programmers who make up PULSE\"}', 2, 1),
-(4, 'members_grid', 'members-grid', '{\"title\": \"Our Team\", \"subtitle\": \"Meet the PULSE community\"}', 3, 1);
+(1, 'title', 'title_3', '{\"text\": \"Our members\"}', 1, 1),
+(2, 'members_description', 'title', '{\"text\": \"Meet the talented programmers who make up PULSE\"}', 2, 1),
+(4, 'members_grid', 'members_grid', '{\"title\": \"Our Team\", \"subtitle\": \"Meet the PULSE community\"}', 3, 1);
 
 CREATE TABLE `password_resets` (
   `id` int(11) NOT NULL,

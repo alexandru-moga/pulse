@@ -1,13 +1,23 @@
 <?php
 // Contact Form Component Template
-$formTitle = $title ?? 'Get in Touch';
-$formSubtitle = $subtitle ?? "We'll respond within 24 hours";
-$formDescription = $description ?? 'Have a question or want to join our team? Fill out the form below and we\'ll get back to you.';
-$fields = $fields ?? [
-    ['name' => 'name', 'label' => 'Full Name', 'required' => true, 'placeholder' => 'Your name'],
-    ['name' => 'email', 'label' => 'Email Address', 'required' => true, 'placeholder' => 'your.email@example.com'],
-    ['name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Write your message here...']
-];
+$formTitle = $title ?? 'Contact Us';
+$formSubtitle = $subtitle ?? 'Get in touch with our team';
+$formDescription = $description ?? 'We would love to hear from you';
+$buttonText = $button_text ?? 'Send Message';
+$formFields = $fields ?? array();
+
+// Default fields if none provided
+if (empty($formFields)) {
+    $formFields = array(
+        array('name' => 'name', 'label' => 'Name', 'type' => 'text', 'placeholder' => 'Your name', 'required' => true),
+        array('name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'your@email.com', 'required' => true),
+        array('name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'placeholder' => 'Your message', 'required' => true)
+    );
+}
+
+if (!is_array($formFields)) {
+    $formFields = array();
+}
 $buttonText = $button_text ?? 'Send Message';
 ?>
 
