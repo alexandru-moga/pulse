@@ -14,6 +14,75 @@ $tableName = null;
 $blocks = [];
 $tableExists = false;
 $needsMigration = false;
+$message = '';
+$messageType = '';
+
+// Available effects
+$availableEffects = ['mouse', 'grid', 'globe', 'birds', 'net'];
+
+// Handle form submission for effects
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_effects']) && $pageId) {
+    try {
+        $selectedEffects = $_POST['effects'] ?? [];
+        $effectsJson = json_encode(array_values($selectedEffects));
+        
+        $stmt = $db->prepare("UPDATE pages SET effects = ? WHERE id = ?");
+        $stmt->execute([$effectsJson, $pageId]);
+        
+        $message = 'Effects updated successfully!';
+        $messageType = 'success';
+        
+        // Refresh page data
+        $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
+        $stmt->execute([$pageId]);
+        $page = $stmt->fetch();
+    } catch (Exception $e) {
+        $message = 'Error updating effects: ' . $e->getMessage();
+        $messageType = 'error';
+    }
+}
+
+// Handle migration from hardcoded effects
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate_effects'])) {
+    try {
+        $migrationResults = [];
+        
+        // Define hardcoded effects for each page based on current files
+        $hardcodedEffects = [
+            'index' => ['mouse', 'globe', 'grid'],
+            'members' => ['mouse', 'grid'],
+            'apply' => ['mouse', 'net', 'grid'],
+            'contact' => ['mouse', 'grid', 'birds'],
+            'core/page-template' => ['mouse', 'globe', 'grid'] // For template-based pages
+        ];
+        
+        $pages = $db->query("SELECT * FROM pages")->fetchAll();
+        
+        foreach ($pages as $p) {
+            $pageName = $p['name'];
+            $effects = $hardcodedEffects[$pageName] ?? [];
+            $effectsJson = json_encode($effects);
+            
+            $stmt = $db->prepare("UPDATE pages SET effects = ? WHERE id = ?");
+            $stmt->execute([$effectsJson, $p['id']]);
+            
+            $migrationResults[] = "Page '{$p['title']}' migrated with effects: " . implode(', ', $effects ?: ['none']);
+        }
+        
+        $message = 'Migration completed successfully! ' . count($migrationResults) . ' pages updated:<br>' . implode('<br>', $migrationResults);
+        $messageType = 'success';
+        
+        // Refresh current page data if viewing a specific page
+        if ($pageId) {
+            $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
+            $stmt->execute([$pageId]);
+            $page = $stmt->fetch();
+        }
+    } catch (Exception $e) {
+        $message = 'Migration failed: ' . $e->getMessage();
+        $messageType = 'error';
+    }
+}
 
 if ($pageId) {
     $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
@@ -52,6 +121,23 @@ if ($pageId) {
 ?>
 
 <div class="space-y-6">
+    <?php if ($message): ?>
+        <div class="<?= $messageType === 'success' ? 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/50 border-red-200 dark:border-red-700 text-red-700 dark:text-red-300' ?> border rounded-md p-4">
+            <div class="flex">
+                <svg class="w-5 h-5 <?= $messageType === 'success' ? 'text-green-400' : 'text-red-400' ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <?php if ($messageType === 'success'): ?>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <?php else: ?>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <?php endif; ?>
+                </svg>
+                <div class="ml-3">
+                    <p class="text-sm"><?= $message ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -69,6 +155,84 @@ if ($pageId) {
             </a>
         </div>
     </div>
+
+    <!-- Global Effects Migration -->
+    <?php if (!$pageId): ?>
+        <div class="bg-blue-50 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-md p-4">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium text-blue-700 dark:text-blue-200">Effects Migration Available</h3>
+                    <p class="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                        Migrate all hardcoded effects from page files to the database. This will move mouse, grid, globe, birds, and net effects to database control.
+                    </p>
+                    <div class="mt-3">
+                        <form method="post" class="inline">
+                            <button type="submit" name="migrate_effects" onclick="return confirm('This will migrate effects from all page files to the database. Continue?')"
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Migrate All Effects
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Page Effects Management -->
+    <?php if ($pageId && $page): ?>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Effects</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Control visual effects for this page</p>
+            </div>
+            
+            <form method="post" class="space-y-4">
+                <input type="hidden" name="update_effects" value="1">
+                
+                <?php
+                $currentEffects = [];
+                if (!empty($page['effects'])) {
+                    $currentEffects = json_decode($page['effects'], true) ?: [];
+                }
+                ?>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <?php foreach ($availableEffects as $effect): ?>
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   name="effects[]" 
+                                   value="<?= $effect ?>"
+                                   id="effect_<?= $effect ?>"
+                                   <?= in_array($effect, $currentEffects) ? 'checked' : '' ?>
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="effect_<?= $effect ?>" class="ml-2 text-sm text-gray-900 dark:text-white capitalize">
+                                <?= $effect ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <div class="flex items-center justify-between pt-4">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Current effects: <?= empty($currentEffects) ? 'None' : implode(', ', $currentEffects) ?>
+                    </div>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Update Effects
+                    </button>
+                </div>
+            </form>
+        </div>
+    <?php endif; ?>
 
     <?php if ($pageId && $page): ?>
         <?php if ($tableName === ''): ?>

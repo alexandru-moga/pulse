@@ -41,9 +41,7 @@ include 'components/layout/header.php';
         <?php endforeach; ?>
     <?php endif; ?>
 
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/net.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php $effectsManager->renderPageEffects('apply'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

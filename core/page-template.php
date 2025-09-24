@@ -44,9 +44,7 @@ $componentManager = new ComponentManager();
         <?php endforeach; ?>
     <?php endif; ?>
     
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/globe.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php $effectsManager->renderPageEffects($pageName); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

@@ -56,9 +56,7 @@ include 'components/layout/header.php';
             }
         ?>
     <?php endif; ?>
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
-    <?php include 'components/effects/birds.php'; ?>
+    <?php $effectsManager->renderPageEffects('contact'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

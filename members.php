@@ -17,8 +17,7 @@ global $db;
     <?php
     renderMembersGrid($db);
     ?>
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php $effectsManager->renderPageEffects('members'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>
