@@ -1,23 +1,27 @@
 <?php
+
 /**
  * Drag & Drop Website Builder
  * WordPress-like interface for building pages
  */
 
-class DragDropBuilder {
+class DragDropBuilder
+{
     private $db;
     private $componentRegistry;
-    
-    public function __construct($db) {
+
+    public function __construct($db)
+    {
         $this->db = $db;
         $this->componentRegistry = [];
         $this->registerDefaultComponents();
     }
-    
+
     /**
      * Register default components
      */
-    private function registerDefaultComponents() {
+    private function registerDefaultComponents()
+    {
         $this->registerComponent('heading', [
             'name' => 'Heading',
             'icon' => 'text-size',
@@ -30,7 +34,7 @@ class DragDropBuilder {
                 'color' => ['type' => 'color', 'label' => 'Text Color', 'default' => '#1f2937']
             ]
         ]);
-        
+
         $this->registerComponent('text', [
             'name' => 'Text Block',
             'icon' => 'text',
@@ -41,7 +45,7 @@ class DragDropBuilder {
                 'align' => ['type' => 'select', 'label' => 'Alignment', 'options' => ['left' => 'Left', 'center' => 'Center', 'right' => 'Right', 'justify' => 'Justify'], 'default' => 'left']
             ]
         ]);
-        
+
         $this->registerComponent('hero', [
             'name' => 'Hero Section',
             'icon' => 'hero',
@@ -56,7 +60,7 @@ class DragDropBuilder {
                 'height' => ['type' => 'select', 'label' => 'Section Height', 'options' => ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large', 'full' => 'Full Screen'], 'default' => 'medium']
             ]
         ]);
-        
+
         $this->registerComponent('image', [
             'name' => 'Image',
             'icon' => 'image',
@@ -70,7 +74,7 @@ class DragDropBuilder {
                 'align' => ['type' => 'select', 'label' => 'Alignment', 'options' => ['left' => 'Left', 'center' => 'Center', 'right' => 'Right'], 'default' => 'center']
             ]
         ]);
-        
+
         $this->registerComponent('button', [
             'name' => 'Button',
             'icon' => 'button',
@@ -84,7 +88,7 @@ class DragDropBuilder {
                 'align' => ['type' => 'select', 'label' => 'Alignment', 'options' => ['left' => 'Left', 'center' => 'Center', 'right' => 'Right'], 'default' => 'left']
             ]
         ]);
-        
+
         $this->registerComponent('spacer', [
             'name' => 'Spacer',
             'icon' => 'spacer',
@@ -94,7 +98,7 @@ class DragDropBuilder {
                 'height' => ['type' => 'select', 'label' => 'Height', 'options' => ['20' => 'Small (20px)', '40' => 'Medium (40px)', '60' => 'Large (60px)', '80' => 'Extra Large (80px)'], 'default' => '40']
             ]
         ]);
-        
+
         $this->registerComponent('columns', [
             'name' => 'Columns',
             'icon' => 'columns',
@@ -106,7 +110,7 @@ class DragDropBuilder {
             ],
             'has_children' => true
         ]);
-        
+
         // Legacy components from old builder
         $this->registerComponent('members_grid', [
             'name' => 'Members Grid',
@@ -118,7 +122,7 @@ class DragDropBuilder {
                 'subtitle' => ['type' => 'text', 'label' => 'Grid Subtitle', 'default' => 'Meet the PULSE community']
             ]
         ]);
-        
+
         $this->registerComponent('contact_form', [
             'name' => 'Contact Form',
             'icon' => 'mail',
@@ -131,7 +135,7 @@ class DragDropBuilder {
                 'button_text' => ['type' => 'text', 'label' => 'Button Text', 'default' => 'Send Message']
             ]
         ]);
-        
+
         $this->registerComponent('apply_form', [
             'name' => 'Application Form',
             'icon' => 'clipboard',
@@ -142,102 +146,125 @@ class DragDropBuilder {
             ]
         ]);
     }
-    
+
     /**
      * Register a new component
      */
-    public function registerComponent($type, $config) {
+    public function registerComponent($type, $config)
+    {
         $this->componentRegistry[$type] = $config;
     }
-    
+
     /**
      * Get all registered components
      */
-    public function getComponents() {
+    public function getComponents()
+    {
         return $this->componentRegistry;
     }
-    
+
     /**
      * Get components by category
      */
-    public function getComponentsByCategory($category = null) {
+    public function getComponentsByCategory($category = null)
+    {
         if (!$category) {
             return $this->componentRegistry;
         }
-        
-        return array_filter($this->componentRegistry, function($component) use ($category) {
+
+        return array_filter($this->componentRegistry, function ($component) use ($category) {
             return ($component['category'] ?? 'other') === $category;
         });
     }
-    
+
     /**
      * Get a specific component
      */
-    public function getComponent($type) {
+    public function getComponent($type)
+    {
         return $this->componentRegistry[$type] ?? null;
     }
-    
+
     /**
      * Add a component to a page
      */
-    public function addComponent($pageId, $componentType, $settings = [], $position = null) {
+    public function addComponent($pageId, $componentType, $settings = [], $position = null)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
-        
+
         $component = $this->getComponent($componentType);
         if (!$component) {
             throw new Exception('Component type not found');
         }
-        
+
         // Get default settings and merge with provided settings
         $defaultSettings = [];
         foreach ($component['settings'] as $key => $setting) {
             $defaultSettings[$key] = $setting['default'] ?? '';
         }
         $settings = array_merge($defaultSettings, $settings);
-        
+
         // Determine position
         if ($position === null) {
             // Check if table uses old or new structure
             $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
             $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
             $usesOldStructure = in_array('block_type', $columns);
-            
+
             $positionColumn = $usesOldStructure ? 'order_num' : 'position';
-            
+
             $stmt = $this->db->prepare("SELECT MAX(`$positionColumn`) as max_pos FROM " . $page['table_name']);
             $stmt->execute();
             $result = $stmt->fetch();
             $position = ($result['max_pos'] ?? 0) + 1;
         }
-        
-        // Insert component - only works with new structure
-        // Tables must be migrated first
+
+        // Check table structure and insert component accordingly
+        $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $usesOldStructure = in_array('block_type', $columns);
+
         try {
-            $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (component_type, settings, position, is_active) VALUES (?, ?, ?, 1)");
-            $stmt->execute([$componentType, json_encode($settings), $position]);
+            if ($usesOldStructure) {
+                // Insert using old structure
+                $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (block_name, block_type, content, order_num, is_active) VALUES (?, ?, ?, ?, 1)");
+                $stmt->execute(['component_' . time(), $componentType, json_encode($settings), $position]);
+            } else {
+                // Insert using new structure
+                $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (component_type, settings, position, is_active) VALUES (?, ?, ?, 1)");
+                $stmt->execute([$componentType, json_encode($settings), $position]);
+            }
+
             return $this->db->lastInsertId();
         } catch (Exception $e) {
-            throw new Exception('Cannot add component. Please migrate this page table to the new structure first.');
+            // Enhanced error message with debugging info
+            $error = "Failed to add component. ";
+            $error .= "Table: " . $page['table_name'] . ", ";
+            $error .= "Structure: " . ($usesOldStructure ? 'old' : 'new') . ", ";
+            $error .= "Component Type: $componentType, ";
+            $error .= "Error: " . $e->getMessage();
+            throw new Exception($error);
         }
     }
-    
+
     /**
      * Update a component
      */
-    public function updateComponent($pageId, $componentId, $settings) {
+    public function updateComponent($pageId, $componentId, $settings)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
-        
+
         // Check if table uses old or new structure
         $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $usesOldStructure = in_array('block_type', $columns);
-        
+
         if ($usesOldStructure) {
             // Update old structure
             $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET content = ? WHERE id = ?");
@@ -245,61 +272,64 @@ class DragDropBuilder {
             // Update new structure
             $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET settings = ? WHERE id = ?");
         }
-        
+
         $stmt->execute([json_encode($settings), $componentId]);
     }
-    
+
     /**
      * Delete a component
      */
-    public function deleteComponent($pageId, $componentId) {
+    public function deleteComponent($pageId, $componentId)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
-        
+
         $stmt = $this->db->prepare("DELETE FROM " . $page['table_name'] . " WHERE id = ?");
         $stmt->execute([$componentId]);
     }
-    
+
     /**
      * Reorder components
      */
-    public function reorderComponents($pageId, $componentIds) {
+    public function reorderComponents($pageId, $componentIds)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
-        
+
         // Check if table uses old or new structure
         $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $usesOldStructure = in_array('block_type', $columns);
-        
+
         // Use appropriate column name for position
         $positionColumn = $usesOldStructure ? 'order_num' : 'position';
-        
+
         foreach ($componentIds as $position => $componentId) {
             $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET `$positionColumn` = ? WHERE id = ?");
             $stmt->execute([$position + 1, $componentId]);
         }
     }
-    
+
     /**
      * Get page components
      */
-    public function getPageComponents($pageId) {
+    public function getPageComponents($pageId)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             return [];
         }
-        
+
         // Check if table uses old or new structure
         try {
             $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
             $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
             $usesOldStructure = in_array('block_type', $columns);
-            
+
             // Use appropriate column names for ordering
             $orderColumn = 'id'; // Default fallback
             if ($usesOldStructure && in_array('order_num', $columns)) {
@@ -307,7 +337,7 @@ class DragDropBuilder {
             } elseif (!$usesOldStructure && in_array('position', $columns)) {
                 $orderColumn = 'position';
             }
-            
+
             $stmt = $this->db->prepare("SELECT * FROM " . $page['table_name'] . " WHERE is_active = 1 ORDER BY `$orderColumn` ASC");
             $stmt->execute();
             return $stmt->fetchAll();
@@ -318,15 +348,16 @@ class DragDropBuilder {
             return $stmt->fetchAll();
         }
     }
-    
+
     /**
      * Render a component
      */
-    public function renderComponent($component, $isEditor = false) {
+    public function renderComponent($component, $isEditor = false)
+    {
         // Handle both old and new component structures
         $type = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
         $settingsJson = $component['settings'] ?? $component['content'] ?? '{}';
-        
+
         // Ensure settings is always an array
         if (is_string($settingsJson)) {
             $settings = json_decode($settingsJson, true);
@@ -336,47 +367,48 @@ class DragDropBuilder {
         } else {
             $settings = is_array($settingsJson) ? $settingsJson : [];
         }
-        
+
         $componentConfig = $this->getComponent($type);
-        
+
         if (!$componentConfig) {
             return '<!-- Unknown component: ' . htmlspecialchars($type) . ' -->';
         }
-        
+
         // Load component template
         $templateFile = __DIR__ . '/../../components/templates/' . $type . '.php';
         if (!file_exists($templateFile)) {
             return '<!-- Template not found: ' . htmlspecialchars($type) . ' -->';
         }
-        
+
         ob_start();
-        
+
         // Extract settings for template - now guaranteed to be an array
         if (!empty($settings) && is_array($settings)) {
             extract($settings);
         }
         $componentData = $component;
         $editorMode = $isEditor;
-        
+
         include $templateFile;
-        
+
         $output = ob_get_clean();
-        
+
         if ($isEditor) {
             // Wrap with editor controls
             return $this->wrapWithEditorControls($component, $output);
         }
-        
+
         return $output;
     }
-    
+
     /**
      * Wrap component with editor controls
      */
-    private function wrapWithEditorControls($component, $content) {
+    private function wrapWithEditorControls($component, $content)
+    {
         $type = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
         $componentConfig = $this->getComponent($type);
-        
+
         return sprintf(
             '<div class="ddb-component" data-component-id="%d" data-component-type="%s">
                 <div class="ddb-component-controls">
@@ -395,46 +427,49 @@ class DragDropBuilder {
             $content
         );
     }
-    
+
     /**
      * Get page information
      */
-    private function getPage($pageId) {
+    private function getPage($pageId)
+    {
         $stmt = $this->db->prepare("SELECT * FROM pages WHERE id = ?");
         $stmt->execute([$pageId]);
         return $stmt->fetch();
     }
-    
+
     /**
      * Export page structure
      */
-    public function exportPage($pageId) {
+    public function exportPage($pageId)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             return null;
         }
-        
+
         $components = $this->getPageComponents($pageId);
-        
+
         return [
             'page' => $page,
             'components' => $components
         ];
     }
-    
+
     /**
      * Import page structure
      */
-    public function importPage($pageId, $data) {
+    public function importPage($pageId, $data)
+    {
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
-        
+
         // Clear existing components
         $stmt = $this->db->prepare("DELETE FROM " . $page['table_name']);
         $stmt->execute();
-        
+
         // Import components
         foreach ($data['components'] as $component) {
             $this->addComponent(

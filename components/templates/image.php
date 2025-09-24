@@ -20,10 +20,10 @@ if ($imageWidth !== '100') {
 
 <div class="ddb-image <?= $alignClass ?> my-4">
     <?php if ($imageSrc): ?>
-        <img src="<?= htmlspecialchars($imageSrc) ?>" 
-             alt="<?= htmlspecialchars($imageAlt) ?>" 
-             class="<?= $widthClass ?> h-auto mx-auto max-w-full">
-        
+        <img src="<?= htmlspecialchars($imageSrc) ?>"
+            alt="<?= htmlspecialchars($imageAlt) ?>"
+            class="<?= $widthClass ?> h-auto mx-auto max-w-full">
+
         <?php if ($imageCaption): ?>
             <p class="text-sm text-gray-600 mt-2 italic"><?= htmlspecialchars($imageCaption) ?></p>
         <?php endif; ?>

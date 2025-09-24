@@ -17,17 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Get all page tables
             $stmt = $db->query("SHOW TABLES LIKE 'page_%'");
             $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            
+
             $migratedTables = [];
-            
+
             foreach ($tables as $table) {
                 // Check if table has old structure
                 $stmt = $db->query("DESCRIBE `$table`");
                 $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-                
+
                 if (in_array('block_type', $columns) && in_array('block_name', $columns)) {
                     // This is an old structure table, migrate it
-                    
+
                     // Step 1: Add new columns if they don't exist
                     if (!in_array('component_type', $columns)) {
                         $db->query("ALTER TABLE `$table` ADD COLUMN `component_type` varchar(50) DEFAULT NULL AFTER `block_type`");
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!in_array('position', $columns)) {
                         $db->query("ALTER TABLE `$table` ADD COLUMN `position` int(11) DEFAULT 0 AFTER `order_num`");
                     }
-                    
+
                     // Step 2: Copy data and transform component types
                     $stmt = $db->prepare("UPDATE `$table` SET 
                         `component_type` = CASE 
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         `settings` = `content`,
                         `position` = `order_num`");
                     $stmt->execute();
-                    
+
                     // Step 3: Drop old columns
                     if (in_array('block_name', $columns)) {
                         $db->query("ALTER TABLE `$table` DROP COLUMN `block_name`");
@@ -66,17 +66,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (in_array('order_num', $columns)) {
                         $db->query("ALTER TABLE `$table` DROP COLUMN `order_num`");
                     }
-                    
+
                     $migratedTables[] = $table;
                 }
             }
-            
+
             if (empty($migratedTables)) {
                 $migrationStatus = 'No tables needed migration. All tables are already using the new structure.';
             } else {
                 $migrationStatus = 'Successfully migrated ' . count($migratedTables) . ' tables: ' . implode(', ', $migratedTables);
             }
-            
         } catch (Exception $e) {
             $error = 'Migration failed: ' . $e->getMessage();
         }
@@ -90,11 +89,11 @@ $alreadyMigrated = [];
 try {
     $stmt = $db->query("SHOW TABLES LIKE 'page_%'");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
+
     foreach ($tables as $table) {
         $stmt = $db->query("DESCRIBE `$table`");
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
+
         if (in_array('block_type', $columns)) {
             $needsMigration[] = $table;
         } else {
@@ -113,12 +112,12 @@ try {
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Migrate to New Drag & Drop Builder</h2>
                 <p class="text-gray-600 dark:text-gray-300 mt-1">Convert existing page builder content to work with the new drag-and-drop interface</p>
             </div>
-            <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
-               class="text-primary hover:text-red-600 text-sm font-medium">
+            <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php"
+                class="text-primary hover:text-red-600 text-sm font-medium">
                 ← Back to Page Settings
             </a>
         </div>
-        
+
         <?php if (!empty($migrationStatus)): ?>
             <div class="mb-6 p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-md">
                 <div class="flex">
@@ -131,7 +130,7 @@ try {
                 </div>
             </div>
         <?php endif; ?>
-        
+
         <?php if (!empty($error)): ?>
             <div class="mb-6 p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md">
                 <div class="flex">
@@ -144,7 +143,7 @@ try {
                 </div>
             </div>
         <?php endif; ?>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Tables that need migration -->
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -164,7 +163,7 @@ try {
                     </ul>
                 <?php endif; ?>
             </div>
-            
+
             <!-- Tables already migrated -->
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <h3 class="font-medium text-gray-900 dark:text-white mb-3">
@@ -184,7 +183,7 @@ try {
                 <?php endif; ?>
             </div>
         </div>
-        
+
         <?php if (!empty($needsMigration)): ?>
             <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-md">
                 <h4 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">What this migration will do:</h4>
@@ -195,14 +194,14 @@ try {
                     <li>Remove old columns: <code>block_name</code>, <code>block_type</code>, <code>content</code>, <code>order_num</code></li>
                 </ul>
             </div>
-            
+
             <div class="mt-6 flex items-center justify-between">
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     <strong>Warning:</strong> This will modify your database structure. Make sure you have a backup!
                 </div>
                 <form method="POST" onsubmit="return confirm('Are you sure you want to run the migration? Make sure you have a database backup first!')">
-                    <button type="submit" name="run_migration" 
-                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-200">
+                    <button type="submit" name="run_migration"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-200">
                         Run Migration
                     </button>
                 </form>
@@ -213,8 +212,8 @@ try {
                     ✅ All page tables have been migrated to the new builder format!
                 </div>
                 <div class="mt-4">
-                    <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php" 
-                       class="bg-primary hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-200">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php"
+                        class="bg-primary hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-200">
                         Go to Page Settings
                     </a>
                 </div>

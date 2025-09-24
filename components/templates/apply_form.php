@@ -26,34 +26,34 @@ $sections = $sections ?? [
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                             <?= htmlspecialchars($section['title']) ?>
                         </h3>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <?php foreach ($section['fields'] as $field): 
+                            <?php foreach ($section['fields'] as $field):
                                 $fieldType = $field['type'] ?? 'text';
                                 $isRequired = $field['required'] ?? false;
                                 $placeholder = $field['placeholder'] ?? '';
                                 $options = $field['options'] ?? [];
                             ?>
                                 <div class="<?= (count($section['fields']) === 1) ? 'md:col-span-2' : '' ?>">
-                                    <label for="<?= htmlspecialchars($field['name']) ?>" 
-                                           class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label for="<?= htmlspecialchars($field['name']) ?>"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         <?= htmlspecialchars($field['label']) ?>
                                         <?php if ($isRequired): ?>
                                             <span class="text-red-500">*</span>
                                         <?php endif; ?>
                                     </label>
-                                    
+
                                     <?php if ($fieldType === 'textarea'): ?>
-                                        <textarea 
+                                        <textarea
                                             id="<?= htmlspecialchars($field['name']) ?>"
                                             name="<?= htmlspecialchars($field['name']) ?>"
                                             rows="4"
                                             <?= $isRequired ? 'required' : '' ?>
                                             placeholder="<?= htmlspecialchars($placeholder) ?>"
                                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"></textarea>
-                                    
+
                                     <?php elseif ($fieldType === 'select' && !empty($options)): ?>
-                                        <select 
+                                        <select
                                             id="<?= htmlspecialchars($field['name']) ?>"
                                             name="<?= htmlspecialchars($field['name']) ?>"
                                             <?= $isRequired ? 'required' : '' ?>
@@ -65,9 +65,9 @@ $sections = $sections ?? [
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                    
+
                                     <?php else: ?>
-                                        <input 
+                                        <input
                                             type="<?= htmlspecialchars($fieldType) ?>"
                                             id="<?= htmlspecialchars($field['name']) ?>"
                                             name="<?= htmlspecialchars($field['name']) ?>"
@@ -80,11 +80,11 @@ $sections = $sections ?? [
                         </div>
                     </div>
                 <?php endforeach; ?>
-                
+
                 <div class="p-8 bg-gray-50 dark:bg-gray-900">
                     <div class="flex justify-end">
-                        <button type="submit" 
-                                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-md shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-md shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                             Submit Application
                         </button>
                     </div>

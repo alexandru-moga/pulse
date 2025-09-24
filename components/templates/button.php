@@ -20,14 +20,14 @@ $sizeClasses = [
 
 $alignClass = [
     'left' => 'text-left',
-    'center' => 'text-center', 
+    'center' => 'text-center',
     'right' => 'text-right'
 ][$buttonAlign] ?? 'text-left';
 ?>
 
 <div class="ddb-button <?= $alignClass ?> my-4">
-    <a href="<?= htmlspecialchars($buttonLink) ?>" 
-       class="inline-block <?= $styleClasses ?> <?= $sizeClasses ?> rounded-lg font-medium transition-colors">
+    <a href="<?= htmlspecialchars($buttonLink) ?>"
+        class="inline-block <?= $styleClasses ?> <?= $sizeClasses ?> rounded-lg font-medium transition-colors">
         <?= htmlspecialchars($buttonText) ?>
     </a>
 </div>

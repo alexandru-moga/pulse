@@ -28,55 +28,59 @@ $builder = new DragDropBuilder($db);
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
     header('Content-Type: application/json');
-    
+
     $action = $_POST['action'] ?? '';
-    
+
     try {
         switch ($action) {
             case 'add_component':
                 $componentType = $_POST['component_type'] ?? '';
                 $position = $_POST['position'] ?? null;
-                
+
                 $componentId = $builder->addComponent($pageId, $componentType, [], $position);
                 echo json_encode(['success' => true, 'component_id' => $componentId]);
                 break;
-                
+
             case 'update_component':
                 $componentId = intval($_POST['component_id'] ?? 0);
                 $settings = $_POST['settings'] ?? [];
-                
+
                 $builder->updateComponent($pageId, $componentId, $settings);
                 echo json_encode(['success' => true]);
                 break;
-                
+
             case 'delete_component':
                 $componentId = intval($_POST['component_id'] ?? 0);
-                
+
                 $builder->deleteComponent($pageId, $componentId);
                 echo json_encode(['success' => true]);
                 break;
-                
+
             case 'reorder_components':
                 $componentIds = $_POST['component_ids'] ?? [];
-                
+
                 $builder->reorderComponents($pageId, $componentIds);
                 echo json_encode(['success' => true]);
                 break;
-                
+
             case 'get_component_settings':
                 $componentId = intval($_POST['component_id'] ?? 0);
-                
+
                 // Get component data
                 $components = $builder->getPageComponents($pageId);
-                $component = array_filter($components, function($c) use ($componentId) {
+                $component = array_filter($components, function ($c) use ($componentId) {
                     return $c['id'] == $componentId;
                 });
                 $component = reset($component);
-                
+
                 if ($component) {
-                    $componentConfig = $builder->getComponent($component['component_type']);
-                    $settings = json_decode($component['settings'], true) ?: [];
-                    
+                    // Handle both old and new component structures
+                    $componentType = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
+                    $settingsJson = $component['settings'] ?? $component['content'] ?? '{}';
+
+                    $componentConfig = $builder->getComponent($componentType);
+                    $settings = json_decode($settingsJson, true) ?: [];
+
                     echo json_encode([
                         'success' => true,
                         'component' => $componentConfig,
@@ -86,14 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                     echo json_encode(['success' => false, 'error' => 'Component not found']);
                 }
                 break;
-                
+
             default:
                 echo json_encode(['success' => false, 'error' => 'Invalid action']);
         }
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
-    
+
     exit;
 }
 
@@ -106,6 +110,7 @@ include __DIR__ . '/components/dashboard-header.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,7 +122,7 @@ include __DIR__ . '/components/dashboard-header.php';
             height: calc(100vh - 64px);
             display: flex;
         }
-        
+
         .ddb-sidebar {
             width: 300px;
             min-width: 300px;
@@ -125,31 +130,31 @@ include __DIR__ . '/components/dashboard-header.php';
             border-right: 1px solid #e5e7eb;
             overflow-y: auto;
         }
-        
+
         .ddb-canvas {
             flex: 1;
             background: #f9fafb;
             overflow-y: auto;
             position: relative;
         }
-        
+
         .ddb-component {
             position: relative;
             border: 2px solid transparent;
             border-radius: 4px;
             transition: all 0.2s ease;
         }
-        
+
         .ddb-component:hover {
             border-color: #3b82f6;
             box-shadow: 0 0 0 1px #3b82f6;
         }
-        
+
         .ddb-component.selected {
             border-color: #ef4444;
             box-shadow: 0 0 0 2px #ef4444;
         }
-        
+
         .ddb-component-controls {
             position: absolute;
             top: -32px;
@@ -166,11 +171,11 @@ include __DIR__ . '/components/dashboard-header.php';
             align-items: center;
             gap: 8px;
         }
-        
+
         .ddb-component:hover .ddb-component-controls {
             opacity: 1;
         }
-        
+
         .ddb-component-actions button {
             background: none;
             border: none;
@@ -179,11 +184,11 @@ include __DIR__ . '/components/dashboard-header.php';
             padding: 2px;
             border-radius: 2px;
         }
-        
+
         .ddb-component-actions button:hover {
             background: rgba(255, 255, 255, 0.2);
         }
-        
+
         .ddb-drop-zone {
             min-height: 100px;
             border: 2px dashed #d1d5db;
@@ -196,20 +201,20 @@ include __DIR__ . '/components/dashboard-header.php';
             margin: 16px 0;
             transition: all 0.2s ease;
         }
-        
+
         .ddb-drop-zone.dragover {
             border-color: #3b82f6;
             background: #dbeafe;
             color: #1e40af;
         }
-        
+
         .ddb-component-list {
             list-style: none;
             padding: 0;
             margin: 0;
             min-height: 200px;
         }
-        
+
         .ddb-component-item {
             background: white;
             border: 1px solid #e5e7eb;
@@ -219,16 +224,16 @@ include __DIR__ . '/components/dashboard-header.php';
             cursor: grab;
             transition: all 0.2s ease;
         }
-        
+
         .ddb-component-item:hover {
             border-color: #3b82f6;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .ddb-component-item:active {
             cursor: grabbing;
         }
-        
+
         .ddb-settings-panel {
             position: fixed;
             right: -400px;
@@ -241,22 +246,22 @@ include __DIR__ . '/components/dashboard-header.php';
             transition: right 0.3s ease;
             overflow-y: auto;
         }
-        
+
         .ddb-settings-panel.active {
             right: 0;
         }
-        
+
         .ddb-form-group {
             margin-bottom: 16px;
         }
-        
+
         .ddb-form-label {
             display: block;
             font-weight: 500;
             margin-bottom: 4px;
             color: #374151;
         }
-        
+
         .ddb-form-control {
             width: 100%;
             padding: 8px 12px;
@@ -264,13 +269,13 @@ include __DIR__ . '/components/dashboard-header.php';
             border-radius: 4px;
             font-size: 14px;
         }
-        
+
         .ddb-form-control:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 1px #3b82f6;
         }
-        
+
         .ddb-toolbar {
             position: sticky;
             top: 0;
@@ -282,11 +287,11 @@ include __DIR__ . '/components/dashboard-header.php';
             justify-content: between;
             align-items: center;
         }
-        
+
         .sortable-ghost {
             opacity: 0.4;
         }
-        
+
         .sortable-chosen {
             transform: scale(1.02);
         }
@@ -301,60 +306,60 @@ include __DIR__ . '/components/dashboard-header.php';
                 <h2 class="text-lg font-semibold text-gray-900">Components</h2>
                 <p class="text-sm text-gray-600">Drag components to build your page</p>
             </div>
-            
+
             <?php
             $categories = [
                 'content' => 'Content',
-                'layout' => 'Layout', 
+                'layout' => 'Layout',
                 'media' => 'Media',
                 'forms' => 'Forms'
             ];
-            
+
             foreach ($categories as $categoryKey => $categoryName):
                 $categoryComponents = $builder->getComponentsByCategory($categoryKey);
                 if (empty($categoryComponents)) continue;
             ?>
-            
-            <div class="p-4">
-                <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide mb-2">
-                    <?= $categoryName ?>
-                </h3>
-                
-                <?php foreach ($categoryComponents as $type => $component): ?>
-                <div class="ddb-component-item" 
-                     draggable="true" 
-                     data-component-type="<?= $type ?>">
-                    <div class="flex items-center">
-                        <div class="text-2xl mr-3">
-                            <?php
-                            $icons = [
-                                'heading' => '📝',
-                                'text' => '📄',
-                                'hero' => '🎯',
-                                'image' => '🖼️',
-                                'button' => '🔘',
-                                'spacer' => '↕️',
-                                'columns' => '📊'
-                            ];
-                            echo $icons[$type] ?? '📦';
-                            ?>
-                        </div>
-                        <div>
-                            <div class="font-medium text-gray-900">
-                                <?= htmlspecialchars($component['name']) ?>
+
+                <div class="p-4">
+                    <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide mb-2">
+                        <?= $categoryName ?>
+                    </h3>
+
+                    <?php foreach ($categoryComponents as $type => $component): ?>
+                        <div class="ddb-component-item"
+                            draggable="true"
+                            data-component-type="<?= $type ?>">
+                            <div class="flex items-center">
+                                <div class="text-2xl mr-3">
+                                    <?php
+                                    $icons = [
+                                        'heading' => '📝',
+                                        'text' => '📄',
+                                        'hero' => '🎯',
+                                        'image' => '🖼️',
+                                        'button' => '🔘',
+                                        'spacer' => '↕️',
+                                        'columns' => '📊'
+                                    ];
+                                    echo $icons[$type] ?? '📦';
+                                    ?>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">
+                                        <?= htmlspecialchars($component['name']) ?>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        <?= htmlspecialchars($component['description']) ?>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-500">
-                                <?= htmlspecialchars($component['description']) ?>
-                            </div>
                         </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-            
+
             <?php endforeach; ?>
         </div>
-        
+
         <!-- Main Canvas -->
         <div class="ddb-canvas">
             <div class="ddb-toolbar">
@@ -371,13 +376,13 @@ include __DIR__ . '/components/dashboard-header.php';
                     <button id="save-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
                         Save
                     </button>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php?id=<?= $pageId ?>" 
-                       class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-red-600">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/page-settings.php?id=<?= $pageId ?>"
+                        class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-red-600">
                         Done
                     </a>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm min-h-[600px]">
                     <div class="p-8">
@@ -405,7 +410,7 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
         </div>
     </div>
-    
+
     <!-- Settings Panel -->
     <div id="settings-panel" class="ddb-settings-panel">
         <div class="p-4 border-b bg-gray-50">
@@ -418,11 +423,11 @@ include __DIR__ . '/components/dashboard-header.php';
                 </button>
             </div>
         </div>
-        
+
         <div class="p-4">
             <form id="settings-form">
                 <div id="settings-fields"></div>
-                
+
                 <div class="flex justify-end gap-2 pt-4 border-t">
                     <button type="button" id="cancel-settings" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                         Cancel
@@ -434,7 +439,8 @@ include __DIR__ . '/components/dashboard-header.php';
             </form>
         </div>
     </div>
-    
+
     <script src="<?= $settings['site_url'] ?>/js/drag-drop-builder.js"></script>
 </body>
+
 </html>
