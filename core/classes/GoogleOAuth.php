@@ -1,12 +1,14 @@
 <?php
 
-class GoogleOAuth {
+class GoogleOAuth
+{
     private $db;
     private $clientId;
     private $clientSecret;
     private $redirectUri;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
         $this->loadConfig();
         global $settings;
@@ -14,7 +16,8 @@ class GoogleOAuth {
         $this->redirectUri = $siteUrl . '/auth/google/';
     }
 
-    private function loadConfig() {
+    private function loadConfig()
+    {
         $stmt = $this->db->prepare(
             "SELECT name, value FROM settings WHERE name IN ('google_client_id', 'google_client_secret')"
         );
@@ -25,11 +28,13 @@ class GoogleOAuth {
         $this->clientSecret = $settings['google_client_secret'] ?? null;
     }
 
-    public function isConfigured() {
+    public function isConfigured()
+    {
         return !empty($this->clientId) && !empty($this->clientSecret);
     }
 
-    public function generateAuthUrl($isLogin = false) {
+    public function generateAuthUrl($isLogin = false)
+    {
         if (!$this->isConfigured()) {
             throw new Exception('Google OAuth is not configured');
         }
@@ -50,7 +55,8 @@ class GoogleOAuth {
         return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);
     }
 
-    public function handleCallback($code, $state) {
+    public function handleCallback($code, $state)
+    {
         $savedState = $_SESSION['google_oauth_state'] ?? null;
         $action = $_SESSION['google_oauth_action'] ?? 'link';
 
@@ -74,7 +80,8 @@ class GoogleOAuth {
         }
     }
 
-    private function exchangeCodeForToken($code) {
+    private function exchangeCodeForToken($code)
+    {
         $postData = [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
@@ -109,7 +116,8 @@ class GoogleOAuth {
         return $data;
     }
 
-    private function getUserData($accessToken) {
+    private function getUserData($accessToken)
+    {
         $ch = curl_init('https://www.googleapis.com/oauth2/v2/userinfo');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -129,7 +137,8 @@ class GoogleOAuth {
         return json_decode($response, true);
     }
 
-    private function handleLogin($userData) {
+    private function handleLogin($userData)
+    {
         if (empty($userData['email'])) {
             return ['success' => false, 'error' => 'No email found in Google account'];
         }
@@ -148,12 +157,18 @@ class GoogleOAuth {
         return ['success' => true, 'action' => 'login'];
     }
 
-    private function handleLinking($userData) {
+    private function handleLinking($userData)
+    {
         if (!function_exists('isLoggedIn') || !isLoggedIn()) {
             return ['success' => false, 'error' => 'You must be logged in to link accounts'];
         }
 
         global $currentUser;
+
+        // Additional safety check for $currentUser
+        if (!$currentUser) {
+            return ['success' => false, 'error' => 'User session not found'];
+        }
 
         if (empty($userData['email'])) {
             return ['success' => false, 'error' => 'No email found in Google account'];
@@ -184,13 +199,15 @@ class GoogleOAuth {
         return ['success' => true, 'action' => 'link'];
     }
 
-    public function getUserGoogleLink($userId) {
+    public function getUserGoogleLink($userId)
+    {
         $stmt = $this->db->prepare("SELECT * FROM google_links WHERE user_id = ?");
         $stmt->execute([$userId]);
         return $stmt->fetch();
     }
 
-    public function unlinkGoogleAccount($userId) {
+    public function unlinkGoogleAccount($userId)
+    {
         $stmt = $this->db->prepare("DELETE FROM google_links WHERE user_id = ?");
         $stmt->execute([$userId]);
         return true;
