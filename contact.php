@@ -41,19 +41,19 @@ include 'components/layout/header.php';
 <main>
     <?php if (isset($_SESSION['form_success'])): ?>
         <?php
-            echo $pageManager->renderComponent([
-                'block_type' => 'contacted',
-                'block_name' => 'contacted',
-                'order_num' => 999,
-                'content' => ''
-            ]);
-            unset($_SESSION['form_success']);
+        echo $pageManager->renderComponent([
+            'block_type' => 'contacted',
+            'block_name' => 'contacted',
+            'order_num' => 999,
+            'content' => ''
+        ]);
+        unset($_SESSION['form_success']);
         ?>
     <?php else: ?>
         <?php
-            foreach ($pageStructure['components'] as $component) {
-                echo $pageManager->renderComponent($component);
-            }
+        foreach ($pageStructure['components'] as $component) {
+            echo $pageManager->renderComponent($component);
+        }
         ?>
     <?php endif; ?>
     <?php $effectsManager->renderPageEffects('contact'); ?>

@@ -191,7 +191,7 @@ class DragDropBuilder
     public function addComponent($pageId, $componentType, $settings = [], $position = null)
     {
         error_log("DragDropBuilder::addComponent called with position: " . var_export($position, true));
-        
+
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
@@ -247,7 +247,7 @@ class DragDropBuilder
             $position = ($result['max_pos'] ?? 0) + 1;
             error_log("Position was invalid, recalculated to: $position");
         }
-        
+
         // Ensure it's an integer
         $position = intval($position);
         if ($position <= 0) {
@@ -256,7 +256,7 @@ class DragDropBuilder
 
         try {
             error_log("About to insert component with final position: " . var_export($position, true));
-            
+
             if ($usesOldStructure) {
                 // Insert using old structure
                 $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (block_name, block_type, content, order_num, is_active) VALUES (?, ?, ?, ?, 1)");
@@ -285,7 +285,7 @@ class DragDropBuilder
     public function updateComponent($pageId, $componentId, $settings)
     {
         error_log("DragDropBuilder::updateComponent called - PageID: $pageId, ComponentID: $componentId, Settings: " . var_export($settings, true));
-        
+
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
@@ -314,30 +314,29 @@ class DragDropBuilder
 
             $settingsJson = json_encode($settings);
             error_log("DragDropBuilder::updateComponent - Final JSON to save: " . $settingsJson);
-            
+
             $result = $stmt->execute([$settingsJson, $componentId]);
-            
+
             if (!$result) {
                 $errorInfo = $stmt->errorInfo();
                 throw new Exception('Failed to update component in database. SQL Error: ' . implode(' - ', $errorInfo));
             }
-            
+
             $affectedRows = $stmt->rowCount();
             error_log("DragDropBuilder::updateComponent - Update successful, affected rows: " . $affectedRows);
-            
+
             if ($affectedRows === 0) {
                 // Check if the component exists
                 $checkStmt = $this->db->prepare("SELECT COUNT(*) FROM " . $page['table_name'] . " WHERE id = ?");
                 $checkStmt->execute([$componentId]);
                 $exists = $checkStmt->fetchColumn();
-                
+
                 if ($exists == 0) {
                     throw new Exception("Component with ID $componentId not found in table " . $page['table_name']);
                 } else {
                     error_log("DragDropBuilder::updateComponent - Component exists but no rows were updated. This might indicate the settings are identical.");
                 }
             }
-            
         } catch (Exception $e) {
             error_log("DragDropBuilder::updateComponent - Error: " . $e->getMessage());
             throw $e;

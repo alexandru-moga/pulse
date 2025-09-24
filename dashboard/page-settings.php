@@ -25,13 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_effects']) && 
     try {
         $selectedEffects = $_POST['effects'] ?? [];
         $effectsJson = json_encode(array_values($selectedEffects));
-        
+
         $stmt = $db->prepare("UPDATE pages SET effects = ? WHERE id = ?");
         $stmt->execute([$effectsJson, $pageId]);
-        
+
         $message = 'Effects updated successfully!';
         $messageType = 'success';
-        
+
         // Refresh page data
         $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
         $stmt->execute([$pageId]);
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_effects']) && 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate_effects'])) {
     try {
         $migrationResults = [];
-        
+
         // Define hardcoded effects for each page based on current files
         $hardcodedEffects = [
             'index' => ['mouse', 'globe', 'grid'],
@@ -55,23 +55,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate_effects'])) {
             'contact' => ['mouse', 'grid', 'birds'],
             'core/page-template' => ['mouse', 'globe', 'grid'] // For template-based pages
         ];
-        
+
         $pages = $db->query("SELECT * FROM pages")->fetchAll();
-        
+
         foreach ($pages as $p) {
             $pageName = $p['name'];
             $effects = $hardcodedEffects[$pageName] ?? [];
             $effectsJson = json_encode($effects);
-            
+
             $stmt = $db->prepare("UPDATE pages SET effects = ? WHERE id = ?");
             $stmt->execute([$effectsJson, $p['id']]);
-            
+
             $migrationResults[] = "Page '{$p['title']}' migrated with effects: " . implode(', ', $effects ?: ['none']);
         }
-        
+
         $message = 'Migration completed successfully! ' . count($migrationResults) . ' pages updated:<br>' . implode('<br>', $migrationResults);
         $messageType = 'success';
-        
+
         // Refresh current page data if viewing a specific page
         if ($pageId) {
             $stmt = $db->prepare("SELECT * FROM pages WHERE id = ?");
@@ -191,39 +191,39 @@ if ($pageId) {
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Effects</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Control visual effects for this page</p>
             </div>
-            
+
             <form method="post" class="space-y-4">
                 <input type="hidden" name="update_effects" value="1">
-                
+
                 <?php
                 $currentEffects = [];
                 if (!empty($page['effects'])) {
                     $currentEffects = json_decode($page['effects'], true) ?: [];
                 }
                 ?>
-                
+
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     <?php foreach ($availableEffects as $effect): ?>
                         <div class="flex items-center">
-                            <input type="checkbox" 
-                                   name="effects[]" 
-                                   value="<?= $effect ?>"
-                                   id="effect_<?= $effect ?>"
-                                   <?= in_array($effect, $currentEffects) ? 'checked' : '' ?>
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <input type="checkbox"
+                                name="effects[]"
+                                value="<?= $effect ?>"
+                                id="effect_<?= $effect ?>"
+                                <?= in_array($effect, $currentEffects) ? 'checked' : '' ?>
+                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                             <label for="effect_<?= $effect ?>" class="ml-2 text-sm text-gray-900 dark:text-white capitalize">
                                 <?= $effect ?>
                             </label>
                         </div>
                     <?php endforeach; ?>
                 </div>
-                
+
                 <div class="flex items-center justify-between pt-4">
                     <div class="text-sm text-gray-500 dark:text-gray-400">
                         Current effects: <?= empty($currentEffects) ? 'None' : implode(', ', $currentEffects) ?>
                     </div>
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <button type="submit"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>

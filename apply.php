@@ -1,11 +1,11 @@
 <?php
 require_once 'core/init.php';
 checkMaintenanceMode();
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $applyForm = new ApplyForm($db);
     $result = $applyForm->processSubmission($_POST);
-    
-    if($result) {
+
+    if ($result) {
         $_SESSION['form_success'] = true;
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit();
@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-include 'components/layout/header.php'; 
+include 'components/layout/header.php';
 ?>
 
 <head>
@@ -25,15 +25,15 @@ include 'components/layout/header.php';
 </head>
 
 <main>
-    <?php if(isset($_SESSION['form_success'])): ?>
+    <?php if (isset($_SESSION['form_success'])): ?>
         <?php
-            echo $pageManager->renderComponent([
-                'block_type' => 'applied',
-                'block_name' => 'applied',
-                'order_num' => 999,
-                'content' => ''
-            ]);
-            unset($_SESSION['form_success']);
+        echo $pageManager->renderComponent([
+            'block_type' => 'applied',
+            'block_name' => 'applied',
+            'order_num' => 999,
+            'content' => ''
+        ]);
+        unset($_SESSION['form_success']);
         ?>
     <?php else: ?>
         <?php foreach ($pageStructure['components'] as $component): ?>

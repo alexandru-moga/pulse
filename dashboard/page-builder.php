@@ -36,10 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
             case 'add_component':
                 $componentType = $_POST['component_type'] ?? '';
                 $position = $_POST['position'] ?? null;
-                
+
                 // Debug logging
                 error_log("Adding component: $componentType, original position: " . var_export($position, true));
-                
+
                 // Convert 'end' or any non-numeric values to null for automatic position calculation
                 if ($position === 'end' || $position === '' || !is_numeric($position)) {
                     $position = null;
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                     // Convert to integer if it's a numeric position
                     $position = intval($position);
                 }
-                
+
                 error_log("Final position after conversion: " . var_export($position, true));
 
                 $componentId = $builder->addComponent($pageId, $componentType, [], $position);
@@ -58,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 try {
                     $componentId = intval($_POST['component_id'] ?? 0);
                     $settings = $_POST['settings'] ?? '[]';
-                    
+
                     error_log("Update component - ID: $componentId, Raw settings: " . var_export($settings, true));
-                    
+
                     // If settings is a JSON string, decode it
                     if (is_string($settings)) {
                         $settings = json_decode($settings, true);
@@ -68,12 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                             throw new Exception('Invalid settings JSON: ' . json_last_error_msg());
                         }
                     }
-                    
+
                     // Ensure settings is always an array
                     if (!is_array($settings)) {
                         $settings = [];
                     }
-                    
+
                     error_log("Update component - Decoded settings: " . var_export($settings, true));
 
                     $builder->updateComponent($pageId, $componentId, $settings);

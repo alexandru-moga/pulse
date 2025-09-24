@@ -152,13 +152,13 @@ class DragDropBuilder {
 
     addComponent(componentType, position = null) {
         console.log('Adding component:', componentType, 'at position:', position); // Debug log
-        
+
         // Convert 'end' to null on the client side to avoid any server-side issues
         if (position === 'end' || position === '' || position === undefined) {
             position = null;
             console.log('Converted position to null');
         }
-        
+
         const data = new FormData();
         data.append('action', 'add_component');
         data.append('component_type', componentType);
@@ -452,12 +452,11 @@ class DragDropBuilder {
     showNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
-            type === 'success' ? 'bg-green-500' :
-            type === 'error' ? 'bg-red-500' :
-            type === 'warning' ? 'bg-yellow-500' :
-            'bg-blue-500'
-        }`;
+        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                    type === 'warning' ? 'bg-yellow-500' :
+                        'bg-blue-500'
+            }`;
         notification.textContent = message;
 
         document.body.appendChild(notification);

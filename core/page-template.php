@@ -43,7 +43,7 @@ $componentManager = new ComponentManager();
             ?>
         <?php endforeach; ?>
     <?php endif; ?>
-    
+
     <?php $effectsManager->renderPageEffects($pageName); ?>
 </main>
 
