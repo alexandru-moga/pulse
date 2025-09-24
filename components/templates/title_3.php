@@ -5,9 +5,9 @@ $titleLevel = $level ?? 'h3';
 ?>
 
 <section class="section-heading-3">
-  <div class="container">
-    <<?= $titleLevel ?> class="title-style-3">
-      <?= htmlspecialchars($titleText) ?>
-    </<?= $titleLevel ?>>
-  </div>
+    <div class="container">
+        <<?= $titleLevel ?> class="title-style-3">
+            <?= htmlspecialchars($titleText) ?>
+        </<?= $titleLevel ?>>
+    </div>
 </section>

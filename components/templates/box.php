@@ -6,13 +6,13 @@ $paddingSize = $padding ?? 'medium';
 
 $paddingClass = array(
     'small' => 'p-4',
-    'medium' => 'p-6', 
+    'medium' => 'p-6',
     'large' => 'p-8'
 )[$paddingSize] ?? 'p-6';
 ?>
 
 <section class="content-box <?= $paddingClass ?>" style="background-color: <?= htmlspecialchars($backgroundColor) ?>;">
-  <div class="container">
-    <?= $boxContent ?>
-  </div>
+    <div class="container">
+        <?= $boxContent ?>
+    </div>
 </section>

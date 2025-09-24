@@ -547,9 +547,12 @@ class ComponentManager
                         'fields' => array(
                             'name' => array('type' => 'text', 'label' => 'Field Name', 'default' => 'name'),
                             'label' => array('type' => 'text', 'label' => 'Field Label', 'default' => 'Name'),
-                            'type' => array('type' => 'select', 'label' => 'Field Type', 
-                                          'options' => array('text' => 'Text', 'email' => 'Email', 'textarea' => 'Textarea'),
-                                          'default' => 'text'),
+                            'type' => array(
+                                'type' => 'select',
+                                'label' => 'Field Type',
+                                'options' => array('text' => 'Text', 'email' => 'Email', 'textarea' => 'Textarea'),
+                                'default' => 'text'
+                            ),
                             'placeholder' => array('type' => 'text', 'label' => 'Placeholder', 'default' => ''),
                             'required' => array('type' => 'checkbox', 'label' => 'Required', 'default' => true)
                         ),

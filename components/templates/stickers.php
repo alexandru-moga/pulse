@@ -15,9 +15,9 @@ $partnerUrl = $partner_url ?? 'https://www.jukeboxprint.com/custom-stickers';
             <p class="text-lg text-gray-300">
                 <?= htmlspecialchars($stickerDescription) ?>
                 <?php if ($partnerUrl): ?>
-                <a href="<?= htmlspecialchars($partnerUrl) ?>" 
-                   class="text-red-500 hover:text-red-400 font-medium underline decoration-2 underline-offset-4 transition-colors" 
-                   target="_blank" rel="noopener">custom stickers</a>!
+                    <a href="<?= htmlspecialchars($partnerUrl) ?>"
+                        class="text-red-500 hover:text-red-400 font-medium underline decoration-2 underline-offset-4 transition-colors"
+                        target="_blank" rel="noopener">custom stickers</a>!
                 <?php endif; ?>
             </p>
         </div>

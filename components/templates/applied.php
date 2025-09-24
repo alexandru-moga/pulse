@@ -15,26 +15,26 @@ if (empty($nextSteps)) {
 ?>
 
 <section class="applied">
-  <div class="applied-container">
-    <h1 class="applied-title"><?= htmlspecialchars($successTitle) ?></h1>
-    
-    <div class="applied-message">
-      <?= htmlspecialchars($successMessage) ?>
-    </div>
+    <div class="applied-container">
+        <h1 class="applied-title"><?= htmlspecialchars($successTitle) ?></h1>
 
-    <?php if (!empty($nextSteps)): ?>
-    <div class="applied-next-steps">
-      <h2>What Happens Next?</h2>
-      <ul>
-        <?php foreach ($nextSteps as $step): ?>
-        <li><?= htmlspecialchars($step['step'] ?? '') ?></li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
-    <?php endif; ?>
+        <div class="applied-message">
+            <?= htmlspecialchars($successMessage) ?>
+        </div>
 
-    <a href="/" class="applied-home-btn">
-      Return to Homepage
-    </a>
-  </div>
+        <?php if (!empty($nextSteps)): ?>
+            <div class="applied-next-steps">
+                <h2>What Happens Next?</h2>
+                <ul>
+                    <?php foreach ($nextSteps as $step): ?>
+                        <li><?= htmlspecialchars($step['step'] ?? '') ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <a href="/" class="applied-home-btn">
+            Return to Homepage
+        </a>
+    </div>
 </section>
