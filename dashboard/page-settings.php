@@ -384,6 +384,71 @@ if ($pageId) {
                         .component-controls button:hover {
                             background: rgba(255, 255, 255, 0.2);
                         }
+                        
+                        /* Repeater field styles */
+                        .ddb-repeater {
+                            margin-bottom: 1rem;
+                        }
+                        .ddb-repeater-item {
+                            border: 1px solid #d1d5db;
+                            border-radius: 0.5rem;
+                            padding: 1rem;
+                            margin-bottom: 0.5rem;
+                            background: #f9fafb;
+                        }
+                        .ddb-repeater-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 0.75rem;
+                            padding-bottom: 0.5rem;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        .ddb-repeater-header span {
+                            font-weight: 600;
+                            color: #374151;
+                        }
+                        .ddb-repeater-fields {
+                            display: grid;
+                            gap: 0.75rem;
+                        }
+                        .ddb-btn-secondary {
+                            background-color: #6b7280;
+                            color: white;
+                            padding: 0.5rem 1rem;
+                            border: none;
+                            border-radius: 0.375rem;
+                            cursor: pointer;
+                            font-size: 0.875rem;
+                            margin-top: 0.5rem;
+                        }
+                        .ddb-btn-secondary:hover {
+                            background-color: #4b5563;
+                        }
+                        .ddb-btn-danger {
+                            background-color: #dc2626;
+                            color: white;
+                            padding: 0.25rem 0.5rem;
+                            border: none;
+                            border-radius: 0.25rem;
+                            cursor: pointer;
+                            font-size: 0.75rem;
+                        }
+                        .ddb-btn-danger:hover {
+                            background-color: #b91c1c;
+                        }
+                        .ddb-form-control {
+                            width: 100%;
+                            padding: 0.5rem;
+                            border: 1px solid #d1d5db;
+                            border-radius: 0.375rem;
+                            font-size: 0.875rem;
+                        }
+                        .ddb-form-control:focus {
+                            outline: none;
+                            border-color: #3b82f6;
+                            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        }
                     </style>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">

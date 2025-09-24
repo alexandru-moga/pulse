@@ -277,6 +277,33 @@ class DragDropBuilder {
                 inputHTML = `<input type="url" id="${fieldId}" name="${name}" value="${this.escapeHtml(value)}" placeholder="Enter image URL" class="ddb-form-control">`;
                 break;
 
+            case 'repeater':
+                // Handle repeater fields for statistics and similar data
+                let repeaterValue = value;
+                if (typeof value === 'string') {
+                    try {
+                        repeaterValue = JSON.parse(value);
+                    } catch (e) {
+                        repeaterValue = [];
+                    }
+                }
+                if (!Array.isArray(repeaterValue)) {
+                    repeaterValue = [];
+                }
+
+                inputHTML = `
+                    <div class="ddb-repeater" data-field-name="${name}">
+                        <div class="ddb-repeater-items" id="${fieldId}-items">
+                            ${repeaterValue.map((item, index) => this.generateRepeaterItem(name, field, item, index)).join('')}
+                        </div>
+                        <button type="button" class="ddb-btn-secondary" onclick="window.builder.addRepeaterItem('${name}', '${fieldId}')">
+                            Add ${field.label || 'Item'}
+                        </button>
+                        <input type="hidden" id="${fieldId}" name="${name}" value="${this.escapeHtml(JSON.stringify(repeaterValue))}">
+                    </div>
+                `;
+                break;
+
             default:
                 inputHTML = `<input type="text" id="${fieldId}" name="${name}" value="${this.escapeHtml(value)}" class="ddb-form-control">`;
         }
@@ -287,6 +314,123 @@ class DragDropBuilder {
                 ${inputHTML}
             </div>
         `;
+    }
+
+    generateRepeaterItem(fieldName, field, item, index) {
+        const fields = field.fields || {};
+        let fieldsHtml = '';
+
+        Object.entries(fields).forEach(([subFieldName, subField]) => {
+            const subFieldId = `${fieldName}-${index}-${subFieldName}`;
+            const subFieldValue = item[subFieldName] || subField.default || '';
+            fieldsHtml += `
+                <div class="ddb-form-group">
+                    <label class="ddb-form-label">${this.escapeHtml(subField.label)}</label>
+                    <input type="text" 
+                           class="ddb-form-control ddb-repeater-field" 
+                           data-field="${subFieldName}"
+                           data-index="${index}"
+                           data-parent="${fieldName}"
+                           value="${this.escapeHtml(subFieldValue)}">
+                </div>
+            `;
+        });
+
+        return `
+            <div class="ddb-repeater-item" data-index="${index}">
+                <div class="ddb-repeater-header">
+                    <span>Item ${index + 1}</span>
+                    <button type="button" class="ddb-btn-danger" onclick="window.builder.removeRepeaterItem('${fieldName}', ${index})">
+                        Remove
+                    </button>
+                </div>
+                <div class="ddb-repeater-fields">
+                    ${fieldsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    addRepeaterItem(fieldName, fieldId) {
+        const component = this.getComponents()[this.currentComponentType];
+        if (!component || !component.settings[fieldName]) return;
+
+        const field = component.settings[fieldName];
+        const container = document.getElementById(`${fieldId}-items`);
+        const currentItems = container.querySelectorAll('.ddb-repeater-item');
+        const newIndex = currentItems.length;
+
+        // Create new item with default values
+        const newItem = {};
+        Object.entries(field.fields || {}).forEach(([key, subField]) => {
+            newItem[key] = subField.default || '';
+        });
+
+        const itemHtml = this.generateRepeaterItem(fieldName, field, newItem, newIndex);
+        container.insertAdjacentHTML('beforeend', itemHtml);
+
+        // Add event listeners to new fields
+        this.setupRepeaterFieldListeners(fieldName);
+    }
+
+    removeRepeaterItem(fieldName, index) {
+        const container = document.querySelector(`[data-field-name="${fieldName}"] .ddb-repeater-items`);
+        const item = container.querySelector(`[data-index="${index}"]`);
+        if (item) {
+            item.remove();
+            this.updateRepeaterIndices(fieldName);
+        }
+    }
+
+    updateRepeaterIndices(fieldName) {
+        const container = document.querySelector(`[data-field-name="${fieldName}"] .ddb-repeater-items`);
+        const items = container.querySelectorAll('.ddb-repeater-item');
+
+        items.forEach((item, newIndex) => {
+            item.dataset.index = newIndex;
+            item.querySelector('.ddb-repeater-header span').textContent = `Item ${newIndex + 1}`;
+
+            const fields = item.querySelectorAll('.ddb-repeater-field');
+            fields.forEach(field => {
+                field.dataset.index = newIndex;
+            });
+
+            const removeBtn = item.querySelector('.ddb-btn-danger');
+            removeBtn.setAttribute('onclick', `window.builder.removeRepeaterItem('${fieldName}', ${newIndex})`);
+        });
+
+        this.updateRepeaterValue(fieldName);
+    }
+
+    setupRepeaterFieldListeners(fieldName) {
+        const container = document.querySelector(`[data-field-name="${fieldName}"]`);
+        const fields = container.querySelectorAll('.ddb-repeater-field');
+
+        fields.forEach(field => {
+            field.addEventListener('input', () => {
+                this.updateRepeaterValue(fieldName);
+            });
+        });
+    }
+
+    updateRepeaterValue(fieldName) {
+        const container = document.querySelector(`[data-field-name="${fieldName}"]`);
+        const hiddenInput = container.querySelector(`input[name="${fieldName}"]`);
+        const items = container.querySelectorAll('.ddb-repeater-item');
+
+        const data = Array.from(items).map(item => {
+            const itemData = {};
+            const fields = item.querySelectorAll('.ddb-repeater-field');
+
+            fields.forEach(field => {
+                const fieldName = field.dataset.field;
+                itemData[fieldName] = field.value;
+            });
+
+            return itemData;
+        });
+
+        hiddenInput.value = JSON.stringify(data);
     }
 
     saveComponentSettings() {

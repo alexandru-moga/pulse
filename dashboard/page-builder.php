@@ -372,6 +372,65 @@ include __DIR__ . '/components/dashboard-header.php';
         .sortable-chosen {
             transform: scale(1.02);
         }
+
+        /* Repeater Field Styles */
+        .ddb-repeater {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f9fafb;
+        }
+
+        .ddb-repeater-item {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            padding: 12px;
+        }
+
+        .ddb-repeater-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .ddb-repeater-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .ddb-btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .ddb-btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .ddb-btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .ddb-btn-danger:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 

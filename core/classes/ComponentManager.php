@@ -105,15 +105,26 @@ class ComponentManager
                 'category' => 'content',
                 'icon' => '📊',
                 'fields' => array(
-                    'title' => array(
-                        'type' => 'text',
-                        'label' => 'Title',
-                        'default' => 'Our Achievements'
-                    ),
-                    'subtitle' => array(
-                        'type' => 'text',
-                        'label' => 'Subtitle',
-                        'default' => 'Numbers that speak for themselves'
+                    'stats' => array(
+                        'type' => 'repeater',
+                        'label' => 'Statistics',
+                        'default' => '[
+                            {"value": "150", "label": "Active Members"},
+                            {"value": "25", "label": "Projects Active"},
+                            {"value": "50", "label": "Projects Completed"}
+                        ]',
+                        'fields' => array(
+                            'value' => array(
+                                'type' => 'text',
+                                'label' => 'Value',
+                                'default' => '100'
+                            ),
+                            'label' => array(
+                                'type' => 'text',
+                                'label' => 'Label',
+                                'default' => 'Statistic'
+                            )
+                        )
                     )
                 )
             ),
