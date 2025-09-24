@@ -569,13 +569,13 @@ class DragDropBuilder
     private function loadComponentManagerComponents()
     {
         $components = $this->componentManager->getComponents();
-        
+
         foreach ($components as $type => $component) {
             // Skip if already registered in DragDropBuilder
             if (isset($this->componentRegistry[$type])) {
                 continue;
             }
-            
+
             // Convert ComponentManager format to DragDropBuilder format
             $settings = [];
             if (isset($component['fields'])) {
@@ -585,25 +585,25 @@ class DragDropBuilder
                         'label' => $field['label'] ?? ucfirst($fieldName),
                         'default' => $field['default'] ?? '',
                     ];
-                    
+
                     // Handle select options
                     if (isset($field['options'])) {
                         $settings[$fieldName]['options'] = $field['options'];
                     }
-                    
+
                     // Handle range fields
                     if ($field['type'] === 'range') {
                         $settings[$fieldName]['min'] = $field['min'] ?? 0;
                         $settings[$fieldName]['max'] = $field['max'] ?? 100;
                     }
-                    
+
                     // Handle repeater fields
                     if ($field['type'] === 'repeater') {
                         $settings[$fieldName]['fields'] = $field['fields'] ?? [];
                     }
                 }
             }
-            
+
             $this->registerComponent($type, [
                 'name' => $component['name'] ?? ucfirst($type),
                 'icon' => $component['icon'] ?? '📦',

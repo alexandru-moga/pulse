@@ -42,35 +42,35 @@ if (!is_array($statsData)) {
 </section>
 
 <style>
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-}
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
 
-.stat-card {
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
+    .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
 
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
 
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #dc2626;
-    margin-bottom: 0.5rem;
-}
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #dc2626;
+        margin-bottom: 0.5rem;
+    }
 
-.stat-label {
-    color: #6b7280;
-    font-weight: 500;
-}
+    .stat-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
 </style>

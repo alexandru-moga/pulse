@@ -74,7 +74,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                         $settings = [];
                     }
 
-                    error_log("Update component - Decoded settings: " . var_export($settings, true));
+                    // Get component type to check for special handling
+                    $components = $builder->getPageComponents($pageId);
+                    $component = array_filter($components, function ($c) use ($componentId) {
+                        return $c['id'] == $componentId;
+                    });
+                    $component = reset($component);
+
+                    if ($component) {
+                        $componentType = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
+
+                        // Special handling for statistics component
+                        if ($componentType === 'stats' && isset($settings['items'])) {
+                            // For backward compatibility, we can save it in the new format with 'items'
+                            // The template already handles both formats
+                            error_log("Statistics component detected, keeping 'items' structure");
+                        }
+                    }
+
+                    error_log("Update component - Processed settings: " . var_export($settings, true));
 
                     $builder->updateComponent($pageId, $componentId, $settings);
                     echo json_encode(['success' => true]);
@@ -105,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 // Get all components for the page
                 $components = $builder->getPageComponents($pageId);
                 $currentIndex = -1;
-                
+
                 // Find current component index
                 foreach ($components as $index => $component) {
                     if ($component['id'] == $componentId) {
@@ -121,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
 
                 // Calculate new position
                 $newIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
-                
+
                 // Check bounds
                 if ($newIndex < 0 || $newIndex >= count($components)) {
                     echo json_encode(['success' => false, 'error' => 'Cannot move component in that direction']);
@@ -129,8 +147,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 }
 
                 // Create new order array
-                $componentIds = array_map(function($c) { return $c['id']; }, $components);
-                
+                $componentIds = array_map(function ($c) {
+                    return $c['id'];
+                }, $components);
+
                 // Swap positions
                 $temp = $componentIds[$currentIndex];
                 $componentIds[$currentIndex] = $componentIds[$newIndex];
@@ -157,6 +177,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
 
                     $componentConfig = $builder->getComponent($componentType);
                     $settings = json_decode($settingsJson, true) ?: [];
+
+                    // Special handling for statistics component migration
+                    if ($componentType === 'stats') {
+                        // Check if the data is in old format (direct array) vs new format (with 'items' field)
+                        if (isset($settings[0]) && is_array($settings[0])) {
+                            // Old format: settings is directly the array of stats
+                            $settings = ['items' => $settings];
+                        } elseif (!isset($settings['items'])) {
+                            // No items field, create empty array
+                            $settings = ['items' => []];
+                        }
+                        // If it already has 'items' field, leave as is
+                    }
 
                     echo json_encode([
                         'success' => true,
@@ -469,12 +502,29 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <div class="text-2xl mr-3">
                                     <?php
                                     $icons = [
-                                        'heading' => '📝', 'text' => '📄', 'hero' => '🎯', 'image' => '🖼️', 'button' => '�',
-                                        'spacer' => '↕️', 'columns' => '📊', 'members_grid' => '👥', 'contact_form' => '📧',
-                                        'apply_form' => '📝', 'welcome' => '👋', 'title' => '📰', 'title_2' => '�',
-                                        'title_3' => '📰', 'stats' => '📊', 'core_values' => '⭐', 'scroll_arrow' => '⬇️',
-                                        'applied' => '✅', 'contacted' => '📩', 'stickers' => '🏷️', 'values' => '💎',
-                                        'box' => '📦', 'custom' => '�'
+                                        'heading' => '📝',
+                                        'text' => '📄',
+                                        'hero' => '🎯',
+                                        'image' => '🖼️',
+                                        'button' => '�',
+                                        'spacer' => '↕️',
+                                        'columns' => '📊',
+                                        'members_grid' => '👥',
+                                        'contact_form' => '📧',
+                                        'apply_form' => '📝',
+                                        'welcome' => '👋',
+                                        'title' => '📰',
+                                        'title_2' => '�',
+                                        'title_3' => '📰',
+                                        'stats' => '📊',
+                                        'core_values' => '⭐',
+                                        'scroll_arrow' => '⬇️',
+                                        'applied' => '✅',
+                                        'contacted' => '📩',
+                                        'stickers' => '🏷️',
+                                        'values' => '💎',
+                                        'box' => '📦',
+                                        'custom' => '�'
                                     ];
                                     echo $icons[$type] ?? '📦';
                                     ?>

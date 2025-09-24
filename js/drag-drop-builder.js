@@ -5,6 +5,7 @@
 class DragDropBuilder {
     constructor() {
         this.currentSelectedComponent = null;
+        this.currentComponent = null;
         this.settingsPanel = document.getElementById('settings-panel');
         this.settingsForm = document.getElementById('settings-form');
         this.settingsFields = document.getElementById('settings-fields');
@@ -226,6 +227,7 @@ class DragDropBuilder {
 
     showSettings(componentId, component, settings) {
         this.currentComponentId = componentId;
+        this.currentComponent = component; // Store the component data
 
         document.getElementById('settings-title').textContent = `Edit ${component.name}`;
 
@@ -237,6 +239,13 @@ class DragDropBuilder {
             const value = settings[key] || field.default || '';
             const fieldHTML = this.generateFormField(key, field, value);
             this.settingsFields.innerHTML += fieldHTML;
+        });
+
+        // Setup repeater field listeners
+        Object.entries(component.settings).forEach(([key, field]) => {
+            if (field.type === 'repeater') {
+                this.setupRepeaterFieldListeners(key);
+            }
         });
 
         // Show settings panel
@@ -352,7 +361,7 @@ class DragDropBuilder {
     }
 
     addRepeaterItem(fieldName, fieldId) {
-        const component = this.getComponents()[this.currentComponentType];
+        const component = this.currentComponent; // Use stored component data
         if (!component || !component.settings[fieldName]) return;
 
         const field = component.settings[fieldName];
@@ -597,9 +606,9 @@ class DragDropBuilder {
         // Create notification element
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' :
-                    type === 'warning' ? 'bg-yellow-500' :
-                        'bg-blue-500'
+            type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-yellow-500' :
+                    'bg-blue-500'
             }`;
         notification.textContent = message;
 

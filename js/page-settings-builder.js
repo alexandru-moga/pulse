@@ -55,7 +55,7 @@ class PageSettingsBuilder {
 
     setupClickHandlers() {
         const componentItems = document.querySelectorAll('.component-item');
-        
+
         componentItems.forEach(item => {
             item.addEventListener('click', () => {
                 const componentType = item.dataset.componentType;
@@ -67,7 +67,7 @@ class PageSettingsBuilder {
     addComponent(componentType, position = null) {
         const pageCanvas = document.getElementById('pageCanvas');
         const pageId = pageCanvas ? pageCanvas.dataset.pageId : null;
-        
+
         if (!pageId) {
             this.showNotification('Page ID not found', 'error');
             return;
@@ -88,21 +88,21 @@ class PageSettingsBuilder {
             },
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                this.showNotification('Component added successfully!', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            } else {
-                this.showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.showNotification('Network error occurred', 'error');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.showNotification('Component added successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    this.showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.showNotification('Network error occurred', 'error');
+            });
     }
 
     showNotification(message, type = 'info') {
@@ -111,12 +111,11 @@ class PageSettingsBuilder {
         existing.forEach(n => n.remove());
 
         const notification = document.createElement('div');
-        notification.className = `page-builder-notification fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 transform translate-x-0 transition-all duration-300 shadow-lg ${
-            type === 'success' ? 'bg-green-500' :
-            type === 'error' ? 'bg-red-500' :
-            type === 'warning' ? 'bg-yellow-500' :
-            'bg-blue-500'
-        }`;
+        notification.className = `page-builder-notification fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 transform translate-x-0 transition-all duration-300 shadow-lg ${type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                    type === 'warning' ? 'bg-yellow-500' :
+                        'bg-blue-500'
+            }`;
         notification.innerHTML = `
             <div class="flex items-center space-x-2">
                 <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
