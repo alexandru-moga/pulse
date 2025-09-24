@@ -776,6 +776,35 @@ class ComponentManager
                         'default' => '<div class="custom-section"><p>Your custom content here</p></div>'
                     )
                 )
+            ),
+            'members_grid' => array(
+                'name' => 'Members Grid',
+                'description' => 'Display team members in a grid layout',
+                'category' => 'content',
+                'icon' => '👥',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Grid Title',
+                        'default' => 'Our Team'
+                    ),
+                    'subtitle' => array(
+                        'type' => 'text',
+                        'label' => 'Grid Subtitle',
+                        'default' => 'Meet the PULSE community'
+                    ),
+                    'show_all_members' => array(
+                        'type' => 'checkbox',
+                        'label' => 'Show All Members',
+                        'default' => true
+                    ),
+                    'members_per_row' => array(
+                        'type' => 'select',
+                        'label' => 'Members Per Row',
+                        'options' => array('2' => '2', '3' => '3', '4' => '4'),
+                        'default' => '3'
+                    )
+                )
             )
         );
     }

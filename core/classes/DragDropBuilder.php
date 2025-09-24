@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/ComponentManager.php';
+
 /**
  * Drag & Drop Website Builder
  * WordPress-like interface for building pages
@@ -9,12 +11,15 @@ class DragDropBuilder
 {
     private $db;
     private $componentRegistry;
+    private $componentManager;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->componentManager = new ComponentManager();
         $this->componentRegistry = [];
         $this->registerDefaultComponents();
+        $this->loadComponentManagerComponents();
     }
 
     /**
@@ -438,13 +443,23 @@ class DragDropBuilder
         $componentConfig = $this->getComponent($type);
 
         if (!$componentConfig) {
-            return '<!-- Unknown component: ' . htmlspecialchars($type) . ' -->';
+            // Try ComponentManager fallback
+            try {
+                return $this->componentManager->render($type, $settings, $component['id'] ?? null);
+            } catch (Exception $e) {
+                return '<!-- Unknown component: ' . htmlspecialchars($type) . ' -->';
+            }
         }
 
         // Load component template
         $templateFile = __DIR__ . '/../../components/templates/' . $type . '.php';
         if (!file_exists($templateFile)) {
-            return '<!-- Template not found: ' . htmlspecialchars($type) . ' -->';
+            // Try ComponentManager fallback
+            try {
+                return $this->componentManager->render($type, $settings, $component['id'] ?? null);
+            } catch (Exception $e) {
+                return '<!-- Template not found: ' . htmlspecialchars($type) . ' -->';
+            }
         }
 
         ob_start();
@@ -545,6 +560,57 @@ class DragDropBuilder
                 json_decode($component['settings'], true),
                 $component['position']
             );
+        }
+    }
+
+    /**
+     * Load components from ComponentManager
+     */
+    private function loadComponentManagerComponents()
+    {
+        $components = $this->componentManager->getComponents();
+        
+        foreach ($components as $type => $component) {
+            // Skip if already registered in DragDropBuilder
+            if (isset($this->componentRegistry[$type])) {
+                continue;
+            }
+            
+            // Convert ComponentManager format to DragDropBuilder format
+            $settings = [];
+            if (isset($component['fields'])) {
+                foreach ($component['fields'] as $fieldName => $field) {
+                    $settings[$fieldName] = [
+                        'type' => $field['type'] ?? 'text',
+                        'label' => $field['label'] ?? ucfirst($fieldName),
+                        'default' => $field['default'] ?? '',
+                    ];
+                    
+                    // Handle select options
+                    if (isset($field['options'])) {
+                        $settings[$fieldName]['options'] = $field['options'];
+                    }
+                    
+                    // Handle range fields
+                    if ($field['type'] === 'range') {
+                        $settings[$fieldName]['min'] = $field['min'] ?? 0;
+                        $settings[$fieldName]['max'] = $field['max'] ?? 100;
+                    }
+                    
+                    // Handle repeater fields
+                    if ($field['type'] === 'repeater') {
+                        $settings[$fieldName]['fields'] = $field['fields'] ?? [];
+                    }
+                }
+            }
+            
+            $this->registerComponent($type, [
+                'name' => $component['name'] ?? ucfirst($type),
+                'icon' => $component['icon'] ?? '📦',
+                'category' => $component['category'] ?? 'content',
+                'description' => $component['description'] ?? 'Component description',
+                'settings' => $settings
+            ]);
         }
     }
 }

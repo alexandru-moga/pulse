@@ -297,38 +297,201 @@ if ($pageId) {
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Components</h3>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Page Builder</h3>
                     <div class="flex space-x-3">
+                        <button onclick="toggleBuilderView()" 
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                            <span id="builderToggleText">Show Components List</span>
+                        </button>
                         <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>"
                             class="inline-flex items-center px-3 py-2 border border-primary text-primary rounded-md text-sm font-medium hover:bg-primary hover:text-white transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                             </svg>
-                            Drag & Drop Builder
+                            Full Screen Editor
                         </a>
                     </div>
                 </div>
 
-                <?php if (empty($blocks)): ?>
-                    <div class="p-6 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No components</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by using the visual editor or adding a block.</p>
-                        <div class="mt-6">
-                            <a href="<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=<?= $pageId ?>"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                </svg>
-                                Start with Drag & Drop Builder
-                            </a>
+                <div id="embeddedBuilder" class="p-6">
+                    <!-- Drag & Drop Builder Interface -->
+                    <?php 
+                    require_once __DIR__ . '/../core/classes/DragDropBuilder.php';
+                    $builder = new DragDropBuilder($db);
+                    $components = $builder->getPageComponents($pageId);
+                    $availableComponents = $builder->getComponents();
+                    
+                    // Group components by category
+                    $categorizedComponents = [];
+                    foreach ($availableComponents as $type => $component) {
+                        $category = $component['category'] ?? 'content';
+                        $categorizedComponents[$category][] = ['type' => $type, 'config' => $component];
+                    }
+                    ?>
+                    
+                    <style>
+                        .component-item {
+                            transition: all 0.2s ease;
+                            cursor: pointer;
+                        }
+                        .component-item:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        }
+                        .component-item.dragging {
+                            opacity: 0.5;
+                            transform: rotate(5deg);
+                        }
+                        .drop-zone {
+                            min-height: 80px;
+                            border: 2px dashed #d1d5db;
+                            transition: all 0.2s ease;
+                        }
+                        .drop-zone.dragover {
+                            border-color: #3b82f6;
+                            background-color: #eff6ff;
+                        }
+                        .existing-component {
+                            position: relative;
+                            transition: all 0.2s ease;
+                        }
+                        .existing-component:hover .component-controls {
+                            opacity: 1;
+                        }
+                        .component-controls {
+                            position: absolute;
+                            top: 5px;
+                            right: 5px;
+                            opacity: 0;
+                            background: rgba(0, 0, 0, 0.8);
+                            border-radius: 4px;
+                            padding: 4px;
+                            display: flex;
+                            gap: 4px;
+                        }
+                        .component-controls button {
+                            color: white;
+                            background: none;
+                            border: none;
+                            padding: 4px 6px;
+                            border-radius: 2px;
+                            cursor: pointer;
+                            font-size: 12px;
+                        }
+                        .component-controls button:hover {
+                            background: rgba(255, 255, 255, 0.2);
+                        }
+                    </style>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <!-- Components Sidebar -->
+                        <div class="lg:col-span-1 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 max-h-[600px] overflow-y-auto">
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Available Components</h4>
+                            
+                            <?php foreach ($categorizedComponents as $categoryName => $categoryComponents): ?>
+                                <div class="mb-6">
+                                    <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">
+                                        <?= ucfirst($categoryName) ?>
+                                    </h5>
+                                    <div class="space-y-2">
+                                        <?php foreach ($categoryComponents as $componentData): ?>
+                                            <div class="component-item p-3 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 cursor-pointer hover:border-primary transition-all"
+                                                 draggable="true"
+                                                 data-component-type="<?= htmlspecialchars($componentData['type']) ?>"
+                                                 onclick="addComponentToPage('<?= htmlspecialchars($componentData['type']) ?>')">
+                                                <div class="flex items-center space-x-3">
+                                                    <span class="text-xl"><?= htmlspecialchars($componentData['config']['icon'] ?? '📦') ?></span>
+                                                    <div>
+                                                        <div class="font-medium text-gray-900 dark:text-white text-sm">
+                                                            <?= htmlspecialchars($componentData['config']['name']) ?>
+                                                        </div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                            <?= htmlspecialchars($componentData['config']['description']) ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Page Canvas -->
+                        <div class="lg:col-span-3">
+                            <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg min-h-[600px]" 
+                                 id="pageCanvas" data-page-id="<?= $pageId ?>">
+                                <div class="p-6">
+                                    <!-- Drop Zone for Empty Page -->
+                                    <?php if (empty($components)): ?>
+                                        <div class="drop-zone rounded-lg p-8 text-center" data-position="0">
+                                            <svg class="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            <p class="text-gray-500 dark:text-gray-400">Drop components here or click components on the left to add them</p>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Drop Zone at Top -->
+                                        <div class="drop-zone rounded-lg p-4 mb-4 text-center text-sm text-gray-500" data-position="0">
+                                            Drop here to add at the top
+                                        </div>
+                                        
+                                        <!-- Existing Components -->
+                                        <?php foreach ($components as $index => $component): ?>
+                                            <div class="existing-component mb-4 p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-primary transition-colors"
+                                                 data-component-id="<?= $component['id'] ?>">
+                                                <div class="component-controls">
+                                                    <button onclick="editComponent(<?= $component['id'] ?>)" title="Edit" class="text-xs">✏️</button>
+                                                    <button onclick="deleteComponent(<?= $component['id'] ?>)" title="Delete" class="text-xs">🗑️</button>
+                                                    <button onclick="moveComponent(<?= $component['id'] ?>, 'up')" title="Move Up" class="text-xs">⬆️</button>
+                                                    <button onclick="moveComponent(<?= $component['id'] ?>, 'down')" title="Move Down" class="text-xs">⬇️</button>
+                                                </div>
+                                                
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="font-medium text-gray-900 dark:text-white text-sm">
+                                                        <?= htmlspecialchars($component['component_type'] ?? $component['block_type'] ?? 'Unknown') ?>
+                                                    </span>
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Position: <?= $component['position'] ?? $component['order_num'] ?? $index + 1 ?>
+                                                    </span>
+                                                </div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                    <?php 
+                                                    $settings = $component['settings'] ?? $component['content'] ?? '{}';
+                                                    $decoded = json_decode($settings, true);
+                                                    if (is_array($decoded) && !empty($decoded)) {
+                                                        echo 'Preview: ';
+                                                        if (isset($decoded['title'])) echo htmlspecialchars($decoded['title']);
+                                                        elseif (isset($decoded['text'])) echo htmlspecialchars($decoded['text']);
+                                                        else echo 'Component configured';
+                                                    } else {
+                                                        echo 'No settings configured';
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Drop Zone Between Components -->
+                                            <div class="drop-zone rounded-lg p-2 mb-4 text-center text-xs text-gray-400" data-position="<?= $index + 1 ?>">
+                                                Drop here to insert
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                <?php else: ?>
-                    <div class="overflow-hidden">
-                        <div class="overflow-x-auto max-h-96">
+                </div>
+
+                <!-- Legacy Components Table (Hidden by default) -->
+
+                <div id="componentsTable" class="hidden">
+                    <?php if (!empty($blocks)): ?>
+                        <div class="overflow-hidden">
+                            <div class="overflow-x-auto max-h-96">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
@@ -376,10 +539,15 @@ if ($pageId) {
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
-                            </table>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                                            </table>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="p-6 text-center">
+                                        <p class="text-gray-500 dark:text-gray-400">No components found. Use the builder above to add components.</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
             </div>
         <?php endif; ?>
     <?php else: ?>
@@ -449,5 +617,209 @@ if ($pageId) {
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// Embedded Builder Functionality
+function toggleBuilderView() {
+    const builderDiv = document.getElementById('embeddedBuilder');
+    const tableDiv = document.getElementById('componentsTable');
+    const toggleText = document.getElementById('builderToggleText');
+    
+    if (builderDiv && tableDiv) {
+        const isBuilderVisible = !builderDiv.classList.contains('hidden');
+        
+        if (isBuilderVisible) {
+            builderDiv.classList.add('hidden');
+            tableDiv.classList.remove('hidden');
+            toggleText.textContent = 'Show Builder';
+        } else {
+            builderDiv.classList.remove('hidden');
+            tableDiv.classList.add('hidden');
+            toggleText.textContent = 'Show Components List';
+        }
+    }
+}
+
+// Add component via drag and drop or click
+function addComponentToPage(componentType, position = null) {
+    const pageId = document.getElementById('pageCanvas')?.dataset.pageId;
+    if (!pageId) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'add_component');
+    formData.append('component_type', componentType);
+    if (position !== null) formData.append('position', position);
+    
+    fetch('<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=' + pageId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to show new component
+            showNotification('Component added successfully!', 'success');
+        } else {
+            showNotification('Error adding component: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error adding component', 'error');
+    });
+}
+
+// Edit component
+function editComponent(componentId) {
+    // For now, redirect to full builder
+    const pageId = document.getElementById('pageCanvas')?.dataset.pageId;
+    if (pageId) {
+        window.open('<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=' + pageId, '_blank');
+    }
+}
+
+// Delete component
+function deleteComponent(componentId) {
+    if (!confirm('Are you sure you want to delete this component?')) return;
+    
+    const pageId = document.getElementById('pageCanvas')?.dataset.pageId;
+    if (!pageId) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'delete_component');
+    formData.append('component_id', componentId);
+    
+    fetch('<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=' + pageId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to remove component
+        } else {
+            alert('Error deleting component: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting component');
+    });
+}
+
+// Initialize drag and drop
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup drag and drop for components
+    const componentItems = document.querySelectorAll('.component-item');
+    const dropZones = document.querySelectorAll('.drop-zone');
+    
+    // Make components draggable
+    componentItems.forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', this.dataset.componentType);
+            this.classList.add('dragging');
+        });
+        
+        item.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+        });
+        
+        // Add visual feedback on hover
+        item.addEventListener('mouseenter', function() {
+            this.classList.add('transform', 'scale-105', 'shadow-lg');
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.classList.remove('transform', 'scale-105', 'shadow-lg');
+        });
+    });
+    
+    // Setup drop zones
+    dropZones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        zone.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+        
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const componentType = e.dataTransfer.getData('text/plain');
+            const position = this.dataset.position;
+            
+            if (componentType) {
+                addComponentToPage(componentType, position);
+            }
+        });
+    });
+});
+
+// Move component up or down
+function moveComponent(componentId, direction) {
+    const pageId = document.getElementById('pageCanvas')?.dataset.pageId;
+    if (!pageId) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'move_component');
+    formData.append('component_id', componentId);
+    formData.append('direction', direction);
+    
+    fetch('<?= $settings['site_url'] ?>/dashboard/page-builder.php?id=' + pageId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+            showNotification('Component moved successfully!', 'success');
+        } else {
+            showNotification('Error moving component: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error moving component', 'error');
+    });
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 transform translate-x-0 transition-transform duration-300 ${
+        type === 'success' ? 'bg-green-500' :
+        type === 'error' ? 'bg-red-500' :
+        type === 'warning' ? 'bg-yellow-500' :
+        'bg-blue-500'
+    }`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+</script>
+
+<script src="<?= $settings['site_url'] ?>/js/page-settings-builder.js"></script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>

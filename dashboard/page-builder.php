@@ -98,6 +98,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 echo json_encode(['success' => true]);
                 break;
 
+            case 'move_component':
+                $componentId = intval($_POST['component_id'] ?? 0);
+                $direction = $_POST['direction'] ?? 'up';
+
+                // Get all components for the page
+                $components = $builder->getPageComponents($pageId);
+                $currentIndex = -1;
+                
+                // Find current component index
+                foreach ($components as $index => $component) {
+                    if ($component['id'] == $componentId) {
+                        $currentIndex = $index;
+                        break;
+                    }
+                }
+
+                if ($currentIndex === -1) {
+                    echo json_encode(['success' => false, 'error' => 'Component not found']);
+                    break;
+                }
+
+                // Calculate new position
+                $newIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+                
+                // Check bounds
+                if ($newIndex < 0 || $newIndex >= count($components)) {
+                    echo json_encode(['success' => false, 'error' => 'Cannot move component in that direction']);
+                    break;
+                }
+
+                // Create new order array
+                $componentIds = array_map(function($c) { return $c['id']; }, $components);
+                
+                // Swap positions
+                $temp = $componentIds[$currentIndex];
+                $componentIds[$currentIndex] = $componentIds[$newIndex];
+                $componentIds[$newIndex] = $temp;
+
+                $builder->reorderComponents($pageId, $componentIds);
+                echo json_encode(['success' => true]);
+                break;
+
             case 'get_component_settings':
                 $componentId = intval($_POST['component_id'] ?? 0);
 
@@ -368,13 +410,12 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <div class="text-2xl mr-3">
                                     <?php
                                     $icons = [
-                                        'heading' => '📝',
-                                        'text' => '📄',
-                                        'hero' => '🎯',
-                                        'image' => '🖼️',
-                                        'button' => '🔘',
-                                        'spacer' => '↕️',
-                                        'columns' => '📊'
+                                        'heading' => '📝', 'text' => '📄', 'hero' => '🎯', 'image' => '🖼️', 'button' => '�',
+                                        'spacer' => '↕️', 'columns' => '📊', 'members_grid' => '👥', 'contact_form' => '📧',
+                                        'apply_form' => '📝', 'welcome' => '👋', 'title' => '📰', 'title_2' => '�',
+                                        'title_3' => '📰', 'stats' => '📊', 'core_values' => '⭐', 'scroll_arrow' => '⬇️',
+                                        'applied' => '✅', 'contacted' => '📩', 'stickers' => '🏷️', 'values' => '💎',
+                                        'box' => '📦', 'custom' => '�'
                                     ];
                                     echo $icons[$type] ?? '📦';
                                     ?>
