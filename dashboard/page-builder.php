@@ -36,6 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
             case 'add_component':
                 $componentType = $_POST['component_type'] ?? '';
                 $position = $_POST['position'] ?? null;
+                
+                // Convert 'end' to null for automatic position calculation
+                if ($position === 'end') {
+                    $position = null;
+                } else if ($position !== null) {
+                    // Convert to integer if it's a numeric position
+                    $position = intval($position);
+                }
 
                 $componentId = $builder->addComponent($pageId, $componentType, [], $position);
                 echo json_encode(['success' => true, 'component_id' => $componentId]);
