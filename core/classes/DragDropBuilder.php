@@ -200,17 +200,28 @@ class DragDropBuilder {
         
         // Determine position
         if ($position === null) {
-            $stmt = $this->db->prepare("SELECT MAX(position) as max_pos FROM " . $page['table_name']);
+            // Check if table uses old or new structure
+            $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
+            $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $usesOldStructure = in_array('block_type', $columns);
+            
+            $positionColumn = $usesOldStructure ? 'order_num' : 'position';
+            
+            $stmt = $this->db->prepare("SELECT MAX(`$positionColumn`) as max_pos FROM " . $page['table_name']);
             $stmt->execute();
             $result = $stmt->fetch();
             $position = ($result['max_pos'] ?? 0) + 1;
         }
         
-        // Insert component
-        $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (component_type, settings, position, is_active) VALUES (?, ?, ?, 1)");
-        $stmt->execute([$componentType, json_encode($settings), $position]);
-        
-        return $this->db->lastInsertId();
+        // Insert component - only works with new structure
+        // Tables must be migrated first
+        try {
+            $stmt = $this->db->prepare("INSERT INTO " . $page['table_name'] . " (component_type, settings, position, is_active) VALUES (?, ?, ?, 1)");
+            $stmt->execute([$componentType, json_encode($settings), $position]);
+            return $this->db->lastInsertId();
+        } catch (Exception $e) {
+            throw new Exception('Cannot add component. Please migrate this page table to the new structure first.');
+        }
     }
     
     /**
@@ -222,7 +233,19 @@ class DragDropBuilder {
             throw new Exception('Page not found');
         }
         
-        $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET settings = ? WHERE id = ?");
+        // Check if table uses old or new structure
+        $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $usesOldStructure = in_array('block_type', $columns);
+        
+        if ($usesOldStructure) {
+            // Update old structure
+            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET content = ? WHERE id = ?");
+        } else {
+            // Update new structure
+            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET settings = ? WHERE id = ?");
+        }
+        
         $stmt->execute([json_encode($settings), $componentId]);
     }
     
@@ -248,8 +271,16 @@ class DragDropBuilder {
             throw new Exception('Page not found');
         }
         
+        // Check if table uses old or new structure
+        $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $usesOldStructure = in_array('block_type', $columns);
+        
+        // Use appropriate column name for position
+        $positionColumn = $usesOldStructure ? 'order_num' : 'position';
+        
         foreach ($componentIds as $position => $componentId) {
-            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET position = ? WHERE id = ?");
+            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET `$positionColumn` = ? WHERE id = ?");
             $stmt->execute([$position + 1, $componentId]);
         }
     }
@@ -263,9 +294,29 @@ class DragDropBuilder {
             return [];
         }
         
-        $stmt = $this->db->prepare("SELECT * FROM " . $page['table_name'] . " WHERE is_active = 1 ORDER BY position ASC");
-        $stmt->execute();
-        return $stmt->fetchAll();
+        // Check if table uses old or new structure
+        try {
+            $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
+            $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $usesOldStructure = in_array('block_type', $columns);
+            
+            // Use appropriate column names for ordering
+            $orderColumn = 'id'; // Default fallback
+            if ($usesOldStructure && in_array('order_num', $columns)) {
+                $orderColumn = 'order_num';
+            } elseif (!$usesOldStructure && in_array('position', $columns)) {
+                $orderColumn = 'position';
+            }
+            
+            $stmt = $this->db->prepare("SELECT * FROM " . $page['table_name'] . " WHERE is_active = 1 ORDER BY `$orderColumn` ASC");
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            // Fallback - just get all components without ordering
+            $stmt = $this->db->prepare("SELECT * FROM " . $page['table_name'] . " WHERE is_active = 1");
+            $stmt->execute();
+            return $stmt->fetchAll();
+        }
     }
     
     /**

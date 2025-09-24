@@ -32,12 +32,20 @@ if ($pageId) {
                 $stmt3 = $db->query("DESCRIBE `$tableName`");
                 $columns = $stmt3->fetchAll(PDO::FETCH_COLUMN);
                 $needsMigration = in_array('block_type', $columns);
+                
+                // Determine which ordering column to use
+                $orderColumn = 'id'; // Default fallback
+                if ($needsMigration && in_array('order_num', $columns)) {
+                    $orderColumn = 'order_num';
+                } elseif (!$needsMigration && in_array('position', $columns)) {
+                    $orderColumn = 'position';
+                }
+                
+                $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY `$orderColumn` ASC")->fetchAll();
             } catch (Exception $e) {
-                // Ignore error
+                // If there's any error, just get all blocks without ordering
+                $blocks = $db->query("SELECT * FROM `$tableName`")->fetchAll();
             }
-            
-            $blocks = $db->query("SELECT * FROM `$tableName` ORDER BY " . 
-                ($needsMigration ? 'order_num' : 'position') . " ASC")->fetchAll();
         }
     }
 }
