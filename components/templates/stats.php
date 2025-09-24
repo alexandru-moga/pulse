@@ -25,14 +25,14 @@ if (!is_array($statsData)) {
 ?>
 
 <section class="container mx-auto py-12">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="stats-grid">
         <?php foreach ($statsData as $stat): ?>
-            <div class="text-center">
-                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                    <div class="text-4xl font-bold text-primary mb-2">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <div class="stat-number">
                         <?= htmlspecialchars($stat['value'] ?? '') ?>
                     </div>
-                    <div class="text-gray-600 font-medium">
+                    <div class="stat-label">
                         <?= htmlspecialchars($stat['label'] ?? '') ?>
                     </div>
                 </div>
@@ -40,37 +40,3 @@ if (!is_array($statsData)) {
         <?php endforeach; ?>
     </div>
 </section>
-
-<style>
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #dc2626;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: #6b7280;
-        font-weight: 500;
-    }
-</style>
