@@ -293,14 +293,33 @@ class DragDropBuilder {
         const formData = new FormData(this.settingsForm);
         const settings = {};
 
+        // Debug: log all form entries
+        console.log('Form entries:');
         for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
             settings[key] = value;
+        }
+
+        console.log('Settings to save:', settings);
+
+        // Validate that we have at least some settings
+        if (Object.keys(settings).length === 0) {
+            this.showNotification('No settings to save', 'warning');
+            return;
+        }
+
+        // Validate component ID
+        if (!this.currentComponentId) {
+            this.showNotification('No component selected', 'error');
+            return;
         }
 
         const data = new FormData();
         data.append('action', 'update_component');
         data.append('component_id', this.currentComponentId);
         data.append('settings', JSON.stringify(settings));
+
+        console.log('Sending AJAX request with component ID:', this.currentComponentId);
 
         fetch('', {
             method: 'POST',
@@ -311,6 +330,7 @@ class DragDropBuilder {
         })
             .then(response => response.json())
             .then(result => {
+                console.log('Update response:', result);
                 if (result.success) {
                     this.closeSettings();
                     this.refreshCanvas();
@@ -432,10 +452,12 @@ class DragDropBuilder {
     showNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' :
-                    'bg-blue-500'
-            }`;
+        notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
+            'bg-blue-500'
+        }`;
         notification.textContent = message;
 
         document.body.appendChild(notification);

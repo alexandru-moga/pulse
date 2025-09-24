@@ -284,25 +284,64 @@ class DragDropBuilder
      */
     public function updateComponent($pageId, $componentId, $settings)
     {
+        error_log("DragDropBuilder::updateComponent called - PageID: $pageId, ComponentID: $componentId, Settings: " . var_export($settings, true));
+        
         $page = $this->getPage($pageId);
         if (!$page) {
             throw new Exception('Page not found');
         }
+
+        error_log("DragDropBuilder::updateComponent - Page found: " . $page['table_name']);
 
         // Check if table uses old or new structure
         $stmt = $this->db->query("DESCRIBE " . $page['table_name']);
         $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
         $usesOldStructure = in_array('block_type', $columns);
 
-        if ($usesOldStructure) {
-            // Update old structure
-            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET content = ? WHERE id = ?");
-        } else {
-            // Update new structure
-            $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET settings = ? WHERE id = ?");
-        }
+        error_log("DragDropBuilder::updateComponent - Table columns: " . implode(', ', $columns));
+        error_log("DragDropBuilder::updateComponent - Uses old structure: " . ($usesOldStructure ? 'yes' : 'no'));
 
-        $stmt->execute([json_encode($settings), $componentId]);
+        try {
+            if ($usesOldStructure) {
+                // Update old structure
+                $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET content = ? WHERE id = ?");
+                error_log("DragDropBuilder::updateComponent - Using old structure query");
+            } else {
+                // Update new structure
+                $stmt = $this->db->prepare("UPDATE " . $page['table_name'] . " SET settings = ? WHERE id = ?");
+                error_log("DragDropBuilder::updateComponent - Using new structure query");
+            }
+
+            $settingsJson = json_encode($settings);
+            error_log("DragDropBuilder::updateComponent - Final JSON to save: " . $settingsJson);
+            
+            $result = $stmt->execute([$settingsJson, $componentId]);
+            
+            if (!$result) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception('Failed to update component in database. SQL Error: ' . implode(' - ', $errorInfo));
+            }
+            
+            $affectedRows = $stmt->rowCount();
+            error_log("DragDropBuilder::updateComponent - Update successful, affected rows: " . $affectedRows);
+            
+            if ($affectedRows === 0) {
+                // Check if the component exists
+                $checkStmt = $this->db->prepare("SELECT COUNT(*) FROM " . $page['table_name'] . " WHERE id = ?");
+                $checkStmt->execute([$componentId]);
+                $exists = $checkStmt->fetchColumn();
+                
+                if ($exists == 0) {
+                    throw new Exception("Component with ID $componentId not found in table " . $page['table_name']);
+                } else {
+                    error_log("DragDropBuilder::updateComponent - Component exists but no rows were updated. This might indicate the settings are identical.");
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("DragDropBuilder::updateComponent - Error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -460,7 +499,7 @@ class DragDropBuilder
     /**
      * Get page information
      */
-    private function getPage($pageId)
+    public function getPage($pageId)
     {
         $stmt = $this->db->prepare("SELECT * FROM pages WHERE id = ?");
         $stmt->execute([$pageId]);

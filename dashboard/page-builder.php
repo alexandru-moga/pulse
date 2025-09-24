@@ -55,11 +55,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 break;
 
             case 'update_component':
-                $componentId = intval($_POST['component_id'] ?? 0);
-                $settings = $_POST['settings'] ?? [];
+                try {
+                    $componentId = intval($_POST['component_id'] ?? 0);
+                    $settings = $_POST['settings'] ?? '[]';
+                    
+                    error_log("Update component - ID: $componentId, Raw settings: " . var_export($settings, true));
+                    
+                    // If settings is a JSON string, decode it
+                    if (is_string($settings)) {
+                        $settings = json_decode($settings, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            throw new Exception('Invalid settings JSON: ' . json_last_error_msg());
+                        }
+                    }
+                    
+                    // Ensure settings is always an array
+                    if (!is_array($settings)) {
+                        $settings = [];
+                    }
+                    
+                    error_log("Update component - Decoded settings: " . var_export($settings, true));
 
-                $builder->updateComponent($pageId, $componentId, $settings);
-                echo json_encode(['success' => true]);
+                    $builder->updateComponent($pageId, $componentId, $settings);
+                    echo json_encode(['success' => true]);
+                } catch (Exception $e) {
+                    error_log("Update component error: " . $e->getMessage());
+                    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                }
                 break;
 
             case 'delete_component':
