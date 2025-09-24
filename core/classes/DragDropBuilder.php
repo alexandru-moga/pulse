@@ -323,8 +323,20 @@ class DragDropBuilder {
      * Render a component
      */
     public function renderComponent($component, $isEditor = false) {
-        $type = $component['component_type'];
-        $settings = json_decode($component['settings'], true) ?: [];
+        // Handle both old and new component structures
+        $type = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
+        $settingsJson = $component['settings'] ?? $component['content'] ?? '{}';
+        
+        // Ensure settings is always an array
+        if (is_string($settingsJson)) {
+            $settings = json_decode($settingsJson, true);
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($settings)) {
+                $settings = [];
+            }
+        } else {
+            $settings = is_array($settingsJson) ? $settingsJson : [];
+        }
+        
         $componentConfig = $this->getComponent($type);
         
         if (!$componentConfig) {
@@ -339,8 +351,10 @@ class DragDropBuilder {
         
         ob_start();
         
-        // Extract settings for template
-        extract($settings);
+        // Extract settings for template - now guaranteed to be an array
+        if (!empty($settings) && is_array($settings)) {
+            extract($settings);
+        }
         $componentData = $component;
         $editorMode = $isEditor;
         
@@ -360,7 +374,8 @@ class DragDropBuilder {
      * Wrap component with editor controls
      */
     private function wrapWithEditorControls($component, $content) {
-        $componentConfig = $this->getComponent($component['component_type']);
+        $type = $component['component_type'] ?? $component['block_type'] ?? 'unknown';
+        $componentConfig = $this->getComponent($type);
         
         return sprintf(
             '<div class="ddb-component" data-component-id="%d" data-component-type="%s">
@@ -375,8 +390,8 @@ class DragDropBuilder {
                 <div class="ddb-component-content">%s</div>
             </div>',
             $component['id'],
-            htmlspecialchars($component['component_type']),
-            htmlspecialchars($componentConfig['name'] ?? $component['component_type']),
+            htmlspecialchars($type),
+            htmlspecialchars($componentConfig['name'] ?? $type),
             $content
         );
     }
