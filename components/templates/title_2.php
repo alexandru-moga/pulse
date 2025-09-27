@@ -1,13 +1,9 @@
 <?php
-// Title Style 2 Component Template
-$titleText = $text ?? 'Section Title';
-$titleLevel = $level ?? 'h2';
-?>
 
-<section class="section-heading-2">
-    <div class="container">
-        <<?= $titleLevel ?> class="title-style-2">
-            <?= htmlspecialchars($titleText) ?>
-        </<?= $titleLevel ?>>
-    </div>
-</section>
+?>
+<div class="title-2-container">
+    <h2 class="title-2">
+        <span class="title-2-grey"><?= htmlspecialchars($block_content['first'] ?? '') ?></span>
+        <span class="title-2-red"><?= htmlspecialchars($block_content['second'] ?? '') ?></span>
+    </h2>
+</div>
