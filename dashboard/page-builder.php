@@ -228,7 +228,7 @@ include __DIR__ . '/components/dashboard-header.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -236,6 +236,20 @@ include __DIR__ . '/components/dashboard-header.php';
     <title>Page Builder - <?= htmlspecialchars($page['title']) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444',
+                        secondary: '#1f2937',
+                        accent: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         .ddb-builder {
             height: calc(100vh - 64px);
@@ -249,12 +263,21 @@ include __DIR__ . '/components/dashboard-header.php';
             border-right: 1px solid #e5e7eb;
             overflow-y: auto;
         }
+        
+        .dark .ddb-sidebar {
+            background: #1f2937;
+            border-right-color: #374151;
+        }
 
         .ddb-canvas {
             flex: 1;
             background: #f9fafb;
             overflow-y: auto;
             position: relative;
+        }
+        
+        .dark .ddb-canvas {
+            background: #111827;
         }
 
         .ddb-component {
@@ -365,6 +388,11 @@ include __DIR__ . '/components/dashboard-header.php';
             transition: right 0.3s ease;
             overflow-y: auto;
         }
+        
+        .dark .ddb-settings-panel {
+            background: #1f2937;
+            border-left-color: #374151;
+        }
 
         .ddb-settings-panel.active {
             right: 0;
@@ -380,6 +408,10 @@ include __DIR__ . '/components/dashboard-header.php';
             margin-bottom: 4px;
             color: #374151;
         }
+        
+        .dark .ddb-form-label {
+            color: #d1d5db;
+        }
 
         .ddb-form-control {
             width: 100%;
@@ -387,6 +419,14 @@ include __DIR__ . '/components/dashboard-header.php';
             border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 14px;
+            background: white;
+            color: #374151;
+        }
+        
+        .dark .ddb-form-control {
+            background: #374151;
+            border-color: #4b5563;
+            color: #d1d5db;
         }
 
         .ddb-form-control:focus {
@@ -406,6 +446,11 @@ include __DIR__ . '/components/dashboard-header.php';
             justify-content: between;
             align-items: center;
         }
+        
+        .dark .ddb-toolbar {
+            background: #1f2937;
+            border-bottom-color: #374151;
+        }
 
         .sortable-ghost {
             opacity: 0.4;
@@ -423,6 +468,11 @@ include __DIR__ . '/components/dashboard-header.php';
             background: #f9fafb;
             margin-bottom: 16px;
         }
+        
+        .dark .ddb-repeater {
+            border-color: #4b5563;
+            background: #374151;
+        }
 
         .ddb-repeater-items {
             margin-bottom: 12px;
@@ -435,6 +485,11 @@ include __DIR__ . '/components/dashboard-header.php';
             margin-bottom: 12px;
             padding: 12px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark .ddb-repeater-item {
+            background: #1f2937;
+            border-color: #4b5563;
         }
 
         .ddb-repeater-item:last-child {
@@ -451,6 +506,11 @@ include __DIR__ . '/components/dashboard-header.php';
             padding-bottom: 8px;
             border-bottom: 1px solid #e5e7eb;
         }
+        
+        .dark .ddb-repeater-header {
+            color: #d1d5db;
+            border-bottom-color: #4b5563;
+        }
 
         .ddb-repeater-fields {
             display: grid;
@@ -464,6 +524,14 @@ include __DIR__ . '/components/dashboard-header.php';
             border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 14px;
+            background: white;
+            color: #374151;
+        }
+        
+        .dark .ddb-repeater-field {
+            background: #4b5563;
+            border-color: #6b7280;
+            color: #d1d5db;
         }
 
         .ddb-repeater-field:focus {
@@ -502,13 +570,13 @@ include __DIR__ . '/components/dashboard-header.php';
     </style>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-900">
     <div class="ddb-builder">
         <!-- Sidebar with Components -->
         <div class="ddb-sidebar">
-            <div class="p-4 border-b">
-                <h2 class="text-lg font-semibold text-gray-900">Components</h2>
-                <p class="text-sm text-gray-600">Drag components to build your page</p>
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Components</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Drag components to build your page</p>
             </div>
 
             <?php
@@ -525,7 +593,7 @@ include __DIR__ . '/components/dashboard-header.php';
             ?>
 
                 <div class="p-4">
-                    <h3 class="text-sm font-medium text-gray-700 uppercase tracking-wide mb-2">
+                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
                         <?= $categoryName ?>
                     </h3>
 
@@ -565,10 +633,10 @@ include __DIR__ . '/components/dashboard-header.php';
                                     ?>
                                 </div>
                                 <div>
-                                    <div class="font-medium text-gray-900">
+                                    <div class="font-medium text-gray-900 dark:text-white">
                                         <?= htmlspecialchars($component['name']) ?>
                                     </div>
-                                    <div class="text-xs text-gray-500">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
                                         <?= htmlspecialchars($component['description']) ?>
                                     </div>
                                 </div>
@@ -584,13 +652,13 @@ include __DIR__ . '/components/dashboard-header.php';
         <div class="ddb-canvas">
             <div class="ddb-toolbar">
                 <div>
-                    <h1 class="text-xl font-semibold text-gray-900">
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Editing: <?= htmlspecialchars($page['title']) ?>
                     </h1>
-                    <p class="text-sm text-gray-600">Drag components from the sidebar to build your page</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Drag components from the sidebar to build your page</p>
                 </div>
                 <div class="flex gap-2">
-                    <button id="preview-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <button id="preview-btn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
                         Preview
                     </button>
                     <button id="save-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
@@ -604,14 +672,14 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
 
             <div class="p-6">
-                <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm min-h-[600px]">
+                <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-sm min-h-[600px]">
                     <div class="p-8">
                         <div id="canvas-content" class="ddb-component-list">
                             <?php if (empty($components)): ?>
                                 <div class="ddb-drop-zone" id="initial-drop-zone">
                                     <div class="text-center">
                                         <div class="text-4xl mb-2">🎨</div>
-                                        <p class="text-gray-500">Drop components here to start building</p>
+                                        <p class="text-gray-500 dark:text-gray-400">Drop components here to start building</p>
                                     </div>
                                 </div>
                             <?php else: ?>
@@ -633,10 +701,10 @@ include __DIR__ . '/components/dashboard-header.php';
 
     <!-- Settings Panel -->
     <div id="settings-panel" class="ddb-settings-panel">
-        <div class="p-4 border-b bg-gray-50">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div class="flex justify-between items-center">
-                <h3 id="settings-title" class="text-lg font-semibold text-gray-900">Component Settings</h3>
-                <button id="close-settings" class="text-gray-500 hover:text-gray-700">
+                <h3 id="settings-title" class="text-lg font-semibold text-gray-900 dark:text-white">Component Settings</h3>
+                <button id="close-settings" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -648,8 +716,8 @@ include __DIR__ . '/components/dashboard-header.php';
             <form id="settings-form">
                 <div id="settings-fields"></div>
 
-                <div class="flex justify-end gap-2 pt-4 border-t">
-                    <button type="button" id="cancel-settings" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <div class="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button" id="cancel-settings" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
                         Cancel
                     </button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
@@ -661,6 +729,22 @@ include __DIR__ . '/components/dashboard-header.php';
     </div>
 
     <script src="<?= $settings['site_url'] ?>/js/drag-drop-builder.js"></script>
+    <script>
+        // Dark mode initialization for page builder
+        function initPageBuilderDarkMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        // Initialize dark mode on page load
+        initPageBuilderDarkMode();
+    </script>
 </body>
 
 </html>

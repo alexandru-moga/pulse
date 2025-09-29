@@ -558,8 +558,40 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             const mainContent = document.getElementById('mainContent');
                             const hamburgerIcon = document.getElementById('hamburgerIcon');
                             const closeIcon = document.getElementById('closeIcon');
+                            const darkModeToggle = document.getElementById('darkModeToggle');
 
                             let sidebarOpen = false;
+
+                            // Dark mode functionality
+                            function initDarkMode() {
+                                const savedTheme = localStorage.getItem('theme');
+                                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                                
+                                if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                                    document.documentElement.classList.add('dark');
+                                } else {
+                                    document.documentElement.classList.remove('dark');
+                                }
+                            }
+                            
+                            function toggleDarkMode() {
+                                const isDark = document.documentElement.classList.contains('dark');
+                                if (isDark) {
+                                    document.documentElement.classList.remove('dark');
+                                    localStorage.setItem('theme', 'light');
+                                } else {
+                                    document.documentElement.classList.add('dark');
+                                    localStorage.setItem('theme', 'dark');
+                                }
+                            }
+                            
+                            // Initialize dark mode
+                            initDarkMode();
+                            
+                            // Dark mode toggle event
+                            if (darkModeToggle) {
+                                darkModeToggle.addEventListener('click', toggleDarkMode);
+                            }
 
                             // Load saved sidebar state for desktop
                             function loadSidebarState() {
