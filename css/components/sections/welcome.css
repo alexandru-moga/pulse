@@ -98,7 +98,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 20px;
+  bottom: 160px;
   z-index: 200;
   pointer-events: none;
 }
@@ -114,7 +114,7 @@
 
 @media (max-width: 768px) {
   .scroll-indicator {
-    bottom: 200px;
+    bottom: 220px;
   }
 
   .welcome-scroll-indicator {
@@ -124,7 +124,7 @@
 
 @media (max-width: 480px) {
   .scroll-indicator {
-    bottom: 240px;
+    bottom: 280px;
   }
 
   .welcome-scroll-indicator {

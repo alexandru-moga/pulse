@@ -263,7 +263,7 @@ include __DIR__ . '/components/dashboard-header.php';
             border-right: 1px solid #e5e7eb;
             overflow-y: auto;
         }
-        
+
         .dark .ddb-sidebar {
             background: #1f2937;
             border-right-color: #374151;
@@ -275,7 +275,7 @@ include __DIR__ . '/components/dashboard-header.php';
             overflow-y: auto;
             position: relative;
         }
-        
+
         .dark .ddb-canvas {
             background: #111827;
         }
@@ -388,7 +388,7 @@ include __DIR__ . '/components/dashboard-header.php';
             transition: right 0.3s ease;
             overflow-y: auto;
         }
-        
+
         .dark .ddb-settings-panel {
             background: #1f2937;
             border-left-color: #374151;
@@ -408,7 +408,7 @@ include __DIR__ . '/components/dashboard-header.php';
             margin-bottom: 4px;
             color: #374151;
         }
-        
+
         .dark .ddb-form-label {
             color: #d1d5db;
         }
@@ -422,7 +422,7 @@ include __DIR__ . '/components/dashboard-header.php';
             background: white;
             color: #374151;
         }
-        
+
         .dark .ddb-form-control {
             background: #374151;
             border-color: #4b5563;
@@ -446,7 +446,7 @@ include __DIR__ . '/components/dashboard-header.php';
             justify-content: between;
             align-items: center;
         }
-        
+
         .dark .ddb-toolbar {
             background: #1f2937;
             border-bottom-color: #374151;
@@ -468,7 +468,7 @@ include __DIR__ . '/components/dashboard-header.php';
             background: #f9fafb;
             margin-bottom: 16px;
         }
-        
+
         .dark .ddb-repeater {
             border-color: #4b5563;
             background: #374151;
@@ -486,7 +486,7 @@ include __DIR__ . '/components/dashboard-header.php';
             padding: 12px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
-        
+
         .dark .ddb-repeater-item {
             background: #1f2937;
             border-color: #4b5563;
@@ -506,7 +506,7 @@ include __DIR__ . '/components/dashboard-header.php';
             padding-bottom: 8px;
             border-bottom: 1px solid #e5e7eb;
         }
-        
+
         .dark .ddb-repeater-header {
             color: #d1d5db;
             border-bottom-color: #4b5563;
@@ -527,7 +527,7 @@ include __DIR__ . '/components/dashboard-header.php';
             background: white;
             color: #374151;
         }
-        
+
         .dark .ddb-repeater-field {
             background: #4b5563;
             border-color: #6b7280;
@@ -734,14 +734,14 @@ include __DIR__ . '/components/dashboard-header.php';
         function initPageBuilderDarkMode() {
             const savedTheme = localStorage.getItem('theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
+
             if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
         }
-        
+
         // Initialize dark mode on page load
         initPageBuilderDarkMode();
     </script>

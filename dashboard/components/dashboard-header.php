@@ -566,14 +566,14 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             function initDarkMode() {
                                 const savedTheme = localStorage.getItem('theme');
                                 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                                
+
                                 if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
                                     document.documentElement.classList.add('dark');
                                 } else {
                                     document.documentElement.classList.remove('dark');
                                 }
                             }
-                            
+
                             function toggleDarkMode() {
                                 const isDark = document.documentElement.classList.contains('dark');
                                 if (isDark) {
@@ -584,10 +584,10 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                                     localStorage.setItem('theme', 'dark');
                                 }
                             }
-                            
+
                             // Initialize dark mode
                             initDarkMode();
-                            
+
                             // Dark mode toggle event
                             if (darkModeToggle) {
                                 darkModeToggle.addEventListener('click', toggleDarkMode);
