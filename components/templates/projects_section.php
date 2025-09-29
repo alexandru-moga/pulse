@@ -1,5 +1,7 @@
 <?php
 // Projects Section Component Template
+require_once __DIR__ . '/../helpers/image_emoji_helper.php';
+
 $projectsTitle = $title ?? 'Our Projects';
 $projectsSubtitle = $subtitle ?? 'Check out what we\'ve been working on';
 $projects = $projects ?? array();
@@ -29,23 +31,7 @@ if (empty($projects)) {
         )
     );
 }
-
-// Helper function to render image or emoji
-function renderImageOrEmoji($value, $class = '') {
-    if (empty($value)) return '';
-    
-    if (strpos($value, 'emoji:') === 0) {
-        // It's an emoji with prefix
-        $emoji = substr($value, 6);
-        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
-    } elseif (strpos($value, 'http') === 0 || strpos($value, '/') === 0) {
-        // It's an image URL
-        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . '">';
-    } else {
-        // It's a raw emoji (legacy format)
-        return '<span class="' . $class . '">' . htmlspecialchars($value) . '</span>';
-    }
-}
+?>
 ?>
 
 <section class="projects-section py-16">

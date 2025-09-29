@@ -1,5 +1,7 @@
 <?php
 // Feature Grid Component Template
+require_once __DIR__ . '/../helpers/image_emoji_helper.php';
+
 $gridTitle = $title ?? 'Our Features';
 $gridSubtitle = $subtitle ?? 'What makes us special';
 $columns = $columns ?? '3';
@@ -20,23 +22,6 @@ if (empty($features)) {
         array('icon' => 'emoji:🔒', 'title' => 'Secure', 'description' => 'Top-notch security to protect your data.'),
         array('icon' => 'emoji:💡', 'title' => 'Innovative', 'description' => 'Cutting-edge solutions for modern challenges.')
     );
-}
-
-// Helper function to render image or emoji
-function renderImageOrEmoji($value, $class = '') {
-    if (empty($value)) return '';
-    
-    if (strpos($value, 'emoji:') === 0) {
-        // It's an emoji with prefix
-        $emoji = substr($value, 6);
-        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
-    } elseif (strpos($value, 'http') === 0 || strpos($value, '/') === 0) {
-        // It's an image URL
-        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . ' w-12 h-12 mx-auto object-contain">';
-    } else {
-        // It's a raw emoji (legacy format)
-        return '<span class="' . $class . '">' . htmlspecialchars($value) . '</span>';
-    }
 }
 
 $gridClass = "grid-cols-1 md:grid-cols-{$columns}";

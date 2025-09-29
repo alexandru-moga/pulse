@@ -1,5 +1,7 @@
 <?php
 // Core Values Component Template
+require_once __DIR__ . '/../helpers/image_emoji_helper.php';
+
 $values = $values ?? array();
 
 // Parse values if it's a JSON string
@@ -13,23 +15,7 @@ if (is_string($values)) {
 if (!is_array($values)) {
     $values = array();
 }
-
-// Helper function to render image or emoji
-function renderImageOrEmoji($value, $class = '') {
-    if (empty($value)) return '';
-    
-    if (strpos($value, 'emoji:') === 0) {
-        // It's an emoji with prefix
-        $emoji = substr($value, 6);
-        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
-    } elseif (strpos($value, 'http') === 0 || strpos($value, '/') === 0) {
-        // It's an image URL
-        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . ' w-12 h-12 object-contain">';
-    } else {
-        // It's a raw emoji (legacy format)
-        return '<span class="' . $class . '">' . htmlspecialchars($value) . '</span>';
-    }
-}
+?>
 ?>
 
 <section class="container mx-auto py-16">

@@ -1,5 +1,7 @@
 <?php
 // Services Section Component Template
+require_once __DIR__ . '/../helpers/image_emoji_helper.php';
+
 $servicesTitle = $title ?? 'Our Services';
 $servicesSubtitle = $subtitle ?? 'What we can do for you';
 $services = $services ?? array();
@@ -20,23 +22,7 @@ if (empty($services)) {
         array('icon' => 'emoji:📊', 'name' => 'Consulting', 'description' => 'Expert consultation and strategy.', 'price' => '$150/hour')
     );
 }
-
-// Helper function to render image or emoji
-function renderImageOrEmoji($value, $class = '') {
-    if (empty($value)) return '';
-    
-    if (strpos($value, 'emoji:') === 0) {
-        // It's an emoji with prefix
-        $emoji = substr($value, 6);
-        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
-    } elseif (strpos($value, 'http') === 0 || strpos($value, '/') === 0) {
-        // It's an image URL
-        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . ' w-12 h-12 mx-auto object-contain">';
-    } else {
-        // It's a raw emoji (legacy format)
-        return '<span class="' . $class . '">' . htmlspecialchars($value) . '</span>';
-    }
-}
+?>
 ?>
 
 <section class="services-section py-16 bg-gray-50 dark:bg-gray-900">
