@@ -97,9 +97,21 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 80px;
-  z-index: 100;
+  bottom: 150px;
+  z-index: 200;
   pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .scroll-indicator {
+    bottom: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scroll-indicator {
+    bottom: 240px;
+  }
 }
 
 
