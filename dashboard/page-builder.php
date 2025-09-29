@@ -665,12 +665,14 @@ include __DIR__ . '/components/dashboard-header.php';
             transition: all 0.3s ease;
             cursor: pointer;
             margin-bottom: 12px;
+            position: relative;
         }
 
         .ddb-image-drop-zone:hover,
         .ddb-image-drop-zone.dragover {
             border-color: #3b82f6;
             background: #eff6ff;
+            transform: scale(1.02);
         }
 
         .dark .ddb-image-drop-zone {
@@ -698,6 +700,18 @@ include __DIR__ . '/components/dashboard-header.php';
             font-size: 32px;
             color: #9ca3af;
             margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .ddb-image-drop-zone:hover .ddb-drop-zone-icon,
+        .ddb-image-drop-zone.dragover .ddb-drop-zone-icon {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .dark .ddb-image-drop-zone:hover .ddb-drop-zone-icon,
+        .dark .ddb-image-drop-zone.dragover .ddb-drop-zone-icon {
+            color: #60a5fa;
         }
 
         .ddb-image-preview {

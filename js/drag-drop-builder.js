@@ -303,7 +303,7 @@ class DragDropBuilder {
                              ondrop="window.builder.handleImageDrop(event, '${fieldId}')">
                             <div class="ddb-drop-zone-icon">📁</div>
                             <div><strong>Click to upload</strong> or drag and drop</div>
-                            <div class="ddb-drop-zone-text">PNG, JPG, GIF up to 5MB</div>
+                            <div class="ddb-drop-zone-text">Images, URLs, or emojis • PNG, JPG, GIF up to 5MB</div>
                         </div>
                         <div class="ddb-image-preview" id="${fieldId}-preview" style="display: ${displayStyle};">
                             <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 4px;">
@@ -397,7 +397,7 @@ class DragDropBuilder {
                                  ondrop="window.builder.handleImageDrop(event, '${subFieldId}')">
                                 <div class="ddb-drop-zone-icon">📁</div>
                                 <div><strong>Click to upload</strong></div>
-                                <div class="ddb-drop-zone-text">or drag and drop</div>
+                                <div class="ddb-drop-zone-text">or drag images, URLs, emojis</div>
                             </div>
                             <div class="ddb-image-preview" id="${subFieldId}-preview" style="display: ${displayStyle};">
                                 <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 60px; max-height: 60px; border-radius: 4px;">
@@ -865,25 +865,85 @@ class DragDropBuilder {
         event.stopPropagation();
         event.currentTarget.classList.remove('dragover');
 
+        // Check for files first
         const files = event.dataTransfer.files;
-        if (files.length === 0) return;
+        if (files.length > 0) {
+            const file = files[0];
+            if (!file.type.startsWith('image/')) {
+                this.showNotification('Please drop an image file', 'error');
+                return;
+            }
 
-        const file = files[0];
-        if (!file.type.startsWith('image/')) {
-            this.showNotification('Please drop an image file', 'error');
+            // Simulate file input change event
+            const fileInput = document.getElementById(fieldId + '-file');
+            if (fileInput) {
+                // Create a new FileList-like object
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                
+                // Trigger the upload
+                this.handleImageUpload({ target: fileInput }, fieldId);
+            }
             return;
         }
 
-        // Simulate file input change event
-        const fileInput = document.getElementById(fieldId + '-file');
-        if (fileInput) {
-            // Create a new FileList-like object
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            fileInput.files = dataTransfer.files;
-            
-            // Trigger the upload
-            this.handleImageUpload({ target: fileInput }, fieldId);
+        // Check for URLs/text if no files
+        const droppedText = event.dataTransfer.getData('text/plain');
+        if (droppedText) {
+            // Check if it's a valid URL
+            try {
+                const url = new URL(droppedText);
+                
+                // Check if it looks like an image URL
+                const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.ico'];
+                const hasImageExtension = imageExtensions.some(ext => 
+                    url.pathname.toLowerCase().includes(ext)
+                );
+                
+                // Allow URLs that have image extensions or are from common image hosts
+                const imageHosts = ['imgur.com', 'cloudinary.com', 'amazonaws.com', 'googleusercontent.com', 'unsplash.com', 'pexels.com'];
+                const isImageHost = imageHosts.some(host => url.hostname.includes(host));
+                
+                if (hasImageExtension || isImageHost || url.protocol === 'data:') {
+                    // Set the URL directly
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.value = droppedText;
+                        this.updateImagePreview(fieldId, droppedText);
+                        
+                        // Trigger change event for repeater fields
+                        if (input.classList.contains('ddb-repeater-field')) {
+                            this.updateRepeaterValue(input.dataset.parent);
+                        }
+                        
+                        this.showNotification('Image URL added successfully', 'success');
+                    }
+                } else {
+                    this.showNotification('Please drop a valid image URL or image file', 'error');
+                }
+            } catch (e) {
+                // Not a valid URL, check if it might be an emoji
+                if (droppedText.length <= 10 && /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(droppedText)) {
+                    // It's an emoji
+                    const input = document.getElementById(fieldId);
+                    if (input) {
+                        input.value = `emoji:${droppedText}`;
+                        this.updateImagePreview(fieldId, `emoji:${droppedText}`);
+                        
+                        // Trigger change event for repeater fields
+                        if (input.classList.contains('ddb-repeater-field')) {
+                            this.updateRepeaterValue(input.dataset.parent);
+                        }
+                        
+                        this.showNotification('Emoji added successfully', 'success');
+                    }
+                } else {
+                    this.showNotification('Please drop a valid image URL, image file, or emoji', 'error');
+                }
+            }
+        } else {
+            this.showNotification('Please drop an image file or image URL', 'error');
         }
     }
 
