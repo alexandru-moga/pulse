@@ -656,6 +656,50 @@ include __DIR__ . '/components/dashboard-header.php';
             background: #374151;
         }
 
+        .ddb-image-drop-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        .ddb-image-drop-zone:hover,
+        .ddb-image-drop-zone.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .dark .ddb-image-drop-zone {
+            border-color: #4b5563;
+            background: #374151;
+        }
+
+        .dark .ddb-image-drop-zone:hover,
+        .dark .ddb-image-drop-zone.dragover {
+            border-color: #60a5fa;
+            background: #1e3a8a;
+        }
+
+        .ddb-drop-zone-text {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .dark .ddb-drop-zone-text {
+            color: #9ca3af;
+        }
+
+        .ddb-drop-zone-icon {
+            font-size: 32px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
         .ddb-image-preview {
             position: relative;
             margin-bottom: 12px;

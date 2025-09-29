@@ -286,6 +286,7 @@ class DragDropBuilder {
             case 'image':
                 let previewUrl = value;
                 let displayStyle = value ? 'block' : 'none';
+                let dropZoneStyle = value ? 'none' : 'block';
                 
                 // Handle emoji values for preview
                 if (value && value.startsWith('emoji:')) {
@@ -295,6 +296,15 @@ class DragDropBuilder {
                 
                 inputHTML = `
                     <div class="ddb-image-field">
+                        <div class="ddb-image-drop-zone" id="${fieldId}-dropzone" style="display: ${dropZoneStyle};" 
+                             onclick="document.getElementById('${fieldId}-file').click()"
+                             ondragover="window.builder.handleDragOver(event)"
+                             ondragleave="window.builder.handleDragLeave(event)"
+                             ondrop="window.builder.handleImageDrop(event, '${fieldId}')">
+                            <div class="ddb-drop-zone-icon">📁</div>
+                            <div><strong>Click to upload</strong> or drag and drop</div>
+                            <div class="ddb-drop-zone-text">PNG, JPG, GIF up to 5MB</div>
+                        </div>
                         <div class="ddb-image-preview" id="${fieldId}-preview" style="display: ${displayStyle};">
                             <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 4px;">
                             <button type="button" class="ddb-btn-remove" onclick="window.builder.removeImage('${fieldId}')" title="Remove image">×</button>
@@ -380,6 +390,15 @@ class DragDropBuilder {
                     
                     fieldInput = `
                         <div class="ddb-image-field">
+                            <div class="ddb-image-drop-zone" id="${subFieldId}-dropzone" style="display: ${subFieldValue ? 'none' : 'block'};" 
+                                 onclick="document.getElementById('${subFieldId}-file').click()"
+                                 ondragover="window.builder.handleDragOver(event)"
+                                 ondragleave="window.builder.handleDragLeave(event)"
+                                 ondrop="window.builder.handleImageDrop(event, '${subFieldId}')">
+                                <div class="ddb-drop-zone-icon">📁</div>
+                                <div><strong>Click to upload</strong></div>
+                                <div class="ddb-drop-zone-text">or drag and drop</div>
+                            </div>
                             <div class="ddb-image-preview" id="${subFieldId}-preview" style="display: ${displayStyle};">
                                 <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 60px; max-height: 60px; border-radius: 4px;">
                                 <button type="button" class="ddb-btn-remove" onclick="window.builder.removeImage('${subFieldId}')" title="Remove image">×</button>
@@ -785,6 +804,7 @@ class DragDropBuilder {
 
     updateImagePreview(fieldId, imageUrl) {
         const preview = document.getElementById(fieldId + '-preview');
+        const dropZone = document.getElementById(fieldId + '-dropzone');
         const img = preview ? preview.querySelector('img') : null;
         
         if (preview && img) {
@@ -799,22 +819,71 @@ class DragDropBuilder {
                     img.src = imageUrl;
                 }
                 preview.style.display = 'block';
+                if (dropZone) dropZone.style.display = 'none';
             } else {
                 preview.style.display = 'none';
+                if (dropZone) dropZone.style.display = 'block';
             }
         }
     }
 
     removeImage(fieldId) {
         const input = document.getElementById(fieldId);
+        const dropZone = document.getElementById(fieldId + '-dropzone');
+        const preview = document.getElementById(fieldId + '-preview');
+        
         if (input) {
             input.value = '';
             this.updateImagePreview(fieldId, '');
+            
+            // Show drop zone and hide preview
+            if (dropZone) dropZone.style.display = 'block';
+            if (preview) preview.style.display = 'none';
             
             // Trigger change event for repeater fields
             if (input.classList.contains('ddb-repeater-field')) {
                 this.updateRepeaterValue(input.dataset.parent);
             }
+        }
+    }
+
+    // Drag and drop methods
+    handleDragOver(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.add('dragover');
+    }
+
+    handleDragLeave(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.remove('dragover');
+    }
+
+    handleImageDrop(event, fieldId) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.classList.remove('dragover');
+
+        const files = event.dataTransfer.files;
+        if (files.length === 0) return;
+
+        const file = files[0];
+        if (!file.type.startsWith('image/')) {
+            this.showNotification('Please drop an image file', 'error');
+            return;
+        }
+
+        // Simulate file input change event
+        const fileInput = document.getElementById(fieldId + '-file');
+        if (fileInput) {
+            // Create a new FileList-like object
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            // Trigger the upload
+            this.handleImageUpload({ target: fileInput }, fieldId);
         }
     }
 

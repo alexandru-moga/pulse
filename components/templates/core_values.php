@@ -16,7 +16,6 @@ if (!is_array($values)) {
     $values = array();
 }
 ?>
-?>
 
 <section class="container mx-auto py-16">
     <div class="values-grid">
