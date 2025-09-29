@@ -24,7 +24,7 @@ if (!is_array($statsData)) {
 }
 ?>
 
-<section class="container mx-auto py-16">
+<section class="container mx-auto py-12">
     <div class="stats-grid">
         <?php foreach ($statsData as $stat): ?>
             <div class="stat-card">

@@ -2,23 +2,15 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 2rem;
-    padding: 2rem 0 4rem 0;
-    margin-bottom: 10rem;
+    padding: 2rem 0;
+    margin-bottom: 4rem;
     position: relative;
     z-index: 1;
 }
 
 @media (max-width: 768px) {
     .stats-grid {
-        margin-bottom: 12rem;
-        padding-bottom: 6rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid {
-        margin-bottom: 15rem;
-        padding-bottom: 8rem;
+        margin-bottom: 3rem;
     }
 }
 

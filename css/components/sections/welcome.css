@@ -6,6 +6,7 @@
   z-index: 10;
   padding: 0 1.5rem;
   margin-left: 10rem;
+  margin-bottom: 4rem;
 }
 
 .welcome-content {
@@ -102,15 +103,32 @@
   pointer-events: none;
 }
 
+.welcome-scroll-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 40px;
+  z-index: 200;
+  pointer-events: none;
+}
+
 @media (max-width: 768px) {
   .scroll-indicator {
     bottom: 200px;
+  }
+  
+  .welcome-scroll-indicator {
+    bottom: 30px;
   }
 }
 
 @media (max-width: 480px) {
   .scroll-indicator {
     bottom: 240px;
+  }
+  
+  .welcome-scroll-indicator {
+    bottom: 20px;
   }
 }
 
