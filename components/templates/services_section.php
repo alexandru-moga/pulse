@@ -26,12 +26,15 @@ function renderImageOrEmoji($value, $class = '') {
     if (empty($value)) return '';
     
     if (strpos($value, 'emoji:') === 0) {
-        // It's an emoji
+        // It's an emoji with prefix
         $emoji = substr($value, 6);
         return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
-    } else {
+    } elseif (strpos($value, 'http') === 0 || strpos($value, '/') === 0) {
         // It's an image URL
         return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . ' w-12 h-12 mx-auto object-contain">';
+    } else {
+        // It's a raw emoji (legacy format)
+        return '<span class="' . $class . '">' . htmlspecialchars($value) . '</span>';
     }
 }
 ?>

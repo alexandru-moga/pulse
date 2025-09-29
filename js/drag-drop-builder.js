@@ -361,10 +361,27 @@ class DragDropBuilder {
 
             switch (subField.type) {
                 case 'image':
+                    let previewUrl = subFieldValue;
+                    let displayStyle = subFieldValue ? 'block' : 'none';
+                    
+                    // Handle legacy emoji values and emoji: prefix values for preview
+                    if (subFieldValue) {
+                        if (subFieldValue.startsWith('emoji:')) {
+                            const emoji = subFieldValue.substring(6);
+                            previewUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><text y="50" font-size="50">${emoji}</text></svg>`;
+                        } else if (!subFieldValue.startsWith('http') && !subFieldValue.startsWith('/')) {
+                            // Legacy emoji format - convert to emoji: format for internal handling
+                            const legacyEmoji = subFieldValue;
+                            previewUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><text y="50" font-size="50">${legacyEmoji}</text></svg>`;
+                            // Update the value to new format
+                            subFieldValue = `emoji:${legacyEmoji}`;
+                        }
+                    }
+                    
                     fieldInput = `
                         <div class="ddb-image-field">
-                            <div class="ddb-image-preview" id="${subFieldId}-preview" style="display: ${subFieldValue ? 'block' : 'none'};">
-                                <img src="${this.escapeHtml(subFieldValue)}" alt="Preview" style="max-width: 60px; max-height: 60px; border-radius: 4px;">
+                            <div class="ddb-image-preview" id="${subFieldId}-preview" style="display: ${displayStyle};">
+                                <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 60px; max-height: 60px; border-radius: 4px;">
                                 <button type="button" class="ddb-btn-remove" onclick="window.builder.removeImage('${subFieldId}')" title="Remove image">×</button>
                             </div>
                             <div class="ddb-image-controls">

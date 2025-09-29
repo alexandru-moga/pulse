@@ -200,6 +200,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                         error_log("Migrated settings: " . json_encode($settings));
                     }
 
+                    // Special handling for core_values component migration
+                    if ($componentType === 'core_values') {
+                        if (isset($settings['values'])) {
+                            $values = $settings['values'];
+                            
+                            // If it's a JSON string, decode it
+                            if (is_string($values)) {
+                                $decodedValues = json_decode($values, true);
+                                if (json_last_error() === JSON_ERROR_NONE && is_array($decodedValues)) {
+                                    $values = $decodedValues;
+                                }
+                            }
+                            
+                            // Migrate icon format from raw emoji to emoji: prefix
+                            if (is_array($values)) {
+                                foreach ($values as &$value) {
+                                    if (isset($value['icon']) && !empty($value['icon'])) {
+                                        // If it doesn't already have emoji: prefix and is not a URL
+                                        if (strpos($value['icon'], 'emoji:') !== 0 && strpos($value['icon'], 'http') !== 0 && strpos($value['icon'], '/') !== 0) {
+                                            // Add emoji: prefix to raw emojis
+                                            $value['icon'] = 'emoji:' . $value['icon'];
+                                        }
+                                    }
+                                }
+                                unset($value); // Break reference
+                                $settings['values'] = $values;
+                            }
+                        }
+                        
+                        error_log("Core values migrated settings: " . json_encode($settings));
+                    }
+
                     echo json_encode([
                         'success' => true,
                         'component' => $componentConfig,
