@@ -674,20 +674,21 @@ class ComponentManager
             ),
             'title_2' => array(
                 'name' => 'Title Style 2',
-                'description' => 'Alternative title style',
+                'description' => 'Two-part title with different colors',
                 'category' => 'content',
                 'icon' => '📄',
                 'fields' => array(
-                    'text' => array(
+                    'first' => array(
                         'type' => 'text',
-                        'label' => 'Title Text',
-                        'default' => 'Section Title'
+                        'label' => 'First Title (Grey)',
+                        'default' => 'OUR',
+                        'placeholder' => 'First part of title'
                     ),
-                    'level' => array(
-                        'type' => 'select',
-                        'label' => 'Heading Level',
-                        'options' => array('h1' => 'H1', 'h2' => 'H2', 'h3' => 'H3', 'h4' => 'H4'),
-                        'default' => 'h2'
+                    'second' => array(
+                        'type' => 'text',
+                        'label' => 'Second Title (Red)',
+                        'default' => 'MISSION',
+                        'placeholder' => 'Second part of title'
                     )
                 )
             ),
