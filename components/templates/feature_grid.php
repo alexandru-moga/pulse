@@ -5,13 +5,35 @@ $gridSubtitle = $subtitle ?? 'What makes us special';
 $columns = $columns ?? '3';
 $features = $features ?? array();
 
+// Parse features if it's a JSON string
+if (is_string($features)) {
+    $decoded = json_decode($features, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $features = $decoded;
+    }
+}
+
 // Default features if none provided
 if (empty($features)) {
     $features = array(
-        array('icon' => '🚀', 'title' => 'Fast Performance', 'description' => 'Lightning fast performance for all your needs.'),
-        array('icon' => '🔒', 'title' => 'Secure', 'description' => 'Top-notch security to protect your data.'),
-        array('icon' => '💡', 'title' => 'Innovative', 'description' => 'Cutting-edge solutions for modern challenges.')
+        array('icon' => 'emoji:🚀', 'title' => 'Fast Performance', 'description' => 'Lightning fast performance for all your needs.'),
+        array('icon' => 'emoji:🔒', 'title' => 'Secure', 'description' => 'Top-notch security to protect your data.'),
+        array('icon' => 'emoji:💡', 'title' => 'Innovative', 'description' => 'Cutting-edge solutions for modern challenges.')
     );
+}
+
+// Helper function to render image or emoji
+function renderImageOrEmoji($value, $class = '') {
+    if (empty($value)) return '';
+    
+    if (strpos($value, 'emoji:') === 0) {
+        // It's an emoji
+        $emoji = substr($value, 6);
+        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
+    } else {
+        // It's an image URL
+        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . ' w-12 h-12 mx-auto object-contain">';
+    }
 }
 
 $gridClass = "grid-cols-1 md:grid-cols-{$columns}";
@@ -32,7 +54,7 @@ $gridClass = "grid-cols-1 md:grid-cols-{$columns}";
             <?php foreach ($features as $feature): ?>
                 <div class="feature-card text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                     <div class="feature-icon text-4xl mb-4">
-                        <?= htmlspecialchars($feature['icon'] ?? '⭐') ?>
+                        <?= renderImageOrEmoji($feature['icon'] ?? '', 'feature-icon-img') ?>
                     </div>
                     <h3 class="feature-title text-xl font-semibold mb-3 text-gray-900 dark:text-white">
                         <?= htmlspecialchars($feature['title'] ?? '') ?>

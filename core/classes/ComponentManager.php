@@ -114,6 +114,12 @@ class ComponentManager
                             {"value": "50", "label": "Projects Completed"}
                         ]',
                         'fields' => array(
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => '',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
                             'value' => array(
                                 'type' => 'text',
                                 'label' => 'Value',
@@ -151,6 +157,35 @@ class ComponentManager
                         'label' => 'Columns',
                         'options' => array('2' => '2 Columns', '3' => '3 Columns', '4' => '4 Columns'),
                         'default' => '3'
+                    ),
+                    'features' => array(
+                        'type' => 'repeater',
+                        'label' => 'Features',
+                        'fields' => array(
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:⭐',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
+                            'title' => array(
+                                'type' => 'text',
+                                'label' => 'Feature Title',
+                                'default' => 'Feature Title',
+                                'placeholder' => 'e.g., Fast Performance'
+                            ),
+                            'description' => array(
+                                'type' => 'textarea',
+                                'label' => 'Feature Description',
+                                'default' => 'Feature description goes here.',
+                                'placeholder' => 'e.g., Lightning fast performance for all your needs.'
+                            )
+                        ),
+                        'default' => array(
+                            array('icon' => 'emoji:🚀', 'title' => 'Fast Performance', 'description' => 'Lightning fast performance for all your needs.'),
+                            array('icon' => 'emoji:🔒', 'title' => 'Secure', 'description' => 'Top-notch security to protect your data.'),
+                            array('icon' => 'emoji:💡', 'title' => 'Innovative', 'description' => 'Cutting-edge solutions for modern challenges.')
+                        )
                     )
                 )
             ),
@@ -325,7 +360,12 @@ class ComponentManager
                         'fields' => array(
                             'name' => array('type' => 'text', 'label' => 'Service Name'),
                             'description' => array('type' => 'textarea', 'label' => 'Description'),
-                            'icon' => array('type' => 'text', 'label' => 'Icon/Emoji'),
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:🛠️',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
                             'price' => array('type' => 'text', 'label' => 'Price (optional)')
                         ),
                         'default' => array()
@@ -473,14 +513,19 @@ class ComponentManager
                         'type' => 'repeater',
                         'label' => 'Values',
                         'fields' => array(
-                            'icon' => array('type' => 'text', 'label' => 'Icon (emoji)', 'default' => '💎'),
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:💎',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
                             'title' => array('type' => 'text', 'label' => 'Title', 'default' => 'Excellence'),
                             'description' => array('type' => 'textarea', 'label' => 'Description', 'default' => 'We strive for excellence in everything we do.')
                         ),
                         'default' => array(
-                            array('icon' => '💎', 'title' => 'Excellence', 'description' => 'We strive for excellence in everything we do.'),
-                            array('icon' => '🤝', 'title' => 'Collaboration', 'description' => 'We work together to achieve great things.'),
-                            array('icon' => '🚀', 'title' => 'Innovation', 'description' => 'We embrace new technologies and ideas.')
+                            array('icon' => 'emoji:💎', 'title' => 'Excellence', 'description' => 'We strive for excellence in everything we do.'),
+                            array('icon' => 'emoji:🤝', 'title' => 'Collaboration', 'description' => 'We work together to achieve great things.'),
+                            array('icon' => 'emoji:🚀', 'title' => 'Innovation', 'description' => 'We embrace new technologies and ideas.')
                         )
                     )
                 )

@@ -210,6 +210,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                 }
                 break;
 
+            case 'upload_image':
+                if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                    echo json_encode(['success' => false, 'error' => 'No image file uploaded or upload error']);
+                    break;
+                }
+
+                $file = $_FILES['image'];
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                $maxSize = 5 * 1024 * 1024; // 5MB
+
+                // Validate file type
+                if (!in_array($file['type'], $allowedTypes)) {
+                    echo json_encode(['success' => false, 'error' => 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.']);
+                    break;
+                }
+
+                // Validate file size
+                if ($file['size'] > $maxSize) {
+                    echo json_encode(['success' => false, 'error' => 'File size too large. Maximum size is 5MB.']);
+                    break;
+                }
+
+                // Create uploads directory if it doesn't exist
+                $uploadDir = __DIR__ . '/../uploads/images/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                // Generate unique filename
+                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $filename = uniqid() . '_' . time() . '.' . $extension;
+                $filepath = $uploadDir . $filename;
+
+                // Move uploaded file
+                if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                    // Generate URL relative to site root
+                    $url = $settings['site_url'] . '/uploads/images/' . $filename;
+                    echo json_encode(['success' => true, 'url' => $url]);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Failed to save uploaded file']);
+                }
+                break;
+
             default:
                 echo json_encode(['success' => false, 'error' => 'Invalid action']);
         }
@@ -566,6 +609,164 @@ include __DIR__ . '/components/dashboard-header.php';
 
         .ddb-btn-danger:hover {
             background: #dc2626;
+        }
+
+        /* Image Field Styles */
+        .ddb-image-field {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            background: white;
+        }
+
+        .dark .ddb-image-field {
+            border-color: #4b5563;
+            background: #374151;
+        }
+
+        .ddb-image-preview {
+            position: relative;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .ddb-image-preview img {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .ddb-image-preview img {
+            border-color: #4b5563;
+        }
+
+        .ddb-btn-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ddb-btn-remove:hover {
+            background: #dc2626;
+        }
+
+        .ddb-image-controls {
+            margin-top: 8px;
+        }
+
+        .ddb-image-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .ddb-btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .ddb-file-input {
+            display: none;
+        }
+
+        /* Emoji Picker Styles */
+        .ddb-emoji-picker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ddb-emoji-picker-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 400px;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .dark .ddb-emoji-picker-content {
+            background: #1f2937;
+        }
+
+        .ddb-emoji-picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        .dark .ddb-emoji-picker-header {
+            border-bottom-color: #374151;
+            color: #d1d5db;
+        }
+
+        .ddb-btn-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .ddb-btn-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .dark .ddb-btn-close:hover {
+            background: #374151;
+            color: #d1d5db;
+        }
+
+        .ddb-emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ddb-emoji-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .ddb-emoji-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .dark .ddb-emoji-btn:hover {
+            background: #374151;
         }
     </style>
 </head>

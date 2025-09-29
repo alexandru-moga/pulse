@@ -44,6 +44,21 @@
     gap: 1rem;
 }
 
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon-img {
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 .stat-number {
     font-size: 2.5rem;
     font-weight: 700;

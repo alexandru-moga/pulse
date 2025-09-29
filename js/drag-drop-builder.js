@@ -284,7 +284,31 @@ class DragDropBuilder {
                 break;
 
             case 'image':
-                inputHTML = `<input type="url" id="${fieldId}" name="${name}" value="${this.escapeHtml(value)}" placeholder="Enter image URL" class="ddb-form-control">`;
+                let previewUrl = value;
+                let displayStyle = value ? 'block' : 'none';
+                
+                // Handle emoji values for preview
+                if (value && value.startsWith('emoji:')) {
+                    const emoji = value.substring(6);
+                    previewUrl = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><text y="50" font-size="50">${emoji}</text></svg>`;
+                }
+                
+                inputHTML = `
+                    <div class="ddb-image-field">
+                        <div class="ddb-image-preview" id="${fieldId}-preview" style="display: ${displayStyle};">
+                            <img src="${this.escapeHtml(previewUrl)}" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 4px;">
+                            <button type="button" class="ddb-btn-remove" onclick="window.builder.removeImage('${fieldId}')" title="Remove image">×</button>
+                        </div>
+                        <div class="ddb-image-controls">
+                            <input type="file" id="${fieldId}-file" accept="image/*" class="ddb-file-input" onchange="window.builder.handleImageUpload(event, '${fieldId}')" style="display: none;">
+                            <input type="url" id="${fieldId}" name="${name}" value="${this.escapeHtml(value)}" placeholder="Or enter image URL" class="ddb-form-control" onchange="window.builder.updateImagePreview('${fieldId}', this.value)">
+                            <div class="ddb-image-buttons">
+                                <button type="button" class="ddb-btn-secondary" onclick="document.getElementById('${fieldId}-file').click()">📁 Upload</button>
+                                <button type="button" class="ddb-btn-secondary" onclick="window.builder.openEmojiPicker('${fieldId}')">😀 Emoji</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 break;
 
             case 'repeater':
@@ -333,15 +357,69 @@ class DragDropBuilder {
         Object.entries(fields).forEach(([subFieldName, subField]) => {
             const subFieldId = `${fieldName}-${index}-${subFieldName}`;
             const subFieldValue = item[subFieldName] || subField.default || '';
+            let fieldInput = '';
+
+            switch (subField.type) {
+                case 'image':
+                    fieldInput = `
+                        <div class="ddb-image-field">
+                            <div class="ddb-image-preview" id="${subFieldId}-preview" style="display: ${subFieldValue ? 'block' : 'none'};">
+                                <img src="${this.escapeHtml(subFieldValue)}" alt="Preview" style="max-width: 60px; max-height: 60px; border-radius: 4px;">
+                                <button type="button" class="ddb-btn-remove" onclick="window.builder.removeImage('${subFieldId}')" title="Remove image">×</button>
+                            </div>
+                            <div class="ddb-image-controls">
+                                <input type="file" id="${subFieldId}-file" accept="image/*" class="ddb-file-input" onchange="window.builder.handleImageUpload(event, '${subFieldId}')" style="display: none;">
+                                <input type="url" 
+                                       class="ddb-form-control ddb-repeater-field" 
+                                       id="${subFieldId}"
+                                       data-field="${subFieldName}"
+                                       data-index="${index}"
+                                       data-parent="${fieldName}"
+                                       value="${this.escapeHtml(subFieldValue)}"
+                                       placeholder="Image URL"
+                                       onchange="window.builder.updateImagePreview('${subFieldId}', this.value)">
+                                <div class="ddb-image-buttons">
+                                    <button type="button" class="ddb-btn-secondary ddb-btn-sm" onclick="document.getElementById('${subFieldId}-file').click()">📁</button>
+                                    <button type="button" class="ddb-btn-secondary ddb-btn-sm" onclick="window.builder.openEmojiPicker('${subFieldId}')">😀</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'color':
+                    fieldInput = `
+                        <input type="color" 
+                               class="ddb-form-control ddb-repeater-field" 
+                               data-field="${subFieldName}"
+                               data-index="${index}"
+                               data-parent="${fieldName}"
+                               value="${this.escapeHtml(subFieldValue)}">
+                    `;
+                    break;
+                case 'textarea':
+                    fieldInput = `
+                        <textarea class="ddb-form-control ddb-repeater-field" 
+                                  data-field="${subFieldName}"
+                                  data-index="${index}"
+                                  data-parent="${fieldName}"
+                                  rows="3">${this.escapeHtml(subFieldValue)}</textarea>
+                    `;
+                    break;
+                default:
+                    fieldInput = `
+                        <input type="text" 
+                               class="ddb-form-control ddb-repeater-field" 
+                               data-field="${subFieldName}"
+                               data-index="${index}"
+                               data-parent="${fieldName}"
+                               value="${this.escapeHtml(subFieldValue)}">
+                    `;
+            }
+
             fieldsHtml += `
                 <div class="ddb-form-group">
                     <label class="ddb-form-label">${this.escapeHtml(subField.label)}</label>
-                    <input type="text" 
-                           class="ddb-form-control ddb-repeater-field" 
-                           data-field="${subFieldName}"
-                           data-index="${index}"
-                           data-parent="${fieldName}"
-                           value="${this.escapeHtml(subFieldValue)}">
+                    ${fieldInput}
                 </div>
             `;
         });
@@ -633,6 +711,166 @@ class DragDropBuilder {
             "'": '&#039;'
         };
         return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+
+    // Image handling methods
+    handleImageUpload(event, fieldId) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Check file size (limit to 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            this.showNotification('Image file size must be less than 5MB', 'error');
+            return;
+        }
+
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'upload_image');
+        formData.append('image', file);
+
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.value = result.url;
+                    this.updateImagePreview(fieldId, result.url);
+                    
+                    // Trigger change event for repeater fields
+                    if (input.classList.contains('ddb-repeater-field')) {
+                        this.updateRepeaterValue(input.dataset.parent);
+                    }
+                    
+                    this.showNotification('Image uploaded successfully', 'success');
+                }
+            } else {
+                this.showNotification('Error uploading image: ' + (result.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            this.showNotification('Error uploading image', 'error');
+        });
+    }
+
+    updateImagePreview(fieldId, imageUrl) {
+        const preview = document.getElementById(fieldId + '-preview');
+        const img = preview ? preview.querySelector('img') : null;
+        
+        if (preview && img) {
+            if (imageUrl && imageUrl.trim()) {
+                // Handle emoji URLs specially
+                if (imageUrl.startsWith('emoji:')) {
+                    const emoji = imageUrl.substring(6);
+                    img.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><text y="50" font-size="50">${emoji}</text></svg>`;
+                } else if (imageUrl.startsWith('data:image/svg+xml')) {
+                    img.src = imageUrl;
+                } else {
+                    img.src = imageUrl;
+                }
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    }
+
+    removeImage(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            input.value = '';
+            this.updateImagePreview(fieldId, '');
+            
+            // Trigger change event for repeater fields
+            if (input.classList.contains('ddb-repeater-field')) {
+                this.updateRepeaterValue(input.dataset.parent);
+            }
+        }
+    }
+
+    // Emoji picker methods
+    openEmojiPicker(fieldId) {
+        if (this.emojiPicker) {
+            this.emojiPicker.remove();
+        }
+
+        const emojis = [
+            // Stats and numbers
+            '📊', '📈', '📉', '💰', '🎯', '🏆', '🎉', '�', '⭐', '🌟',
+            
+            // Features and technology
+            '🚀', '💡', '🔥', '💎', '⚡', '🎖️', '🏅', '🔔', '📢', '👑',
+            '🌐', '💻', '📱', '⚙️', '🔧', '🛠️', '📝', '📋', '💼', '�',
+            
+            // Business and services
+            '🖥️', '📺', '�', '📸', '🔍', '�', '�', '🌍', '🎪', '🏪',
+            '🏢', '�', '🏦', '�️', '�', '📚', '📖', '📑', '�', '�',
+            
+            // People and community
+            '👥', '👤', '👨‍💼', '�‍💼', '👨‍💻', '👩‍💻', '🤝', '�', '✨', '🎭',
+            
+            // Security and reliability
+            '�', '�️', '✅', '☑️', '✔️', '�', '�️', '�', '⚖️', '🎚️',
+            
+            // Communication and support
+            '�', '📧', '�', '🗨️', '�', '📬', '📮', '📪', '📫', '🎤',
+            
+            // Success and growth
+            '🌱', '🌳', '🌿', '�', '�', '�', '�', '🎊', '🥇', '�'
+        ];
+
+        const picker = document.createElement('div');
+        picker.className = 'ddb-emoji-picker';
+        picker.innerHTML = `
+            <div class="ddb-emoji-picker-content">
+                <div class="ddb-emoji-picker-header">
+                    <span>Select Emoji</span>
+                    <button type="button" onclick="this.parentElement.parentElement.parentElement.remove()" class="ddb-btn-close">×</button>
+                </div>
+                <div class="ddb-emoji-grid">
+                    ${emojis.map(emoji => `
+                        <button type="button" class="ddb-emoji-btn" onclick="window.builder.selectEmoji('${fieldId}', '${emoji}')">
+                            ${emoji}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(picker);
+        this.emojiPicker = picker;
+    }
+
+    selectEmoji(fieldId, emoji) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            // For image fields, we'll treat emojis as special image URLs
+            input.value = `emoji:${emoji}`;
+            this.updateImagePreview(fieldId, `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><text y="50" font-size="50">${emoji}</text></svg>`);
+            
+            // Trigger change event for repeater fields
+            if (input.classList.contains('ddb-repeater-field')) {
+                this.updateRepeaterValue(input.dataset.parent);
+            }
+        }
+
+        if (this.emojiPicker) {
+            this.emojiPicker.remove();
+            this.emojiPicker = null;
+        }
     }
 }
 

@@ -22,6 +22,20 @@ if (empty($statsData)) {
 if (!is_array($statsData)) {
     $statsData = array();
 }
+
+// Helper function to render image or emoji
+function renderImageOrEmoji($value, $class = '') {
+    if (empty($value)) return '';
+    
+    if (strpos($value, 'emoji:') === 0) {
+        // It's an emoji
+        $emoji = substr($value, 6);
+        return '<span class="' . $class . '">' . htmlspecialchars($emoji) . '</span>';
+    } else {
+        // It's an image URL
+        return '<img src="' . htmlspecialchars($value) . '" alt="" class="' . $class . '">';
+    }
+}
 ?>
 
 <section class="container mx-auto py-12">
@@ -29,6 +43,11 @@ if (!is_array($statsData)) {
         <?php foreach ($statsData as $stat): ?>
             <div class="stat-card">
                 <div class="stat-content">
+                    <?php if (!empty($stat['icon'])): ?>
+                        <div class="stat-icon">
+                            <?= renderImageOrEmoji($stat['icon'], 'stat-icon-img') ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="stat-number">
                         <?= htmlspecialchars($stat['value'] ?? '') ?>
                     </div>
