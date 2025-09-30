@@ -58,6 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log("unlink_slack: " . (isset($_POST['unlink_slack']) ? 'YES' : 'NO'));
     error_log("save_profile: " . (isset($_POST['save_profile']) ? 'YES' : 'NO'));
 
+    // IMMEDIATE TEST - if save_profile is clicked, show success immediately
+    if (isset($_POST['save_profile'])) {
+        $success = "🎉 SAVE BUTTON WORKS! Form submission successful!";
+        error_log("SUCCESS: Save button was clicked and detected!");
+    }
+
     if (isset($_POST['unlink_discord'])) {
         $discord->unlinkDiscordAccount($currentUser->id);
         $success = "Discord account unlinked successfully!";
@@ -76,16 +82,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slackLink = null;
     } elseif (isset($_POST['save_profile']) || (!isset($_POST['unlink_discord']) && !isset($_POST['unlink_github']) && !isset($_POST['unlink_google']) && !isset($_POST['unlink_slack']))) {
         error_log("=== PROFILE UPDATE SECTION TRIGGERED ===");
-        error_log("PROFILE UPDATE TRIGGERED! Processing profile update for user ID: " . $currentUser->id);
-        error_log("save_profile isset: " . (isset($_POST['save_profile']) ? 'YES' : 'NO'));
+        error_log("Processing profile update for user ID: " . $currentUser->id);
 
-        // Immediate success test
-        $success = "DEBUG: Profile update section was reached! save_profile=" . (isset($_POST['save_profile']) ? 'YES' : 'NO');
-        error_log("Setting success message: " . $success);
+        $newFirst = trim($_POST['first_name'] ?? '');
+        $newLast = trim($_POST['last_name'] ?? '');
+        $newDesc = trim($_POST['description'] ?? '');
+        $newBio = trim($_POST['bio'] ?? '');
+        $newSchool = trim($_POST['school'] ?? '');
+        $newPhone = trim($_POST['phone'] ?? '');
+        $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
-        /* TEMPORARILY COMMENTING OUT COMPLEX LOGIC FOR DEBUGGING
-        // Just end the condition for now
-        */
+        $updateErrors = [];
+        if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
+        if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
+
+        // Handle profile image upload
+        $profileImageName = $currentUser->profile_image ?? '';
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../uploads/profiles/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $fileInfo = pathinfo($_FILES['profile_image']['name']);
+            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $fileExt = strtolower($fileInfo['extension'] ?? '');
+
+            if (in_array($fileExt, $allowedTypes)) {
+                if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
+                    $profileImageName = $currentUser->id . '_' . time() . '.' . $fileExt;
+                    $uploadPath = $uploadDir . $profileImageName;
+
+                    if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
+                        // Delete old profile image if it exists
+                        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
+                            unlink($uploadDir . $currentUser->profile_image);
+                        }
+                    } else {
+                        $updateErrors[] = "Failed to upload profile image.";
+                        $profileImageName = $currentUser->profile_image ?? '';
+                    }
+                } else {
+                    $updateErrors[] = "Profile image must be smaller than 5MB.";
+                }
+            } else {
+                $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
+            }
+        }
+
+        if (empty($updateErrors)) {
+            try {
+                // Update with basic columns that exist
+                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
+                $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+
+                if ($result) {
+                    // Refresh user data
+                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$currentUser->id]);
+                    $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+
+                    $success = "Profile updated successfully!";
+                    error_log("Profile update successful for user ID: " . $currentUser->id);
+                } else {
+                    $error = "Failed to update profile. Please try again.";
+                    error_log("Profile update failed for user ID: " . $currentUser->id);
+                }
+            } catch (Exception $e) {
+                $error = "Database error: " . $e->getMessage();
+                error_log("Profile update error: " . $e->getMessage());
+            }
+        } else {
+            $error = implode('<br>', $updateErrors);
+            error_log("Validation errors: " . implode(', ', $updateErrors));
+        }
     }
 }
 
