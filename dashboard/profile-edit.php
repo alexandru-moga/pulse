@@ -580,65 +580,77 @@ include __DIR__ . '/components/dashboard-header.php';
 
 <script>
     // Profile image preview functionality
-    document.getElementById('profile_image').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
-                e.target.value = '';
-                return;
-            }
-
-            // Validate file size (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
-                e.target.value = '';
-                return;
-            }
-
-            // Preview the image
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.querySelector('.h-20.w-20.rounded-full');
-                if (img) {
-                    img.src = e.target.result;
+    const profileImageInput = document.getElementById('profile_image');
+    if (profileImageInput) {
+        profileImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
+                    e.target.value = '';
+                    return;
                 }
-            };
-            reader.readAsDataURL(file);
 
-            // Show success message
-            const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
-            if (label) {
-                label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-                label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    e.target.value = '';
+                    return;
+                }
+
+                // Preview the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.querySelector('.h-20.w-20.rounded-full');
+                    if (img) {
+                        img.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+
+                // Show success message
+                const labelElement = document.querySelector('label[for="profile_image"]');
+                if (labelElement) {
+                    const parentDiv = labelElement.closest('div');
+                    if (parentDiv) {
+                        const messageP = parentDiv.querySelector('p');
+                        if (messageP) {
+                            messageP.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                            messageP.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+                        }
+                    }
+                }
             }
-        }
-    });
+        });
+    }
 
     // Form submission feedback
-    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function(e) {
-        console.log('Form submission started');
-        const mainForm = e.target;
-        const submitBtn = mainForm.querySelector('button[type="submit"]');
+    const profileForm = document.querySelector('form[enctype="multipart/form-data"]');
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            console.log('Form submission started');
+            const mainForm = e.target;
+            const submitBtn = mainForm.querySelector('button[type="submit"]');
 
-        // Check if this is the profile form
-        if (submitBtn && submitBtn.textContent.trim() === 'Save Changes') {
-            console.log('Profile form detected, updating button');
-            submitBtn.innerHTML = '⏳ Saving...';
-            submitBtn.disabled = true;
+            // Check if this is the profile form
+            if (submitBtn && submitBtn.textContent.trim() === 'Save Changes') {
+                console.log('Profile form detected, updating button');
+                submitBtn.innerHTML = '⏳ Saving...';
+                submitBtn.disabled = true;
 
-            // Re-enable button after 10 seconds as failsafe
-            setTimeout(function() {
-                if (submitBtn.disabled) {
-                    submitBtn.innerHTML = 'Save Changes';
-                    submitBtn.disabled = false;
-                    console.log('Button re-enabled after timeout');
-                }
-            }, 10000);
-        }
-    });
+                // Re-enable button after 10 seconds as failsafe
+                setTimeout(function() {
+                    if (submitBtn.disabled) {
+                        submitBtn.innerHTML = 'Save Changes';
+                        submitBtn.disabled = false;
+                        console.log('Button re-enabled after timeout');
+                    }
+                }, 10000);
+            }
+        });
+    }
 
     // Add click handler for save button with validation
     document.addEventListener('DOMContentLoaded', function() {

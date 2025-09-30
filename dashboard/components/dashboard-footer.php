@@ -4,7 +4,7 @@
 </div>
 
 <!-- Password validation JavaScript -->
-<script src="<?= $settings['site_url'] ?>/css/password-validation.js"></script>
+<script src="<?= $settings['site_url'] ?>/js/password-validation.js"></script>
 
 <script>
     // Dark mode functionality
