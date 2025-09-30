@@ -22,8 +22,9 @@ $gridSubtitle = $subtitle ?? 'Meet the PULSE community';
 
                     foreach ($members as $member):
                         $discord_id = $member['discord_id'] ?? '';
-                        $avatar = !empty($discord_id)
-                            ? "https://cdn.discordapp.com/avatars/{$discord_id}/{$member['discord_avatar']}.png?size=128"
+                        $discord_avatar = $member['discord_avatar'] ?? '';
+                        $avatar = !empty($discord_id) && !empty($discord_avatar)
+                            ? "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128"
                             : '/images/default-avatar.png';
 
                         $roleColors = [
@@ -31,25 +32,25 @@ $gridSubtitle = $subtitle ?? 'Meet the PULSE community';
                             'Co-leader' => 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
                             'Member' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                         ];
-                        $roleColor = $roleColors[$member['role']] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+                        $roleColor = $roleColors[$member['role'] ?? ''] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
             ?>
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
                             <img src="<?= htmlspecialchars($avatar) ?>"
-                                alt="<?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?>"
+                                alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
                                 class="w-16 h-16 rounded-full mx-auto mb-4 object-cover"
                                 onerror="this.src='/images/default-avatar.png'">
 
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                <?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?>
+                                <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
                             </h3>
 
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?> mt-2">
-                                <?= htmlspecialchars($member['role']) ?>
+                                <?= htmlspecialchars($member['role'] ?? '') ?>
                             </span>
 
-                            <?php if (!empty($member['school'])): ?>
+                            <?php if (!empty($member['school'] ?? '')): ?>
                                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                    <?= htmlspecialchars($member['school']) ?>
+                                    <?= htmlspecialchars($member['school'] ?? '') ?>
                                 </p>
                             <?php endif; ?>
                         </div>
