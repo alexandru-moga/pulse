@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Handle other upload errors
             $uploadErrors = [
                 UPLOAD_ERR_INI_SIZE => 'File is too large (server limit)',
-                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)', 
+                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)',
                 UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
                 UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
                 UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
@@ -289,13 +289,13 @@ include __DIR__ . '/components/dashboard-header.php';
         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Privacy Settings</h4>
         <div class="space-y-4">
             <div class="flex items-center">
-                <input type="checkbox" 
-                       id="profile_public" 
-                       name="profile_public" 
-                       value="1"
-                       <?= ($currentUser->profile_public ?? 0) ? 'checked' : '' ?>
-                       <?= !$currentUser->active_member ? 'disabled' : '' ?>
-                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded <?= !$currentUser->active_member ? 'opacity-50 cursor-not-allowed' : '' ?>">
+                <input type="checkbox"
+                    id="profile_public"
+                    name="profile_public"
+                    value="1"
+                    <?= ($currentUser->profile_public ?? 0) ? 'checked' : '' ?>
+                    <?= !$currentUser->active_member ? 'disabled' : '' ?>
+                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded <?= !$currentUser->active_member ? 'opacity-50 cursor-not-allowed' : '' ?>">
                 <label for="profile_public" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                     Show my profile on the public members page
                 </label>
@@ -512,52 +512,52 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-// Profile image preview functionality
-document.getElementById('profile_image').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-            alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
-            e.target.value = '';
-            return;
-        }
-        
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB');
-            e.target.value = '';
-            return;
-        }
-        
-        // Preview the image
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.querySelector('.h-20.w-20.rounded-full');
-            if (img) {
-                img.src = e.target.result;
+    // Profile image preview functionality
+    document.getElementById('profile_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
+                e.target.value = '';
+                return;
             }
-        };
-        reader.readAsDataURL(file);
-        
-        // Show success message
-        const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
-        if (label) {
-            label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-            label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
-        }
-    }
-});
 
-// Form submission feedback
-document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function() {
-    const submitBtn = document.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.innerHTML = '⏳ Saving...';
-        submitBtn.disabled = true;
-    }
-});
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                e.target.value = '';
+                return;
+            }
+
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.querySelector('.h-20.w-20.rounded-full');
+                if (img) {
+                    img.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+
+            // Show success message
+            const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
+            if (label) {
+                label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+            }
+        }
+    });
+
+    // Form submission feedback
+    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function() {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '⏳ Saving...';
+            submitBtn.disabled = true;
+        }
+    });
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
