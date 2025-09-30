@@ -65,14 +65,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newBio = trim($_POST['bio'] ?? '');
         $newSchool = trim($_POST['school'] ?? '');
         $newPhone = trim($_POST['phone'] ?? '');
+        $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
         $updateErrors = [];
         if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
         if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
 
+        // Check if user can set profile to public (only active members)
+        if ($profilePublic && !$currentUser->active_member) {
+            $updateErrors[] = "Only active members can set their profile to public.";
+            $profilePublic = 0;
+        }
+
         // Handle profile image upload
         $profileImageName = $currentUser->profile_image ?? '';
-        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../uploads/profiles/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
@@ -80,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $fileInfo = pathinfo($_FILES['profile_image']['name']);
             $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $fileExt = strtolower($fileInfo['extension']);
+            $fileExt = strtolower($fileInfo['extension'] ?? '');
 
             if (in_array($fileExt, $allowedTypes)) {
                 if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
@@ -93,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             unlink($uploadDir . $currentUser->profile_image);
                         }
                     } else {
-                        $updateErrors[] = "Failed to upload profile image.";
+                        $updateErrors[] = "Failed to upload profile image. Please check file permissions.";
                         $profileImageName = $currentUser->profile_image ?? '';
                     }
                 } else {
@@ -102,11 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
             }
+        } elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] != UPLOAD_ERR_NO_FILE) {
+            // Handle other upload errors
+            $uploadErrors = [
+                UPLOAD_ERR_INI_SIZE => 'File is too large (server limit)',
+                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)', 
+                UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+                UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+                UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+                UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
+            ];
+            $errorCode = $_FILES['profile_image']['error'];
+            $updateErrors[] = "Upload failed: " . ($uploadErrors[$errorCode] ?? "Unknown error ($errorCode)");
         }
 
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ? WHERE id = ?");
-            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $currentUser->id]);
+            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
+            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
 
             $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$currentUser->id]);
@@ -264,6 +283,35 @@ include __DIR__ . '/components/dashboard-header.php';
             class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This short bio will be displayed on the members page. Keep it concise!</p>
     </div>
+
+    <!-- Privacy Settings -->
+    <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Privacy Settings</h4>
+        <div class="space-y-4">
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       id="profile_public" 
+                       name="profile_public" 
+                       value="1"
+                       <?= ($currentUser->profile_public ?? 0) ? 'checked' : '' ?>
+                       <?= !$currentUser->active_member ? 'disabled' : '' ?>
+                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded <?= !$currentUser->active_member ? 'opacity-50 cursor-not-allowed' : '' ?>">
+                <label for="profile_public" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                    Show my profile on the public members page
+                </label>
+            </div>
+            <?php if (!$currentUser->active_member): ?>
+                <p class="text-xs text-amber-600 dark:text-amber-400">
+                    ⚠️ Only active members can set their profile to public
+                </p>
+            <?php else: ?>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    When enabled, your profile will be visible to visitors on the members page
+                </p>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Linked Accounts</h4>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -462,5 +510,54 @@ include __DIR__ . '/components/dashboard-header.php';
     </form>
 </div>
 </div>
+
+<script>
+// Profile image preview functionality
+document.getElementById('profile_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
+            e.target.value = '';
+            return;
+        }
+        
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            e.target.value = '';
+            return;
+        }
+        
+        // Preview the image
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.querySelector('.h-20.w-20.rounded-full');
+            if (img) {
+                img.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(file);
+        
+        // Show success message
+        const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
+        if (label) {
+            label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+            label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+        }
+    }
+});
+
+// Form submission feedback
+document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '⏳ Saving...';
+        submitBtn.disabled = true;
+    }
+});
+</script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
