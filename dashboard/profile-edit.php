@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
         $newDesc = trim($_POST['description'] ?? '');
+        $newBio = trim($_POST['bio'] ?? '');
         $newSchool = trim($_POST['school'] ?? '');
         $newPhone = trim($_POST['phone'] ?? '');
 
@@ -69,9 +70,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
         if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
 
+        // Handle profile image upload
+        $profileImageName = $currentUser->profile_image ?? '';
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+            $uploadDir = __DIR__ . '/../uploads/profiles/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $fileInfo = pathinfo($_FILES['profile_image']['name']);
+            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $fileExt = strtolower($fileInfo['extension']);
+
+            if (in_array($fileExt, $allowedTypes)) {
+                if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
+                    $profileImageName = $currentUser->id . '_' . time() . '.' . $fileExt;
+                    $uploadPath = $uploadDir . $profileImageName;
+
+                    if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
+                        // Delete old profile image if it exists
+                        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
+                            unlink($uploadDir . $currentUser->profile_image);
+                        }
+                    } else {
+                        $updateErrors[] = "Failed to upload profile image.";
+                        $profileImageName = $currentUser->profile_image ?? '';
+                    }
+                } else {
+                    $updateErrors[] = "Profile image must be smaller than 5MB.";
+                }
+            } else {
+                $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
+            }
+        }
+
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
-            $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ? WHERE id = ?");
+            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $currentUser->id]);
 
             $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$currentUser->id]);
@@ -127,7 +162,46 @@ include __DIR__ . '/components/dashboard-header.php';
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
         </div>
 
-        <form method="POST" class="p-6 space-y-6">
+        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+            <!-- Profile Image Upload -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>
+                <div class="flex items-center space-x-6">
+                    <div class="flex-shrink-0">
+                        <?php
+                        $currentImage = '';
+                        if (!empty($currentUser->profile_image)) {
+                            $currentImage = '/uploads/profiles/' . $currentUser->profile_image;
+                        } elseif (!empty($currentUser->discord_id) && !empty($currentUser->discord_avatar)) {
+                            $currentImage = "https://cdn.discordapp.com/avatars/{$currentUser->discord_id}/{$currentUser->discord_avatar}.png?size=128";
+                        } else {
+                            $currentImage = '/images/default-avatar.svg';
+                        }
+                        ?>
+                        <img class="h-20 w-20 rounded-full object-cover"
+                            src="<?= htmlspecialchars($currentImage) ?>"
+                            alt="Current profile picture"
+                            onerror="this.src='/images/default-avatar.svg'">
+                    </div>
+                    <div class="flex-1">
+                        <input type="file"
+                            id="profile_image"
+                            name="profile_image"
+                            accept="image/*"
+                            class="block w-full text-sm text-gray-500 dark:text-gray-400
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-md file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-primary file:text-white
+                                      hover:file:bg-primary/90
+                                      file:cursor-pointer cursor-pointer">
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Upload a JPG, PNG, GIF, or WebP image. Maximum file size: 5MB.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name *</label>
@@ -179,6 +253,16 @@ include __DIR__ . '/components/dashboard-header.php';
             placeholder="Tell us about yourself, your interests, skills, and what you'd like to achieve..."
             class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
+    </div>
+
+    <div>
+        <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Short Bio</label>
+        <textarea id="bio"
+            name="bio"
+            rows="2"
+            placeholder="A brief description that will appear on your member card..."
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This short bio will be displayed on the members page. Keep it concise!</p>
     </div>
     <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Linked Accounts</h4>

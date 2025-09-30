@@ -1,68 +1,85 @@
 <?php
 // Members Grid Component Template
-$gridTitle = $title ?? 'Our Team';
-$gridSubtitle = $subtitle ?? 'Meet the PULSE community';
+$gridTitle = $block_content['title'] ?? 'Our Team';
+$gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
 ?>
 
-<div class="ddb-members-grid py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($gridTitle) ?></h2>
-            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300"><?= htmlspecialchars($gridSubtitle) ?></p>
-        </div>
+<div class="container">
+    <div style="text-align: center; margin: 4rem 0 2rem 0;">
+        <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
+            <?= htmlspecialchars($gridTitle) ?>
+        </h2>
+        <p style="font-size: 1.2rem; color: rgba(255, 255, 255, 0.8); font-weight: 400;">
+            <?= htmlspecialchars($gridSubtitle) ?>
+        </p>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php
-            global $db;
-            if (isset($db)) {
-                try {
-                    $stmt = $db->prepare("SELECT * FROM users WHERE role IN ('Leader', 'Co-leader', 'Member') AND active_member = 1 ORDER BY role DESC, first_name ASC");
-                    $stmt->execute();
-                    $members = $stmt->fetchAll();
+    <div class="members-grid">
+        <?php
+        global $db;
+        if (isset($db)) {
+            try {
+                $stmt = $db->prepare("SELECT * FROM users WHERE role IN ('Leader', 'Co-leader', 'Member') AND active_member = 1 ORDER BY role DESC, first_name ASC");
+                $stmt->execute();
+                $members = $stmt->fetchAll();
 
-                    foreach ($members as $member):
-                        $discord_id = $member['discord_id'] ?? '';
-                        $discord_avatar = $member['discord_avatar'] ?? '';
-                        $avatar = !empty($discord_id) && !empty($discord_avatar)
-                            ? "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128"
-                            : '/images/default-avatar.png';
+                foreach ($members as $member):
+                    // Handle profile image - prioritize custom upload over Discord avatar
+                    $profile_image = $member['profile_image'] ?? '';
+                    $discord_id = $member['discord_id'] ?? '';
+                    $discord_avatar = $member['discord_avatar'] ?? '';
 
-                        $roleColors = [
-                            'Leader' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                            'Co-leader' => 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-                            'Member' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        ];
-                        $roleColor = $roleColors[$member['role'] ?? ''] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-            ?>
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+                    if (!empty($profile_image)) {
+                        // Use custom uploaded image
+                        $avatar = '/uploads/profiles/' . $profile_image;
+                    } elseif (!empty($discord_id) && !empty($discord_avatar)) {
+                        // Fallback to Discord avatar
+                        $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
+                    } else {
+                        // Default avatar
+                        $avatar = '/images/default-avatar.svg';
+                    }
+
+                    $roleColors = [
+                        'Leader' => '#ec3750',
+                        'Co-leader' => '#ff8c37',
+                        'Member' => '#33d6a6'
+                    ];
+                    $roleColor = $roleColors[$member['role'] ?? ''] ?? '#8492a6';
+        ?>
+                    <div class="member-card">
+                        <div class="member-image">
                             <img src="<?= htmlspecialchars($avatar) ?>"
                                 alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
-                                class="w-16 h-16 rounded-full mx-auto mb-4 object-cover"
-                                onerror="this.src='/images/default-avatar.png'">
-
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                onerror="this.src='/images/default-avatar.svg'">
+                        </div>
+                        <div class="member-info">
+                            <div class="member-name">
                                 <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
-                            </h3>
-
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?> mt-2">
+                            </div>
+                            <div class="member-role" style="color: <?= htmlspecialchars($roleColor) ?>;">
                                 <?= htmlspecialchars($member['role'] ?? '') ?>
-                            </span>
-
+                            </div>
+                            <?php if (!empty($member['bio'] ?? '')): ?>
+                                <div class="member-desc">
+                                    <?= htmlspecialchars($member['bio'] ?? '') ?>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($member['school'] ?? '')): ?>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                    <?= htmlspecialchars($member['school'] ?? '') ?>
-                                </p>
+                                <div class="member-desc">
+                                    📚 <?= htmlspecialchars($member['school'] ?? '') ?>
+                                </div>
                             <?php endif; ?>
                         </div>
-            <?php
-                    endforeach;
-                } catch (Exception $e) {
-                    echo '<p class="text-red-500">Error loading members: ' . htmlspecialchars($e->getMessage()) . '</p>';
-                }
-            } else {
-                echo '<p class="text-gray-500">No database connection available</p>';
+                    </div>
+        <?php
+                endforeach;
+            } catch (Exception $e) {
+                echo '<div style="color: #ec3750; text-align: center; padding: 2rem;">Error loading members: ' . htmlspecialchars($e->getMessage()) . '</div>';
             }
-            ?>
-        </div>
+        } else {
+            echo '<div style="color: #8492a6; text-align: center; padding: 2rem;">No database connection available</div>';
+        }
+        ?>
     </div>
 </div>
