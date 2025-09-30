@@ -5,16 +5,16 @@ $stickerDescription = $block_content['description'] ?? 'Thanks to JukeBox for ou
 $partnerUrl = $block_content['partner_url'] ?? 'https://www.jukeboxprint.com/custom-stickers';
 ?>
 
-<section class="jukebox-stickers">
-    <div class="stickers-content">
-        <div class="stickers-header">
+<section class="stickers-section">
+    <div class="container mx-auto py-16">
+        <div class="stickers-card">
             <div class="stickers-icon">🏷️</div>
-            <h2><?= htmlspecialchars($stickerTitle) ?></h2>
-            <p class="subtitle">
+            <h3 class="stickers-title"><?= htmlspecialchars($stickerTitle) ?></h3>
+            <p class="stickers-description">
                 <?= htmlspecialchars($stickerDescription) ?>
                 <?php if ($partnerUrl): ?>
                     <a href="<?= htmlspecialchars($partnerUrl) ?>"
-                        class="credit-link"
+                        class="stickers-link"
                         target="_blank" rel="noopener">custom stickers</a>!
                 <?php endif; ?>
             </p>
