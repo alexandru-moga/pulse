@@ -16,6 +16,12 @@ if (!$currentUser) {
 
 $success = $error = null;
 
+// Debug: Log all POST data
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log("POST data received: " . print_r($_POST, true));
+    error_log("FILES data: " . print_r($_FILES, true));
+}
+
 if (isset($_SESSION['account_link_success'])) {
     $success = $_SESSION['account_link_success'];
     unset($_SESSION['account_link_success']);
@@ -58,7 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slack->unlinkSlackAccount($currentUser->id);
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
-    } else {
+    } elseif (isset($_POST['save_profile']) || (!isset($_POST['unlink_discord']) && !isset($_POST['unlink_github']) && !isset($_POST['unlink_google']) && !isset($_POST['unlink_slack']))) {
+        // Main profile update logic
+        error_log("Processing profile update for user ID: " . $currentUser->id);
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
         $newDesc = trim($_POST['description'] ?? '');
@@ -124,14 +132,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
-            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
+            try {
+                // First, try to check if new columns exist
+                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_public'");
+                $stmt->execute();
+                $profilePublicExists = $stmt->rowCount() > 0;
 
-            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-            $stmt->execute([$currentUser->id]);
-            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'bio'");
+                $stmt->execute();
+                $bioExists = $stmt->rowCount() > 0;
 
-            $success = "Profile updated successfully!";
+                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_image'");
+                $stmt->execute();
+                $profileImageExists = $stmt->rowCount() > 0;
+
+                // Build dynamic query based on available columns
+                $updateFields = "first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
+                $updateValues = [$newFirst, $newLast, $newDesc, $newSchool, $newPhone];
+
+                if ($profileImageExists) {
+                    $updateFields .= ", profile_image = ?";
+                    $updateValues[] = $profileImageName;
+                }
+
+                if ($bioExists) {
+                    $updateFields .= ", bio = ?";
+                    $updateValues[] = $newBio;
+                }
+
+                if ($profilePublicExists) {
+                    $updateFields .= ", profile_public = ?";
+                    $updateValues[] = $profilePublic;
+                }
+
+                $updateValues[] = $currentUser->id;
+
+                $stmt = $db->prepare("UPDATE users SET $updateFields WHERE id = ?");
+                $result = $stmt->execute($updateValues);
+                
+                if ($result) {
+                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$currentUser->id]);
+                    $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+
+                    $success = "Profile updated successfully!";
+                } else {
+                    $error = "Failed to update profile. Please try again.";
+                }
+            } catch (Exception $e) {
+                $error = "Database error: " . $e->getMessage();
+                error_log("Profile update error: " . $e->getMessage());
+            }
         } else {
             $error = implode('<br>', $updateErrors);
         }
@@ -501,7 +552,8 @@ include __DIR__ . '/components/dashboard-header.php';
         </a>
 
         <div class="flex space-x-4">
-            <button type="submit"
+            <button type="submit" 
+                name="save_profile"
                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                 Save Changes
             </button>
@@ -551,11 +603,53 @@ include __DIR__ . '/components/dashboard-header.php';
     });
 
     // Form submission feedback
-    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function() {
-        const submitBtn = document.querySelector('button[type="submit"]');
-        if (submitBtn) {
+    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function(e) {
+        console.log('Form submission started');
+        const mainForm = e.target;
+        const submitBtn = mainForm.querySelector('button[type="submit"]');
+        
+        // Check if this is the profile form
+        if (submitBtn && submitBtn.textContent.trim() === 'Save Changes') {
+            console.log('Profile form detected, updating button');
             submitBtn.innerHTML = '⏳ Saving...';
             submitBtn.disabled = true;
+            
+            // Re-enable button after 10 seconds as failsafe
+            setTimeout(function() {
+                if (submitBtn.disabled) {
+                    submitBtn.innerHTML = 'Save Changes';
+                    submitBtn.disabled = false;
+                    console.log('Button re-enabled after timeout');
+                }
+            }, 10000);
+        }
+    });
+
+    // Add click handler for save button with validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveBtn = document.querySelector('button[type="submit"]');
+        if (saveBtn && saveBtn.textContent.trim() === 'Save Changes') {
+            saveBtn.addEventListener('click', function(e) {
+                console.log('Save button clicked');
+                
+                // Basic validation
+                const firstName = document.querySelector('input[name="first_name"]');
+                const lastName = document.querySelector('input[name="last_name"]');
+                
+                if (!firstName || !firstName.value.trim()) {
+                    alert('First name is required');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                if (!lastName || !lastName.value.trim()) {
+                    alert('Last name is required');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                console.log('Validation passed, form will submit');
+            });
         }
     });
 </script>
