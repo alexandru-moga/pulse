@@ -18,8 +18,10 @@ $success = $error = null;
 
 // Debug: Log all POST data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log("POST method detected!");
     error_log("POST data received: " . print_r($_POST, true));
     error_log("FILES data: " . print_r($_FILES, true));
+    error_log("save_profile in POST: " . (isset($_POST['save_profile']) ? 'YES' : 'NO'));
 }
 
 if (isset($_SESSION['account_link_success'])) {
@@ -48,6 +50,14 @@ $googleLink = $google->getUserGoogleLink($currentUser->id);
 $slackLink = $slack->getUserSlackLink($currentUser->id);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log("=== POST REQUEST RECEIVED ===");
+    error_log("Checking conditions...");
+    error_log("unlink_discord: " . (isset($_POST['unlink_discord']) ? 'YES' : 'NO'));
+    error_log("unlink_github: " . (isset($_POST['unlink_github']) ? 'YES' : 'NO'));
+    error_log("unlink_google: " . (isset($_POST['unlink_google']) ? 'YES' : 'NO'));
+    error_log("unlink_slack: " . (isset($_POST['unlink_slack']) ? 'YES' : 'NO'));
+    error_log("save_profile: " . (isset($_POST['save_profile']) ? 'YES' : 'NO'));
+
     if (isset($_POST['unlink_discord'])) {
         $discord->unlinkDiscordAccount($currentUser->id);
         $success = "Discord account unlinked successfully!";
@@ -65,142 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
     } elseif (isset($_POST['save_profile']) || (!isset($_POST['unlink_discord']) && !isset($_POST['unlink_github']) && !isset($_POST['unlink_google']) && !isset($_POST['unlink_slack']))) {
-        // Main profile update logic with full functionality restored
-        error_log("Processing profile update for user ID: " . $currentUser->id);
-        $newFirst = trim($_POST['first_name'] ?? '');
-        $newLast = trim($_POST['last_name'] ?? '');
-        $newDesc = trim($_POST['description'] ?? '');
-        $newBio = trim($_POST['bio'] ?? '');
-        $newSchool = trim($_POST['school'] ?? '');
-        $newPhone = trim($_POST['phone'] ?? '');
-        $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
+        error_log("=== PROFILE UPDATE SECTION TRIGGERED ===");
+        error_log("PROFILE UPDATE TRIGGERED! Processing profile update for user ID: " . $currentUser->id);
+        error_log("save_profile isset: " . (isset($_POST['save_profile']) ? 'YES' : 'NO'));
 
-        $updateErrors = [];
-        if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
-        if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
+        // Immediate success test
+        $success = "DEBUG: Profile update section was reached! save_profile=" . (isset($_POST['save_profile']) ? 'YES' : 'NO');
+        error_log("Setting success message: " . $success);
 
-        // Check if user can set profile to public (only active members)
-        if ($profilePublic && !$currentUser->active_member) {
-            $updateErrors[] = "Only active members can set their profile to public.";
-            $profilePublic = 0;
-        }
-
-        // Handle profile image upload
-        $profileImageName = $currentUser->profile_image ?? '';
-        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../uploads/profiles/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $fileInfo = pathinfo($_FILES['profile_image']['name']);
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $fileExt = strtolower($fileInfo['extension'] ?? '');
-
-            if (in_array($fileExt, $allowedTypes)) {
-                if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
-                    $profileImageName = $currentUser->id . '_' . time() . '.' . $fileExt;
-                    $uploadPath = $uploadDir . $profileImageName;
-
-                    if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-                        // Delete old profile image if it exists
-                        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
-                            unlink($uploadDir . $currentUser->profile_image);
-                        }
-                    } else {
-                        $updateErrors[] = "Failed to upload profile image. Please check file permissions.";
-                        $profileImageName = $currentUser->profile_image ?? '';
-                    }
-                } else {
-                    $updateErrors[] = "Profile image must be smaller than 5MB.";
-                }
-            } else {
-                $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
-            }
-        } elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] != UPLOAD_ERR_NO_FILE) {
-            // Handle other upload errors
-            $uploadErrors = [
-                UPLOAD_ERR_INI_SIZE => 'File is too large (server limit)',
-                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)',
-                UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
-                UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
-            ];
-            $errorCode = $_FILES['profile_image']['error'];
-            $updateErrors[] = "Upload failed: " . ($uploadErrors[$errorCode] ?? "Unknown error ($errorCode)");
-        }
-
-        if (empty($updateErrors)) {
-            try {
-                // Check if new columns exist before trying to update them
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'bio'");
-                $stmt->execute();
-                $hasBio = $stmt->rowCount() > 0;
-
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_image'");
-                $stmt->execute();
-                $hasProfileImage = $stmt->rowCount() > 0;
-
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_public'");
-                $stmt->execute();
-                $hasProfilePublic = $stmt->rowCount() > 0;
-
-                // Build update query based on available columns
-                $updateFields = "first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
-                $updateParams = [$newFirst, $newLast, $newDesc, $newSchool, $newPhone];
-
-                if ($hasBio) {
-                    $updateFields .= ", bio = ?";
-                    $updateParams[] = $newBio;
-                }
-
-                if ($hasProfileImage) {
-                    $updateFields .= ", profile_image = ?";
-                    $updateParams[] = $profileImageName;
-                }
-
-                if ($hasProfilePublic) {
-                    $updateFields .= ", profile_public = ?";
-                    $updateParams[] = $profilePublic;
-                }
-
-                $updateParams[] = $currentUser->id;
-
-                $stmt = $db->prepare("UPDATE users SET $updateFields WHERE id = ?");
-                $result = $stmt->execute($updateParams);
-
-                error_log("Update query executed. Result: " . ($result ? 'success' : 'failed'));
-
-                if ($result) {
-                    // Refresh user data
-                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-                    $stmt->execute([$currentUser->id]);
-                    $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
-
-                    $columnInfo = [];
-                    if (!$hasBio) $columnInfo[] = "bio";
-                    if (!$hasProfileImage) $columnInfo[] = "profile_image";
-                    if (!$hasProfilePublic) $columnInfo[] = "profile_public";
-
-                    if (!empty($columnInfo)) {
-                        $success = "Profile updated successfully! Note: " . implode(", ", $columnInfo) . " columns don't exist yet - import the updated database to enable these features.";
-                    } else {
-                        $success = "Profile updated successfully!";
-                    }
-                    error_log("Profile update successful for user ID: " . $currentUser->id);
-                } else {
-                    $error = "Failed to update profile. Please try again.";
-                    error_log("Profile update failed for user ID: " . $currentUser->id);
-                }
-            } catch (Exception $e) {
-                $error = "Database error: " . $e->getMessage();
-                error_log("Profile update error: " . $e->getMessage());
-            }
-        } else {
-            $error = implode('<br>', $updateErrors);
-            error_log("Validation errors: " . implode(', ', $updateErrors));
-        }
+        /* TEMPORARILY COMMENTING OUT COMPLEX LOGIC FOR DEBUGGING
+        // Just end the condition for now
+        */
     }
 }
 
@@ -626,38 +511,17 @@ include __DIR__ . '/components/dashboard-header.php';
         });
     }
 
-    // Form submission feedback
-    const profileForm = document.querySelector('form[enctype="multipart/form-data"]');
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            console.log('Form submission started');
-            const mainForm = e.target;
-            const submitBtn = mainForm.querySelector('button[type="submit"]');
-
-            // Check if this is the profile form
-            if (submitBtn && submitBtn.textContent.trim() === 'Save Changes') {
-                console.log('Profile form detected, updating button');
-                submitBtn.innerHTML = '⏳ Saving...';
-                submitBtn.disabled = true;
-
-                // Re-enable button after 10 seconds as failsafe
-                setTimeout(function() {
-                    if (submitBtn.disabled) {
-                        submitBtn.innerHTML = 'Save Changes';
-                        submitBtn.disabled = false;
-                        console.log('Button re-enabled after timeout');
-                    }
-                }, 10000);
-            }
-        });
-    }
-
-    // Add click handler for save button with validation
+    // Form submission with validation
     document.addEventListener('DOMContentLoaded', function() {
-        const saveBtn = document.querySelector('button[type="submit"]');
-        if (saveBtn && saveBtn.textContent.trim() === 'Save Changes') {
-            saveBtn.addEventListener('click', function(e) {
-                console.log('Save button clicked');
+        const profileForm = document.querySelector('form[enctype="multipart/form-data"]');
+        const saveBtn = document.querySelector('button[name="save_profile"]');
+
+        if (profileForm && saveBtn) {
+            console.log('Profile form and save button found');
+
+            // Handle form submission
+            profileForm.addEventListener('submit', function(e) {
+                console.log('Form submit event triggered');
 
                 // Basic validation
                 const firstName = document.querySelector('input[name="first_name"]');
@@ -675,8 +539,25 @@ include __DIR__ . '/components/dashboard-header.php';
                     return false;
                 }
 
-                console.log('Validation passed, form will submit');
+                console.log('Validation passed, submitting form');
+
+                // Update button state
+                saveBtn.innerHTML = '⏳ Saving...';
+                saveBtn.disabled = true;
+
+                // Re-enable button after 10 seconds as failsafe
+                setTimeout(function() {
+                    if (saveBtn.disabled) {
+                        saveBtn.innerHTML = 'Save Changes';
+                        saveBtn.disabled = false;
+                        console.log('Button re-enabled after timeout');
+                    }
+                }, 10000);
+
+                return true; // Allow form submission
             });
+        } else {
+            console.log('Profile form or save button not found');
         }
     });
 </script>
