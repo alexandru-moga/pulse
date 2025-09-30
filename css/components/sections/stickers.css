@@ -62,6 +62,23 @@
     font-weight: 400;
 }
 
+.credit-link {
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.credit-link:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--primary);
+    transform: scale(1.05);
+}
+
 .stickers-content {
     max-width: 1200px;
     margin: 0 auto;
