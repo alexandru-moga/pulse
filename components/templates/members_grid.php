@@ -16,7 +16,7 @@ $gridSubtitle = $subtitle ?? 'Meet the PULSE community';
             global $db;
             if (isset($db)) {
                 try {
-                    $stmt = $db->prepare("SELECT * FROM users WHERE role IN ('Leader', 'Co-leader', 'Member') AND is_active = 1 ORDER BY role DESC, first_name ASC");
+                    $stmt = $db->prepare("SELECT * FROM users WHERE role IN ('Leader', 'Co-leader', 'Member') AND active_member = 1 ORDER BY role DESC, first_name ASC");
                     $stmt->execute();
                     $members = $stmt->fetchAll();
 
