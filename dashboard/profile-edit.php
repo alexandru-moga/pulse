@@ -65,119 +65,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
     } elseif (isset($_POST['save_profile']) || (!isset($_POST['unlink_discord']) && !isset($_POST['unlink_github']) && !isset($_POST['unlink_google']) && !isset($_POST['unlink_slack']))) {
-        // Main profile update logic
+        // Main profile update logic - simplified to only update existing columns
         error_log("Processing profile update for user ID: " . $currentUser->id);
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
         $newDesc = trim($_POST['description'] ?? '');
-        $newBio = trim($_POST['bio'] ?? '');
         $newSchool = trim($_POST['school'] ?? '');
         $newPhone = trim($_POST['phone'] ?? '');
-        $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
         $updateErrors = [];
         if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
         if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
 
-        // Check if user can set profile to public (only active members)
-        if ($profilePublic && !$currentUser->active_member) {
-            $updateErrors[] = "Only active members can set their profile to public.";
-            $profilePublic = 0;
-        }
-
-        // Handle profile image upload
-        $profileImageName = $currentUser->profile_image ?? '';
-        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../uploads/profiles/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $fileInfo = pathinfo($_FILES['profile_image']['name']);
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $fileExt = strtolower($fileInfo['extension'] ?? '');
-
-            if (in_array($fileExt, $allowedTypes)) {
-                if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
-                    $profileImageName = $currentUser->id . '_' . time() . '.' . $fileExt;
-                    $uploadPath = $uploadDir . $profileImageName;
-
-                    if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-                        // Delete old profile image if it exists
-                        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
-                            unlink($uploadDir . $currentUser->profile_image);
-                        }
-                    } else {
-                        $updateErrors[] = "Failed to upload profile image. Please check file permissions.";
-                        $profileImageName = $currentUser->profile_image ?? '';
-                    }
-                } else {
-                    $updateErrors[] = "Profile image must be smaller than 5MB.";
-                }
-            } else {
-                $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
-            }
-        } elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] != UPLOAD_ERR_NO_FILE) {
-            // Handle other upload errors
-            $uploadErrors = [
-                UPLOAD_ERR_INI_SIZE => 'File is too large (server limit)',
-                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)',
-                UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
-                UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
-            ];
-            $errorCode = $_FILES['profile_image']['error'];
-            $updateErrors[] = "Upload failed: " . ($uploadErrors[$errorCode] ?? "Unknown error ($errorCode)");
-        }
-
         if (empty($updateErrors)) {
             try {
-                // First, try to check if new columns exist
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_public'");
-                $stmt->execute();
-                $profilePublicExists = $stmt->rowCount() > 0;
+                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
+                $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
 
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'bio'");
-                $stmt->execute();
-                $bioExists = $stmt->rowCount() > 0;
+                error_log("Update query executed. Result: " . ($result ? 'success' : 'failed'));
 
-                $stmt = $db->prepare("SHOW COLUMNS FROM users LIKE 'profile_image'");
-                $stmt->execute();
-                $profileImageExists = $stmt->rowCount() > 0;
-
-                // Build dynamic query based on available columns
-                $updateFields = "first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
-                $updateValues = [$newFirst, $newLast, $newDesc, $newSchool, $newPhone];
-
-                if ($profileImageExists) {
-                    $updateFields .= ", profile_image = ?";
-                    $updateValues[] = $profileImageName;
-                }
-
-                if ($bioExists) {
-                    $updateFields .= ", bio = ?";
-                    $updateValues[] = $newBio;
-                }
-
-                if ($profilePublicExists) {
-                    $updateFields .= ", profile_public = ?";
-                    $updateValues[] = $profilePublic;
-                }
-
-                $updateValues[] = $currentUser->id;
-
-                $stmt = $db->prepare("UPDATE users SET $updateFields WHERE id = ?");
-                $result = $stmt->execute($updateValues);
-                
                 if ($result) {
+                    // Refresh user data
                     $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
                     $stmt->execute([$currentUser->id]);
                     $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
 
                     $success = "Profile updated successfully!";
+                    error_log("Profile update successful for user ID: " . $currentUser->id);
                 } else {
                     $error = "Failed to update profile. Please try again.";
+                    error_log("Profile update failed for user ID: " . $currentUser->id);
                 }
             } catch (Exception $e) {
                 $error = "Database error: " . $e->getMessage();
@@ -185,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             $error = implode('<br>', $updateErrors);
+            error_log("Validation errors: " . implode(', ', $updateErrors));
         }
     }
 }
@@ -233,7 +151,7 @@ include __DIR__ . '/components/dashboard-header.php';
         </div>
 
         <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
-            <!-- Profile Image Upload -->
+            <!-- Profile Image Upload - Temporarily disabled until database columns are added
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>
                 <div class="flex items-center space-x-6">
@@ -271,6 +189,7 @@ include __DIR__ . '/components/dashboard-header.php';
                     </div>
                 </div>
             </div>
+            -->
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -325,6 +244,7 @@ include __DIR__ . '/components/dashboard-header.php';
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
     </div>
 
+    <!-- Temporarily disabled until database columns are added
     <div>
         <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Short Bio</label>
         <textarea id="bio"
@@ -362,6 +282,7 @@ include __DIR__ . '/components/dashboard-header.php';
             <?php endif; ?>
         </div>
     </div>
+    -->
 
     <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
         <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Linked Accounts</h4>
@@ -552,7 +473,7 @@ include __DIR__ . '/components/dashboard-header.php';
         </a>
 
         <div class="flex space-x-4">
-            <button type="submit" 
+            <button type="submit"
                 name="save_profile"
                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                 Save Changes
@@ -607,13 +528,13 @@ include __DIR__ . '/components/dashboard-header.php';
         console.log('Form submission started');
         const mainForm = e.target;
         const submitBtn = mainForm.querySelector('button[type="submit"]');
-        
+
         // Check if this is the profile form
         if (submitBtn && submitBtn.textContent.trim() === 'Save Changes') {
             console.log('Profile form detected, updating button');
             submitBtn.innerHTML = '⏳ Saving...';
             submitBtn.disabled = true;
-            
+
             // Re-enable button after 10 seconds as failsafe
             setTimeout(function() {
                 if (submitBtn.disabled) {
@@ -631,23 +552,23 @@ include __DIR__ . '/components/dashboard-header.php';
         if (saveBtn && saveBtn.textContent.trim() === 'Save Changes') {
             saveBtn.addEventListener('click', function(e) {
                 console.log('Save button clicked');
-                
+
                 // Basic validation
                 const firstName = document.querySelector('input[name="first_name"]');
                 const lastName = document.querySelector('input[name="last_name"]');
-                
+
                 if (!firstName || !firstName.value.trim()) {
                     alert('First name is required');
                     e.preventDefault();
                     return false;
                 }
-                
+
                 if (!lastName || !lastName.value.trim()) {
                     alert('Last name is required');
                     e.preventDefault();
                     return false;
                 }
-                
+
                 console.log('Validation passed, form will submit');
             });
         }
