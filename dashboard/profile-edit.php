@@ -1,20 +1,20 @@
-<?php<?php<?php
+<?php<?php<?php<?php
 
 /**
 
- * Profile Edit Page/**/**
+ * Profile Edit Page/**
 
  * Allows users to update their personal information, profile image, and linked accounts
 
- */ * Profile Edit Page * Profile Edit Page
+ */ * Profile Edit Page/**/**
 
 
 
-require_once __DIR__ . '/../core/init.php'; * Allows users to update their personal information, profile image, and linked accounts * Allows users to update their personal information, profile image, and linked accounts
+require_once __DIR__ . '/../core/init.php'; * Allows users to update their personal information, profile image, and linked accounts
 
 require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
 
-require_once __DIR__ . '/../core/classes/GitHubOAuth.php'; */ */
+require_once __DIR__ . '/../core/classes/GitHubOAuth.php'; */ * Profile Edit Page * Profile Edit Page
 
 require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
 
@@ -22,23 +22,23 @@ require_once __DIR__ . '/../core/classes/SlackOAuth.php';
 
 
 
-// Security checksrequire_once __DIR__ . '/../core/init.php';require_once __DIR__ . '/../core/init.php';
+// Security checksrequire_once __DIR__ . '/../core/init.php'; * Allows users to update their personal information, profile image, and linked accounts * Allows users to update their personal information, profile image, and linked accounts
 
 checkActiveOrLimitedAccess();
 
-require_once __DIR__ . '/../core/classes/DiscordOAuth.php';require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
+require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
 
 global $db, $currentUser, $settings;
 
-require_once __DIR__ . '/../core/classes/GitHubOAuth.php';require_once __DIR__ . '/../core/classes/GitHubOAuth.php';
+require_once __DIR__ . '/../core/classes/GitHubOAuth.php'; */ */
 
 if (!$currentUser) {
 
-    header('Location: /dashboard/login.php');require_once __DIR__ . '/../core/classes/GoogleOAuth.php';require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
+    header('Location: /dashboard/login.php');require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
 
     exit;
 
-}require_once __DIR__ . '/../core/classes/SlackOAuth.php';require_once __DIR__ . '/../core/classes/SlackOAuth.php';
+}require_once __DIR__ . '/../core/classes/SlackOAuth.php';
 
 
 
@@ -46,115 +46,39 @@ if (!$currentUser) {
 
 $discord = new DiscordOAuth($db);
 
-$github = new GitHubOAuth($db);// Security checks// Security checks
+$github = new GitHubOAuth($db);// Security checksrequire_once __DIR__ . '/../core/init.php';require_once __DIR__ . '/../core/init.php';
 
 $google = new GoogleOAuth($db);
 
-$slack = new SlackOAuth($db);checkActiveOrLimitedAccess();checkActiveOrLimitedAccess();
+$slack = new SlackOAuth($db);checkActiveOrLimitedAccess();
 
 
 
-// Check OAuth configurations
+// Initialize variablesrequire_once __DIR__ . '/../core/classes/DiscordOAuth.php';require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
 
-$discordConfigured = $discord->isConfigured();
+$success = $error = null;
 
-$githubConfigured = $github->isConfigured();global $db, $currentUser, $settings;global $db, $currentUser, $settings;
-
-$googleConfigured = $google->isConfigured();
-
-$slackConfigured = $slack->isConfigured();
-
-
-
-// Get current OAuth linksif (!$currentUser) {if (!$currentUser) {
-
-$discordLink = $discord->getUserDiscordLink($currentUser->id);
-
-$githubLink = $github->getUserGitHubLink($currentUser->id);    header('Location: /dashboard/login.php');    header('Location: /dashboard/login.php');
-
-$googleLink = $google->getUserGoogleLink($currentUser->id);
-
-$slackLink = $slack->getUserSlackLink($currentUser->id);    exit;    exit;
-
-
-
-// Handle session messages}}
-
-$success = $_SESSION['account_link_success'] ?? null;
-
-$error = $_SESSION['account_error'] ?? null;
-
-unset($_SESSION['account_link_success'], $_SESSION['account_error']);
-
-// Initialize OAuth handlers// Initialize OAuth handlers
+global $db, $currentUser, $settings;
 
 /**
 
- * Process form submissions$oauthHandlers = [$oauthHandlers = [
+ * Check if a column exists in the users tablerequire_once __DIR__ . '/../core/classes/GitHubOAuth.php';require_once __DIR__ . '/../core/classes/GitHubOAuth.php';
 
  */
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {    'discord' => new DiscordOAuth($db),    'discord' => new DiscordOAuth($db),
+function columnExists($db, $columnName) {if (!$currentUser) {
 
-    // Handle OAuth unlinking
+    try {
 
-    if (isset($_POST['unlink_discord'])) {    'github' => new GitHubOAuth($db),    'github' => new GitHubOAuth($db),
+        $db->query("SELECT $columnName FROM users LIMIT 1");    header('Location: /dashboard/login.php');require_once __DIR__ . '/../core/classes/GoogleOAuth.php';require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
 
-        $discord->unlinkDiscordAccount($currentUser->id);
+        return true;
 
-        $success = "Discord account unlinked successfully!";    'google' => new GoogleOAuth($db),    'google' => new GoogleOAuth($db),
+    } catch (PDOException $e) {    exit;
 
-        $discordLink = null;
+        return false;
 
-    } elseif (isset($_POST['unlink_github'])) {    'slack' => new SlackOAuth($db)    'slack' => new SlackOAuth($db)
-
-        $github->unlinkGitHubAccount($currentUser->id);
-
-        $success = "GitHub account unlinked successfully!";];];
-
-        $githubLink = null;
-
-    } elseif (isset($_POST['unlink_google'])) {
-
-        $google->unlinkGoogleAccount($currentUser->id);
-
-        $success = "Google account unlinked successfully!";// Check OAuth configurations// Check OAuth configurations
-
-        $googleLink = null;
-
-    } elseif (isset($_POST['unlink_slack'])) {$oauthConfig = array_map(fn($handler) => $handler->isConfigured(), $oauthHandlers);$oauthConfig = array_map(fn($handler) => $handler->isConfigured(), $oauthHandlers);
-
-        $slack->unlinkSlackAccount($currentUser->id);
-
-        $success = "Slack account unlinked successfully!";
-
-        $slackLink = null;
-
-    } elseif (isset($_POST['save_profile'])) {// Get current OAuth links// Get current OAuth links
-
-        // Handle profile updates
-
-        $result = processProfileUpdate();$oauthLinks = [$oauthLinks = [
-
-        if ($result['success']) {
-
-            $success = $result['message'];    'discord' => $oauthHandlers['discord']->getUserDiscordLink($currentUser->id),    'discord' => $oauthHandlers['discord']->getUserDiscordLink($currentUser->id),
-
-            // Refresh user data
-
-            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");    'github' => $oauthHandlers['github']->getUserGitHubLink($currentUser->id),    'github' => $oauthHandlers['github']->getUserGitHubLink($currentUser->id),
-
-            $stmt->execute([$currentUser->id]);
-
-            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);    'google' => $oauthHandlers['google']->getUserGoogleLink($currentUser->id),    'google' => $oauthHandlers['google']->getUserGoogleLink($currentUser->id),
-
-        } else {
-
-            $error = $result['message'];    'slack' => $oauthHandlers['slack']->getUserSlackLink($currentUser->id)    'slack' => $oauthHandlers['slack']->getUserSlackLink($currentUser->id)
-
-        }
-
-    }];];
+    }}require_once __DIR__ . '/../core/classes/SlackOAuth.php';require_once __DIR__ . '/../core/classes/SlackOAuth.php';
 
 }
 
@@ -162,504 +86,1241 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {    'discord' => new DiscordOAuth($d
 
 /**
 
- * Process profile update// Handle session messages// Handle session messages
+ * Handle file upload for profile image// Initialize OAuth handlers
 
  */
 
-function processProfileUpdate(): array {$success = $_SESSION['account_link_success'] ?? null;$success = $_SESSION['account_link_success'] ?? null;
-
-    global $db, $currentUser;
-
-    $error = $_SESSION['account_error'] ?? null;$error = $_SESSION['account_error'] ?? null;
-
-    // Sanitize input data
-
-    $profileData = [unset($_SESSION['account_link_success'], $_SESSION['account_error']);unset($_SESSION['account_link_success'], $_SESSION['account_error']);
-
-        'first_name' => trim($_POST['first_name'] ?? ''),
-
-        'last_name' => trim($_POST['last_name'] ?? ''),
-
-        'description' => trim($_POST['description'] ?? ''),
-
-        'bio' => trim($_POST['bio'] ?? ''),/**/**
-
-        'school' => trim($_POST['school'] ?? ''),
-
-        'phone' => trim($_POST['phone'] ?? ''), * Process form submissions * Process form submissions
-
-        'profile_public' => isset($_POST['profile_public']) ? 1 : 0
-
-    ]; */ */
-
-
-
-    // Validate required fieldsif ($_SERVER['REQUEST_METHOD'] === 'POST') {if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $errors = [];
-
-    if (empty($profileData['first_name'])) $errors[] = "First name is required";    // Handle OAuth unlinking    // Handle OAuth unlinking
-
-    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
-
-    foreach (['discord', 'github', 'google', 'slack'] as $service) {    foreach (['discord', 'github', 'google', 'slack'] as $service) {
-
-    // Handle profile image upload
-
-    $profileImageResult = handleProfileImageUpload();        if (isset($_POST["unlink_$service"])) {        if (isset($_POST["unlink_$service"])) {
-
-    if (!$profileImageResult['success']) {
-
-        $errors[] = $profileImageResult['message'];            $method = "unlink" . ucfirst($service) . "Account";            $method = "unlink" . ucfirst($service) . "Account";
-
-    } else if ($profileImageResult['filename']) {
-
-        $profileData['profile_image'] = $profileImageResult['filename'];            $oauthHandlers[$service]->$method($currentUser->id);            $oauthHandlers[$service]->$method($currentUser->id);
-
-    }
-
-            $success = ucfirst($service) . " account unlinked successfully!";            $success = ucfirst($service) . " account unlinked successfully!";
-
-    if (!empty($errors)) {
-
-        return ['success' => false, 'message' => implode('<br>', $errors)];            $oauthLinks[$service] = null;            $oauthLinks[$service] = null;
-
-    }
-
-            break;            break;
-
-    // Update database
-
-    try {        }        }
-
-        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
-
-        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];    }    }
-
-        
-
-        // Add optional fields if they exist in the database
-
-        if (isset($profileData['profile_image'])) {
-
-            $query .= ", profile_image = ?";    // Handle profile updates    // Handle profile updates
-
-            $params[] = $profileData['profile_image'];
-
-        }    if (isset($_POST['save_profile']) || !array_intersect_key($_POST, array_flip(['unlink_discord', 'unlink_github', 'unlink_google', 'unlink_slack']))) {    if (isset($_POST['save_profile']) || !array_intersect_key($_POST, array_flip(['unlink_discord', 'unlink_github', 'unlink_google', 'unlink_slack']))) {
-
-        
-
-        // Check if bio column exists        $result = processProfileUpdate();        $result = processProfileUpdate();
-
-        try {
-
-            $db->query("SELECT bio FROM users LIMIT 1");        if ($result['success']) {        if ($result['success']) {
-
-            $query .= ", bio = ?";
-
-            $params[] = $profileData['bio'];            $success = $result['message'];            $success = $result['message'];
-
-        } catch (PDOException $e) {
-
-            // bio column doesn't exist, skip it            // Refresh user data            // Refresh user data
-
-        }
-
-                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-
-        // Check if profile_public column exists
-
-        try {            $stmt->execute([$currentUser->id]);            $stmt->execute([$currentUser->id]);
-
-            $db->query("SELECT profile_public FROM users LIMIT 1");
-
-            $query .= ", profile_public = ?";            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
-
-            $params[] = $profileData['profile_public'];
-
-        } catch (PDOException $e) {        } else {        } else {
-
-            // profile_public column doesn't exist, skip it
-
-        }            $error = $result['message'];            $error = $result['message'];
-
-        
-
-        $query .= " WHERE id = ?";        }        }
-
-        $params[] = $currentUser->id;
-
-            }}
-
-        $stmt = $db->prepare($query);
-
-        $stmt->execute($params);}
-
-        
-
-        return ['success' => true, 'message' => 'Profile updated successfully!'];/**
-
-    } catch (Exception $e) {
-
-        error_log("Profile update error: " . $e->getMessage());/** * Process profile update
-
-        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];
-
-    } * Process profile update */
-
-}
-
- */function processProfileUpdate(): array {
-
-/**
-
- * Handle profile image uploadfunction processProfileUpdate(): array {    global $db, $currentUser;
-
- */
-
-function handleProfileImageUpload(): array {    global $db, $currentUser;    
-
-    global $currentUser;
-
-            // Sanitize input data
+function handleProfileImageUpload() {$discord = new DiscordOAuth($db);
 
     if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
 
-        return ['success' => true, 'filename' => null];    // Sanitize input data    $profileData = [
+        return ['success' => false, 'error' => 'No file uploaded or upload error.'];$github = new GitHubOAuth($db);// Security checks// Security checks
 
     }
 
-    $profileData = [        'first_name' => trim($_POST['first_name'] ?? ''),
+$google = new GoogleOAuth($db);
 
-    $uploadDir = __DIR__ . '/../uploads/profiles/';
+    $file = $_FILES['profile_image'];
 
-    if (!is_dir($uploadDir)) {        'first_name' => trim($_POST['first_name'] ?? ''),        'last_name' => trim($_POST['last_name'] ?? ''),
-
-        mkdir($uploadDir, 0755, true);
-
-    }        'last_name' => trim($_POST['last_name'] ?? ''),        'description' => trim($_POST['description'] ?? ''),
-
-
-
-    $file = $_FILES['profile_image'];        'description' => trim($_POST['description'] ?? ''),        'bio' => trim($_POST['bio'] ?? ''),
-
-    $fileInfo = pathinfo($file['name']);
-
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];        'bio' => trim($_POST['bio'] ?? ''),        'school' => trim($_POST['school'] ?? ''),
-
-    $fileExt = strtolower($fileInfo['extension'] ?? '');
-
-        'school' => trim($_POST['school'] ?? ''),        'phone' => trim($_POST['phone'] ?? ''),
+    $slack = new SlackOAuth($db);checkActiveOrLimitedAccess();checkActiveOrLimitedAccess();
 
     // Validate file type
 
-    if (!in_array($fileExt, $allowedTypes)) {        'phone' => trim($_POST['phone'] ?? ''),        'profile_public' => isset($_POST['profile_public']) ? 1 : 0
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-        return ['success' => false, 'message' => 'Profile image must be a JPG, PNG, GIF, or WebP file'];
+    if (!in_array($file['type'], $allowedTypes)) {
 
-    }        'profile_public' => isset($_POST['profile_public']) ? 1 : 0    ];
-
-
-
-    // Validate file size (5MB)    ];
-
-    if ($file['size'] > 5 * 1024 * 1024) {
-
-        return ['success' => false, 'message' => 'Profile image must be smaller than 5MB'];    // Validate required fields
+        return ['success' => false, 'error' => 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'];// Check OAuth configurations
 
     }
 
-    // Validate required fields    $errors = [];
+    $discordConfigured = $discord->isConfigured();
 
-    // Generate unique filename
+    // Validate file size (5MB max)
 
-    $filename = $currentUser->id . '_' . time() . '.' . $fileExt;    $errors = [];    if (empty($profileData['first_name'])) $errors[] = "First name is required";
+    if ($file['size'] > 5 * 1024 * 1024) {$githubConfigured = $github->isConfigured();global $db, $currentUser, $settings;global $db, $currentUser, $settings;
 
-    $uploadPath = $uploadDir . $filename;
+        return ['success' => false, 'error' => 'File size too large. Maximum 5MB allowed.'];
 
-    if (empty($profileData['first_name'])) $errors[] = "First name is required";    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
+    }$googleConfigured = $google->isConfigured();
 
-    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+    
 
-        // Clean up old profile image    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
+    // Create uploads directory if it doesn't exist$slackConfigured = $slack->isConfigured();
 
-        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
+    $uploadDir = __DIR__ . '/../uploads/profiles';
 
-            unlink($uploadDir . $currentUser->profile_image);    // Handle profile image upload
+    if (!is_dir($uploadDir)) {
 
-        }
+        mkdir($uploadDir, 0755, true);
 
-        return ['success' => true, 'filename' => $filename];    // Handle profile image upload    $profileImageResult = handleProfileImageUpload();
+    }// Get current OAuth linksif (!$currentUser) {if (!$currentUser) {
+
+    
+
+    // Generate unique filename$discordLink = $discord->getUserDiscordLink($currentUser->id);
+
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+    $filename = uniqid('profile_', true) . '.' . $extension;$githubLink = $github->getUserGitHubLink($currentUser->id);    header('Location: /dashboard/login.php');    header('Location: /dashboard/login.php');
+
+    $filepath = $uploadDir . '/' . $filename;
+
+    $googleLink = $google->getUserGoogleLink($currentUser->id);
+
+    // Move uploaded file
+
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {$slackLink = $slack->getUserSlackLink($currentUser->id);    exit;    exit;
+
+        return ['success' => true, 'filename' => $filename];
 
     } else {
 
-        return ['success' => false, 'message' => 'Failed to upload profile image'];    $profileImageResult = handleProfileImageUpload();    if (!$profileImageResult['success']) {
+        return ['success' => false, 'error' => 'Failed to move uploaded file.'];
 
-    }
+    }// Handle session messages}}
 
-}    if (!$profileImageResult['success']) {        $errors[] = $profileImageResult['message'];
+}
 
-
-
-// Set page title and include header        $errors[] = $profileImageResult['message'];    } else if ($profileImageResult['filename']) {
-
-$pageTitle = 'Edit Profile';
-
-include __DIR__ . '/components/dashboard-header.php';    } else if ($profileImageResult['filename']) {        $profileData['profile_image'] = $profileImageResult['filename'];
-
-?>
-
-        $profileData['profile_image'] = $profileImageResult['filename'];    }
-
-<div class="max-w-4xl mx-auto space-y-6">
-
-    <!-- Page Header -->    }
-
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-
-        <div class="flex items-center justify-between">    if (!empty($errors)) {
-
-            <div>
-
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h1>    if (!empty($errors)) {        return ['success' => false, 'message' => implode('<br>', $errors)];
-
-                <p class="text-gray-600 dark:text-gray-300 mt-1">Update your personal information and account settings</p>
-
-            </div>        return ['success' => false, 'message' => implode('<br>', $errors)];    }
-
-            <div class="hidden sm:flex items-center space-x-2">
-
-                <div class="w-10 h-10 bg-gradient-to-r from-primary to-red-600 rounded-full flex items-center justify-center">    }
-
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>    // Update database
-
-                    </svg>
-
-                </div>    // Update database    try {
-
-            </div>
-
-        </div>    try {        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
-
-    </div>
-
-        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];
-
-    <!-- Notification Messages -->
-
-    <?php if ($success): ?>        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];        
-
-        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg p-4">
-
-            <div class="flex items-center">                // Add optional fields if they exist in the database
-
-                <div class="flex-shrink-0">
-
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">        // Add optional fields if they exist in the database        if (isset($profileData['profile_image'])) {
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-
-                    </svg>        if (isset($profileData['profile_image'])) {            $query .= ", profile_image = ?";
-
-                </div>
-
-                <div class="ml-3">            $query .= ", profile_image = ?";            $params[] = $profileData['profile_image'];
-
-                    <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200"><?= htmlspecialchars($success) ?></p>
-
-                </div>            $params[] = $profileData['profile_image'];        }
-
-            </div>
-
-        </div>        }        
-
-    <?php endif; ?>
-
-                // Check if bio column exists
-
-    <?php if ($error): ?>
-
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">        // Check if bio column exists        try {
-
-            <div class="flex items-center">
-
-                <div class="flex-shrink-0">        try {            $db->query("SELECT bio FROM users LIMIT 1");
-
-                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>            $db->query("SELECT bio FROM users LIMIT 1");            $query .= ", bio = ?";
-
-                    </svg>
-
-                </div>            $query .= ", bio = ?";            $params[] = $profileData['bio'];
-
-                <div class="ml-3">
-
-                    <p class="text-sm font-medium text-red-800 dark:text-red-200"><?= $error ?></p>            $params[] = $profileData['bio'];        } catch (PDOException $e) {
-
-                </div>
-
-            </div>        } catch (PDOException $e) {            // bio column doesn't exist, skip it
-
-        </div>
-
-    <?php endif; ?>            // bio column doesn't exist, skip it        }
-
-
-
-    <!-- Profile Form -->        }        
-
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">                // Check if profile_public column exists
-
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Personal Information</h2>
-
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Update your profile details and photo</p>        // Check if profile_public column exists        try {
-
-        </div>
-
-        try {            $db->query("SELECT profile_public FROM users LIMIT 1");
-
-        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6" id="profileForm">
-
-            <!-- Profile Image Section -->            $db->query("SELECT profile_public FROM users LIMIT 1");            $query .= ", profile_public = ?";
-
-            <div class="flex items-start space-x-6">
-
-                <div class="flex-shrink-0">            $query .= ", profile_public = ?";            $params[] = $profileData['profile_public'];
-
-                    <div class="relative">
-
-                        <?php             $params[] = $profileData['profile_public'];        } catch (PDOException $e) {
-
-                        $profileImageUrl = !empty($currentUser->profile_image) 
-
-                            ? $settings['site_url'] . '/uploads/profiles/' . $currentUser->profile_image        } catch (PDOException $e) {            // profile_public column doesn't exist, skip it
-
-                            : 'https://via.placeholder.com/96x96/374151/ffffff?text=' . substr($currentUser->first_name ?? 'U', 0, 1);
-
-                        ?>            // profile_public column doesn't exist, skip it        }
-
-                        <img id="profilePreview" 
-
-                             src="<?= $profileImageUrl ?>"         }        
-
-                             alt="Profile Picture" 
-
-                             class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600">                $query .= " WHERE id = ?";
-
-                        <div class="absolute inset-0 rounded-full bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">        $query .= " WHERE id = ?";        $params[] = $currentUser->id;
-
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>        $params[] = $currentUser->id;        
-
-                            </svg>
-
-                        </div>                $stmt = $db->prepare($query);
-
-                    </div>
-
-                </div>        $stmt = $db->prepare($query);        $stmt->execute($params);
-
-                <div class="flex-1">
-
-                    <label for="profile_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>        $stmt->execute($params);        
-
-                    <input type="file" 
-
-                           id="profile_image"                 return ['success' => true, 'message' => 'Profile updated successfully!'];
-
-                           name="profile_image" 
-
-                           accept="image/*"        return ['success' => true, 'message' => 'Profile updated successfully!'];    } catch (Exception $e) {
-
-                           class="block w-full text-sm text-gray-500 dark:text-gray-400
-
-                                  file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0    } catch (Exception $e) {        error_log("Profile update error: " . $e->getMessage());
-
-                                  file:text-sm file:font-semibold file:bg-primary file:text-white
-
-                                  hover:file:bg-primary/90 file:cursor-pointer cursor-pointer        error_log("Profile update error: " . $e->getMessage());        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];
-
-                                  border border-gray-300 dark:border-gray-600 rounded-lg
-
-                                  focus:ring-2 focus:ring-primary focus:border-primary">        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];    }
-
-                    <p id="imageStatus" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-
-                        Upload a JPG, PNG, GIF, or WebP image. Maximum file size: 5MB.    }}
-
-                    </p>
-
-                </div>}
-
-            </div>
+$success = $_SESSION['account_link_success'] ?? null;
 
 /**
 
-            <!-- Basic Information -->
+ * Process profile update$error = $_SESSION['account_error'] ?? null;
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">/** * Handle profile image upload
+ */
 
-                <div>
+function processProfileUpdate() {unset($_SESSION['account_link_success'], $_SESSION['account_error']);
 
-                    <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"> * Handle profile image upload */
+    global $db, $currentUser;
 
-                        First Name <span class="text-red-500">*</span>
+    // Initialize OAuth handlers// Initialize OAuth handlers
 
-                    </label> */function handleProfileImageUpload(): array {
+    // Collect form data
 
-                    <input type="text" 
+    $profileData = [/**
 
-                           id="first_name" function handleProfileImageUpload(): array {    global $currentUser;
+        'first_name' => trim($_POST['first_name'] ?? ''),
 
-                           name="first_name" 
+        'last_name' => trim($_POST['last_name'] ?? ''), * Process form submissions$oauthHandlers = [$oauthHandlers = [
 
-                           value="<?= htmlspecialchars($currentUser->first_name ?? '') ?>"     global $currentUser;    
+        'email' => trim($_POST['email'] ?? ''),
 
-                           required
+        'school' => trim($_POST['school'] ?? ''), */
 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg        if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+        'class' => trim($_POST['class'] ?? ''),
 
-                                  focus:ring-2 focus:ring-primary focus:border-primary
+        'phone' => trim($_POST['phone'] ?? ''),if ($_SERVER['REQUEST_METHOD'] === 'POST') {    'discord' => new DiscordOAuth($db),    'discord' => new DiscordOAuth($db),
 
-                                  dark:bg-gray-700 dark:text-white">    if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {        return ['success' => true, 'filename' => null];
+        'description' => trim($_POST['description'] ?? ''),
+
+        'bio' => trim($_POST['bio'] ?? ''),    // Handle OAuth unlinking
+
+        'ysws_projects' => trim($_POST['ysws_projects'] ?? ''),
+
+        'hcb_member' => isset($_POST['hcb_member']) ? '1' : '0',    if (isset($_POST['unlink_discord'])) {    'github' => new GitHubOAuth($db),    'github' => new GitHubOAuth($db),
+
+        'profile_public' => isset($_POST['profile_public']) ? 1 : 0
+
+    ];        $discord->unlinkDiscordAccount($currentUser->id);
+
+    
+
+    // Handle birthdate        $success = "Discord account unlinked successfully!";    'google' => new GoogleOAuth($db),    'google' => new GoogleOAuth($db),
+
+    if (!empty($_POST['birthdate'])) {
+
+        $profileData['birthdate'] = $_POST['birthdate'];        $discordLink = null;
+
+    }
+
+        } elseif (isset($_POST['unlink_github'])) {    'slack' => new SlackOAuth($db)    'slack' => new SlackOAuth($db)
+
+    // Handle profile image upload
+
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {        $github->unlinkGitHubAccount($currentUser->id);
+
+        $profileImageResult = handleProfileImageUpload();
+
+        if ($profileImageResult['success']) {        $success = "GitHub account unlinked successfully!";];];
+
+            // Delete old profile image if exists
+
+            if (!empty($currentUser->profile_image)) {        $githubLink = null;
+
+                $oldImagePath = __DIR__ . '/../uploads/profiles/' . $currentUser->profile_image;
+
+                if (file_exists($oldImagePath)) {    } elseif (isset($_POST['unlink_google'])) {
+
+                    unlink($oldImagePath);
+
+                }        $google->unlinkGoogleAccount($currentUser->id);
+
+            }
+
+            $profileData['profile_image'] = $profileImageResult['filename'];        $success = "Google account unlinked successfully!";// Check OAuth configurations// Check OAuth configurations
+
+        } else {
+
+            return ['success' => false, 'message' => $profileImageResult['error']];        $googleLink = null;
+
+        }
+
+    }    } elseif (isset($_POST['unlink_slack'])) {$oauthConfig = array_map(fn($handler) => $handler->isConfigured(), $oauthHandlers);$oauthConfig = array_map(fn($handler) => $handler->isConfigured(), $oauthHandlers);
+
+    
+
+    // Build query        $slack->unlinkSlackAccount($currentUser->id);
+
+    $query = "UPDATE users SET first_name = ?, last_name = ?, email = ?, school = ?, class = ?, phone = ?, description = ?, ysws_projects = ?, hcb_member = ?";
+
+    $params = [        $success = "Slack account unlinked successfully!";
+
+        $profileData['first_name'],
+
+        $profileData['last_name'],        $slackLink = null;
+
+        $profileData['email'],
+
+        $profileData['school'],    } elseif (isset($_POST['save_profile'])) {// Get current OAuth links// Get current OAuth links
+
+        $profileData['class'],
+
+        $profileData['phone'],        // Handle profile updates
+
+        $profileData['description'],
+
+        $profileData['ysws_projects'],        $result = processProfileUpdate();$oauthLinks = [$oauthLinks = [
+
+        $profileData['hcb_member']
+
+    ];        if ($result['success']) {
+
+    
+
+    // Add birthdate if provided            $success = $result['message'];    'discord' => $oauthHandlers['discord']->getUserDiscordLink($currentUser->id),    'discord' => $oauthHandlers['discord']->getUserDiscordLink($currentUser->id),
+
+    if (isset($profileData['birthdate'])) {
+
+        $query .= ", birthdate = ?";            // Refresh user data
+
+        $params[] = $profileData['birthdate'];
+
+    }            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");    'github' => $oauthHandlers['github']->getUserGitHubLink($currentUser->id),    'github' => $oauthHandlers['github']->getUserGitHubLink($currentUser->id),
+
+    
+
+    // Add profile_image if uploaded            $stmt->execute([$currentUser->id]);
+
+    if (isset($profileData['profile_image'])) {
+
+        $query .= ", profile_image = ?";            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);    'google' => $oauthHandlers['google']->getUserGoogleLink($currentUser->id),    'google' => $oauthHandlers['google']->getUserGoogleLink($currentUser->id),
+
+        $params[] = $profileData['profile_image'];
+
+    }        } else {
+
+    
+
+    // Check if bio column exists and add it            $error = $result['message'];    'slack' => $oauthHandlers['slack']->getUserSlackLink($currentUser->id)    'slack' => $oauthHandlers['slack']->getUserSlackLink($currentUser->id)
+
+    if (columnExists($db, 'bio')) {
+
+        $query .= ", bio = ?";        }
+
+        $params[] = $profileData['bio'];
+
+    }    }];];
+
+    
+
+    // Check if profile_public column exists and add it}
+
+    if (columnExists($db, 'profile_public')) {
+
+        $query .= ", profile_public = ?";
+
+        $params[] = $profileData['profile_public'];
+
+    }/**
+
+    
+
+    $query .= " WHERE id = ?"; * Process profile update// Handle session messages// Handle session messages
+
+    $params[] = $currentUser->id;
+
+     */
+
+    try {
+
+        $stmt = $db->prepare($query);function processProfileUpdate(): array {$success = $_SESSION['account_link_success'] ?? null;$success = $_SESSION['account_link_success'] ?? null;
+
+        $stmt->execute($params);
+
+        return ['success' => true, 'message' => 'Profile updated successfully!'];    global $db, $currentUser;
+
+    } catch (PDOException $e) {
+
+        error_log("Profile update error: " . $e->getMessage());    $error = $_SESSION['account_error'] ?? null;$error = $_SESSION['account_error'] ?? null;
+
+        return ['success' => false, 'message' => 'Error updating profile. Please try again.'];
+
+    }    // Sanitize input data
+
+}
+
+    $profileData = [unset($_SESSION['account_link_success'], $_SESSION['account_error']);unset($_SESSION['account_link_success'], $_SESSION['account_error']);
+
+// Handle OAuth operations
+
+$oauthHandlers = [        'first_name' => trim($_POST['first_name'] ?? ''),
+
+    'discord' => $discord,
+
+    'github' => $github,        'last_name' => trim($_POST['last_name'] ?? ''),
+
+    'google' => $google,
+
+    'slack' => $slack        'description' => trim($_POST['description'] ?? ''),
+
+];
+
+        'bio' => trim($_POST['bio'] ?? ''),/**/**
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (isset($_POST['action'])) {        'school' => trim($_POST['school'] ?? ''),
+
+        $action = $_POST['action'];
+
+        $service = $_POST['service'] ?? '';        'phone' => trim($_POST['phone'] ?? ''), * Process form submissions * Process form submissions
+
+        
+
+        if (isset($oauthHandlers[$service])) {        'profile_public' => isset($_POST['profile_public']) ? 1 : 0
+
+            if ($action === 'link') {
+
+                try {    ]; */ */
+
+                    $authUrl = $oauthHandlers[$service]->generateAuthUrl();
+
+                    header("Location: $authUrl");
+
+                    exit;
+
+                } catch (Exception $e) {    // Validate required fieldsif ($_SERVER['REQUEST_METHOD'] === 'POST') {if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+                    $error = "Error linking $service: " . $e->getMessage();
+
+                }    $errors = [];
+
+            } elseif ($action === 'unlink') {
+
+                $method = 'unlink' . ucfirst($service);    if (empty($profileData['first_name'])) $errors[] = "First name is required";    // Handle OAuth unlinking    // Handle OAuth unlinking
+
+                if (method_exists($oauthHandlers[$service], $method)) {
+
+                    try {    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
+
+                        $oauthHandlers[$service]->$method($currentUser->id);
+
+                        $success = ucfirst($service) . " account unlinked successfully!";    foreach (['discord', 'github', 'google', 'slack'] as $service) {    foreach (['discord', 'github', 'google', 'slack'] as $service) {
+
+                        // Refresh user data
+
+                        $currentUser = User::getById($currentUser->id);    // Handle profile image upload
+
+                    } catch (Exception $e) {
+
+                        $error = "Error unlinking $service: " . $e->getMessage();    $profileImageResult = handleProfileImageUpload();        if (isset($_POST["unlink_$service"])) {        if (isset($_POST["unlink_$service"])) {
+
+                    }
+
+                }    if (!$profileImageResult['success']) {
+
+            }
+
+        }        $errors[] = $profileImageResult['message'];            $method = "unlink" . ucfirst($service) . "Account";            $method = "unlink" . ucfirst($service) . "Account";
+
+    } else {
+
+        // Handle profile updates    } else if ($profileImageResult['filename']) {
+
+        $result = processProfileUpdate();
+
+        if ($result['success']) {        $profileData['profile_image'] = $profileImageResult['filename'];            $oauthHandlers[$service]->$method($currentUser->id);            $oauthHandlers[$service]->$method($currentUser->id);
+
+            $success = $result['message'];
+
+            // Refresh user data    }
+
+            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+
+            $stmt->execute([$currentUser->id]);            $success = ucfirst($service) . " account unlinked successfully!";            $success = ucfirst($service) . " account unlinked successfully!";
+
+            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+
+        } else {    if (!empty($errors)) {
+
+            $error = $result['message'];
+
+        }        return ['success' => false, 'message' => implode('<br>', $errors)];            $oauthLinks[$service] = null;            $oauthLinks[$service] = null;
+
+    }
+
+}    }
+
+
+
+// Get linked accounts status            break;            break;
+
+$linkedAccounts = [
+
+    'discord' => !empty($currentUser->discord_id),    // Update database
+
+    'github' => !empty($currentUser->github_username),
+
+    'google' => false, // Check google_links table    try {        }        }
+
+    'slack' => !empty($currentUser->slack_id)
+
+];        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
+
+
+
+// Check Google OAuth status        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];    }    }
+
+try {
+
+    $stmt = $db->prepare("SELECT * FROM google_links WHERE user_id = ?");        
+
+    $stmt->execute([$currentUser->id]);
+
+    $linkedAccounts['google'] = $stmt->fetch() !== false;        // Add optional fields if they exist in the database
+
+} catch (PDOException $e) {
+
+    // google_links table might not exist        if (isset($profileData['profile_image'])) {
+
+    $linkedAccounts['google'] = false;
+
+}            $query .= ", profile_image = ?";    // Handle profile updates    // Handle profile updates
+
+
+
+$pageTitle = 'Edit Profile';            $params[] = $profileData['profile_image'];
+
+include __DIR__ . '/components/dashboard-header.php';
+
+?>        }    if (isset($_POST['save_profile']) || !array_intersect_key($_POST, array_flip(['unlink_discord', 'unlink_github', 'unlink_google', 'unlink_slack']))) {    if (isset($_POST['save_profile']) || !array_intersect_key($_POST, array_flip(['unlink_discord', 'unlink_github', 'unlink_google', 'unlink_slack']))) {
+
+
+
+<div class="space-y-6">        
+
+    <!-- Page Header -->
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">        // Check if bio column exists        $result = processProfileUpdate();        $result = processProfileUpdate();
+
+        <div class="flex items-center justify-between">
+
+            <div>        try {
+
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Edit Profile</h2>
+
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Update your personal information and account settings</p>            $db->query("SELECT bio FROM users LIMIT 1");        if ($result['success']) {        if ($result['success']) {
+
+            </div>
+
+        </div>            $query .= ", bio = ?";
+
+    </div>
+
+            $params[] = $profileData['bio'];            $success = $result['message'];            $success = $result['message'];
+
+    <!-- Notifications -->
+
+    <?php if ($success): ?>        } catch (PDOException $e) {
+
+        <div class="bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-md p-4">
+
+            <div class="flex">            // bio column doesn't exist, skip it            // Refresh user data            // Refresh user data
+
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>        }
+
+                </svg>
+
+                <div class="ml-3">                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+
+                    <p class="text-sm text-green-700 dark:text-green-300"><?= htmlspecialchars($success) ?></p>
+
+                </div>        // Check if profile_public column exists
+
+            </div>
+
+        </div>        try {            $stmt->execute([$currentUser->id]);            $stmt->execute([$currentUser->id]);
+
+    <?php endif; ?>
+
+            $db->query("SELECT profile_public FROM users LIMIT 1");
+
+    <?php if ($error): ?>
+
+        <div class="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md p-4">            $query .= ", profile_public = ?";            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+
+            <div class="flex">
+
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">            $params[] = $profileData['profile_public'];
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+
+                </svg>        } catch (PDOException $e) {        } else {        } else {
+
+                <div class="ml-3">
+
+                    <p class="text-sm text-red-700 dark:text-red-300"><?= htmlspecialchars($error) ?></p>            // profile_public column doesn't exist, skip it
 
                 </div>
 
-        return ['success' => true, 'filename' => null];    }
+            </div>        }            $error = $result['message'];            $error = $result['message'];
 
-                <div>
+        </div>
 
-                    <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">    }
+    <?php endif; ?>        
 
-                        Last Name <span class="text-red-500">*</span>
 
-                    </label>    $uploadDir = __DIR__ . '/../uploads/profiles/';
 
-                    <input type="text" 
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">        $query .= " WHERE id = ?";        }        }
 
-                           id="last_name"     $uploadDir = __DIR__ . '/../uploads/profiles/';    if (!is_dir($uploadDir)) {
+        <!-- Profile Information -->
 
-                           name="last_name" 
+        <div class="lg:col-span-2">        $params[] = $currentUser->id;
 
-                           value="<?= htmlspecialchars($currentUser->last_name ?? '') ?>"     if (!is_dir($uploadDir)) {        mkdir($uploadDir, 0755, true);
+            <form method="POST" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 rounded-lg shadow">
 
-                           required
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">            }}
 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg        mkdir($uploadDir, 0755, true);    }
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
 
-                                  focus:ring-2 focus:ring-primary focus:border-primary
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Update your profile details and contact information</p>        $stmt = $db->prepare($query);
+
+                </div>
+
+                        $stmt->execute($params);}
+
+                <div class="p-6 space-y-6">
+
+                    <!-- Profile Image -->        
+
+                    <div>
+
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Image</label>        return ['success' => true, 'message' => 'Profile updated successfully!'];/**
+
+                        <div class="flex items-center space-x-6">
+
+                            <div class="relative">    } catch (Exception $e) {
+
+                                <?php if (!empty($currentUser->profile_image ?? '') && file_exists(__DIR__ . '/../uploads/profiles/' . $currentUser->profile_image)): ?>
+
+                                    <img id="profile-preview" src="/uploads/profiles/<?= htmlspecialchars($currentUser->profile_image) ?>" alt="Profile" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600">        error_log("Profile update error: " . $e->getMessage());/** * Process profile update
+
+                                <?php else: ?>
+
+                                    <div id="profile-preview" class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center border-4 border-gray-200 dark:border-gray-600">        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];
+
+                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>    } * Process profile update */
+
+                                        </svg>
+
+                                    </div>}
+
+                                <?php endif; ?>
+
+                            </div> */function processProfileUpdate(): array {
+
+                            <div>
+
+                                <input type="file" name="profile_image" id="profile_image" accept="image/*" class="hidden">/**
+
+                                <label for="profile_image" class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+
+                                    Change Photo * Handle profile image uploadfunction processProfileUpdate(): array {    global $db, $currentUser;
+
+                                </label>
+
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">JPG, PNG, GIF or WebP. Max 5MB.</p> */
+
+                            </div>
+
+                        </div>function handleProfileImageUpload(): array {    global $db, $currentUser;    
+
+                    </div>
+
+    global $currentUser;
+
+                    <!-- Name Fields -->
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">            // Sanitize input data
+
+                        <div>
+
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>    if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+
+                            <input type="text" name="first_name" id="first_name" required 
+
+                                   value="<?= htmlspecialchars($currentUser->first_name ?? '') ?>"        return ['success' => true, 'filename' => null];    // Sanitize input data    $profileData = [
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>    }
+
+                        <div>
+
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>    $profileData = [        'first_name' => trim($_POST['first_name'] ?? ''),
+
+                            <input type="text" name="last_name" id="last_name" required 
+
+                                   value="<?= htmlspecialchars($currentUser->last_name ?? '') ?>"    $uploadDir = __DIR__ . '/../uploads/profiles/';
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>    if (!is_dir($uploadDir)) {        'first_name' => trim($_POST['first_name'] ?? ''),        'last_name' => trim($_POST['last_name'] ?? ''),
+
+                    </div>
+
+        mkdir($uploadDir, 0755, true);
+
+                    <!-- Contact Information -->
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">    }        'last_name' => trim($_POST['last_name'] ?? ''),        'description' => trim($_POST['description'] ?? ''),
+
+                        <div>
+
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
+
+                            <input type="email" name="email" id="email" required 
+
+                                   value="<?= htmlspecialchars($currentUser->email ?? '') ?>"    $file = $_FILES['profile_image'];        'description' => trim($_POST['description'] ?? ''),        'bio' => trim($_POST['bio'] ?? ''),
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>    $fileInfo = pathinfo($file['name']);
+
+                        <div>
+
+                            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];        'bio' => trim($_POST['bio'] ?? ''),        'school' => trim($_POST['school'] ?? ''),
+
+                            <input type="tel" name="phone" id="phone" 
+
+                                   value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"    $fileExt = strtolower($fileInfo['extension'] ?? '');
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>        'school' => trim($_POST['school'] ?? ''),        'phone' => trim($_POST['phone'] ?? ''),
+
+                    </div>
+
+    // Validate file type
+
+                    <!-- School Information -->
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">    if (!in_array($fileExt, $allowedTypes)) {        'phone' => trim($_POST['phone'] ?? ''),        'profile_public' => isset($_POST['profile_public']) ? 1 : 0
+
+                        <div>
+
+                            <label for="school" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">School</label>        return ['success' => false, 'message' => 'Profile image must be a JPG, PNG, GIF, or WebP file'];
+
+                            <input type="text" name="school" id="school" 
+
+                                   value="<?= htmlspecialchars($currentUser->school ?? '') ?>"    }        'profile_public' => isset($_POST['profile_public']) ? 1 : 0    ];
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>
+
+                        <div>
+
+                            <label for="class" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Class</label>    // Validate file size (5MB)    ];
+
+                            <input type="text" name="class" id="class" 
+
+                                   value="<?= htmlspecialchars($currentUser->class ?? '') ?>"    if ($file['size'] > 5 * 1024 * 1024) {
+
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        </div>        return ['success' => false, 'message' => 'Profile image must be smaller than 5MB'];    // Validate required fields
+
+                    </div>
+
+    }
+
+                    <!-- Birth Date -->
+
+                    <div>    // Validate required fields    $errors = [];
+
+                        <label for="birthdate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Birth Date</label>
+
+                        <input type="date" name="birthdate" id="birthdate"     // Generate unique filename
+
+                               value="<?= htmlspecialchars($currentUser->birthdate ?? '') ?>"
+
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">    $filename = $currentUser->id . '_' . time() . '.' . $fileExt;    $errors = [];    if (empty($profileData['first_name'])) $errors[] = "First name is required";
+
+                    </div>
+
+    $uploadPath = $uploadDir . $filename;
+
+                    <!-- Description -->
+
+                    <div>    if (empty($profileData['first_name'])) $errors[] = "First name is required";    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
+
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+
+                        <textarea name="description" id="description" rows="4"     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+
+                                  placeholder="Tell us about yourself, your interests, and goals..."
+
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>        // Clean up old profile image    if (empty($profileData['last_name'])) $errors[] = "Last name is required";
+
+                    </div>
+
+        if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
+
+                    <!-- Bio (if column exists) -->
+
+                    <?php if (columnExists($db, 'bio')): ?>            unlink($uploadDir . $currentUser->profile_image);    // Handle profile image upload
+
+                    <div>
+
+                        <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Short Bio</label>        }
+
+                        <textarea name="bio" id="bio" rows="2" 
+
+                                  placeholder="A short bio for your member card (max 150 characters)"        return ['success' => true, 'filename' => $filename];    // Handle profile image upload    $profileImageResult = handleProfileImageUpload();
+
+                                  maxlength="150"
+
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>    } else {
+
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will appear on your public member card</p>
+
+                    </div>        return ['success' => false, 'message' => 'Failed to upload profile image'];    $profileImageResult = handleProfileImageUpload();    if (!$profileImageResult['success']) {
+
+                    <?php endif; ?>
+
+    }
+
+                    <!-- YSWS Projects -->
+
+                    <div>}    if (!$profileImageResult['success']) {        $errors[] = $profileImageResult['message'];
+
+                        <label for="ysws_projects" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">YSWS Projects</label>
+
+                        <input type="text" name="ysws_projects" id="ysws_projects" 
+
+                               value="<?= htmlspecialchars($currentUser->ysws_projects ?? '') ?>"
+
+                               placeholder="e.g., boba, hackaccino, sprig"// Set page title and include header        $errors[] = $profileImageResult['message'];    } else if ($profileImageResult['filename']) {
+
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white">
+
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Comma-separated list of YSWS projects you've worked on</p>$pageTitle = 'Edit Profile';
+
+                    </div>
+
+include __DIR__ . '/components/dashboard-header.php';    } else if ($profileImageResult['filename']) {        $profileData['profile_image'] = $profileImageResult['filename'];
+
+                    <!-- Settings -->
+
+                    <div class="space-y-4">?>
+
+                        <h4 class="text-md font-medium text-gray-900 dark:text-white">Settings</h4>
+
+                                $profileData['profile_image'] = $profileImageResult['filename'];    }
+
+                        <label class="flex items-center">
+
+                            <input type="checkbox" name="hcb_member" value="1" <div class="max-w-4xl mx-auto space-y-6">
+
+                                   <?= ($currentUser->hcb_member ?? '0') === '1' ? 'checked' : '' ?>
+
+                                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">    <!-- Page Header -->    }
+
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">HCB Member</span>
+
+                        </label>    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+
+
+
+                        <?php if (columnExists($db, 'profile_public')): ?>        <div class="flex items-center justify-between">    if (!empty($errors)) {
+
+                        <label class="flex items-center">
+
+                            <input type="checkbox" name="profile_public" value="1"             <div>
+
+                                   <?= ($currentUser->profile_public ?? 1) ? 'checked' : '' ?>
+
+                                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h1>    if (!empty($errors)) {        return ['success' => false, 'message' => implode('<br>', $errors)];
+
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show profile on public members page</span>
+
+                        </label>                <p class="text-gray-600 dark:text-gray-300 mt-1">Update your personal information and account settings</p>
+
+                        <?php endif; ?>
+
+                    </div>            </div>        return ['success' => false, 'message' => implode('<br>', $errors)];    }
+
+                </div>
+
+            <div class="hidden sm:flex items-center space-x-2">
+
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
+
+                    <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">                <div class="w-10 h-10 bg-gradient-to-r from-primary to-red-600 rounded-full flex items-center justify-center">    }
+
+                        Save Changes
+
+                    </button>                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                </div>
+
+            </form>                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>    // Update database
+
+        </div>
+
+                    </svg>
+
+        <!-- Connected Accounts -->
+
+        <div class="space-y-6">                </div>    // Update database    try {
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">            </div>
+
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Connected Accounts</h3>
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Link your social accounts</p>        </div>    try {        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";
+
+                </div>
+
+                <div class="p-6 space-y-4">    </div>
+
+                    <!-- Discord -->
+
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">        $query = "UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?";        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];
+
+                        <div class="flex items-center">
+
+                            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">    <!-- Notification Messages -->
+
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+
+                                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.029a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.010c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.191.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.029a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>    <?php if ($success): ?>        $params = [$profileData['first_name'], $profileData['last_name'], $profileData['description'], $profileData['school'], $profileData['phone']];        
+
+                                </svg>
+
+                            </div>        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg p-4">
+
+                            <div class="ml-3">
+
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">Discord</div>            <div class="flex items-center">                // Add optional fields if they exist in the database
+
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+
+                                    <?= $linkedAccounts['discord'] ? 'Connected' : 'Not connected' ?>                <div class="flex-shrink-0">
+
+                                </div>
+
+                            </div>                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">        // Add optional fields if they exist in the database        if (isset($profileData['profile_image'])) {
+
+                        </div>
+
+                        <form method="POST" class="inline">                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+
+                            <input type="hidden" name="service" value="discord">
+
+                            <?php if ($linkedAccounts['discord']): ?>                    </svg>        if (isset($profileData['profile_image'])) {            $query .= ", profile_image = ?";
+
+                                <input type="hidden" name="action" value="unlink">
+
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Unlink</button>                </div>
+
+                            <?php else: ?>
+
+                                <input type="hidden" name="action" value="link">                <div class="ml-3">            $query .= ", profile_image = ?";            $params[] = $profileData['profile_image'];
+
+                                <button type="submit" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">Link</button>
+
+                            <?php endif; ?>                    <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200"><?= htmlspecialchars($success) ?></p>
+
+                        </form>
+
+                    </div>                </div>            $params[] = $profileData['profile_image'];        }
+
+
+
+                    <!-- GitHub -->            </div>
+
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+
+                        <div class="flex items-center">        </div>        }        
+
+                            <div class="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">    <?php endif; ?>
+
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+
+                                </svg>                // Check if bio column exists
+
+                            </div>
+
+                            <div class="ml-3">    <?php if ($error): ?>
+
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">GitHub</div>
+
+                                <div class="text-xs text-gray-500 dark:text-gray-400">        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">        // Check if bio column exists        try {
+
+                                    <?= $linkedAccounts['github'] ? 'Connected' : 'Not connected' ?>
+
+                                </div>            <div class="flex items-center">
+
+                            </div>
+
+                        </div>                <div class="flex-shrink-0">        try {            $db->query("SELECT bio FROM users LIMIT 1");
+
+                        <form method="POST" class="inline">
+
+                            <input type="hidden" name="service" value="github">                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <?php if ($linkedAccounts['github']): ?>
+
+                                <input type="hidden" name="action" value="unlink">                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>            $db->query("SELECT bio FROM users LIMIT 1");            $query .= ", bio = ?";
+
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Unlink</button>
+
+                            <?php else: ?>                    </svg>
+
+                                <input type="hidden" name="action" value="link">
+
+                                <button type="submit" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">Link</button>                </div>            $query .= ", bio = ?";            $params[] = $profileData['bio'];
+
+                            <?php endif; ?>
+
+                        </form>                <div class="ml-3">
+
+                    </div>
+
+                    <p class="text-sm font-medium text-red-800 dark:text-red-200"><?= $error ?></p>            $params[] = $profileData['bio'];        } catch (PDOException $e) {
+
+                    <!-- Google -->
+
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">                </div>
+
+                        <div class="flex items-center">
+
+                            <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">            </div>        } catch (PDOException $e) {            // bio column doesn't exist, skip it
+
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>        </div>
+
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>    <?php endif; ?>            // bio column doesn't exist, skip it        }
+
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+
+                                </svg>
+
+                            </div>
+
+                            <div class="ml-3">    <!-- Profile Form -->        }        
+
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">Google</div>
+
+                                <div class="text-xs text-gray-500 dark:text-gray-400">    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+
+                                    <?= $linkedAccounts['google'] ? 'Connected' : 'Not connected' ?>
+
+                                </div>        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">                // Check if profile_public column exists
+
+                            </div>
+
+                        </div>            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Personal Information</h2>
+
+                        <form method="POST" class="inline">
+
+                            <input type="hidden" name="service" value="google">            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Update your profile details and photo</p>        // Check if profile_public column exists        try {
+
+                            <?php if ($linkedAccounts['google']): ?>
+
+                                <input type="hidden" name="action" value="unlink">        </div>
+
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Unlink</button>
+
+                            <?php else: ?>        try {            $db->query("SELECT profile_public FROM users LIMIT 1");
+
+                                <input type="hidden" name="action" value="link">
+
+                                <button type="submit" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">Link</button>        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6" id="profileForm">
+
+                            <?php endif; ?>
+
+                        </form>            <!-- Profile Image Section -->            $db->query("SELECT profile_public FROM users LIMIT 1");            $query .= ", profile_public = ?";
+
+                    </div>
+
+            <div class="flex items-start space-x-6">
+
+                    <!-- Slack -->
+
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg">                <div class="flex-shrink-0">            $query .= ", profile_public = ?";            $params[] = $profileData['profile_public'];
+
+                        <div class="flex items-center">
+
+                            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">                    <div class="relative">
+
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+
+                                    <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.521-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.523 2.521h-2.521V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.521A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.523v-2.521h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>                        <?php             $params[] = $profileData['profile_public'];        } catch (PDOException $e) {
+
+                                </svg>
+
+                            </div>                        $profileImageUrl = !empty($currentUser->profile_image) 
+
+                            <div class="ml-3">
+
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">Slack</div>                            ? $settings['site_url'] . '/uploads/profiles/' . $currentUser->profile_image        } catch (PDOException $e) {            // profile_public column doesn't exist, skip it
+
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+
+                                    <?= $linkedAccounts['slack'] ? 'Connected' : 'Not connected' ?>                            : 'https://via.placeholder.com/96x96/374151/ffffff?text=' . substr($currentUser->first_name ?? 'U', 0, 1);
+
+                                </div>
+
+                            </div>                        ?>            // profile_public column doesn't exist, skip it        }
+
+                        </div>
+
+                        <form method="POST" class="inline">                        <img id="profilePreview" 
+
+                            <input type="hidden" name="service" value="slack">
+
+                            <?php if ($linkedAccounts['slack']): ?>                             src="<?= $profileImageUrl ?>"         }        
+
+                                <input type="hidden" name="action" value="unlink">
+
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Unlink</button>                             alt="Profile Picture" 
+
+                            <?php else: ?>
+
+                                <input type="hidden" name="action" value="link">                             class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600">                $query .= " WHERE id = ?";
+
+                                <button type="submit" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">Link</button>
+
+                            <?php endif; ?>                        <div class="absolute inset-0 rounded-full bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+
+                        </form>
+
+                    </div>                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">        $query .= " WHERE id = ?";        $params[] = $currentUser->id;
+
+                </div>
+
+            </div>                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+
+
+
+            <!-- Profile Statistics -->                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>        $params[] = $currentUser->id;        
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Profile Status</h3>                            </svg>
+
+                <div class="space-y-3">
+
+                    <div class="flex justify-between text-sm">                        </div>                $stmt = $db->prepare($query);
+
+                        <span class="text-gray-600 dark:text-gray-400">Member since</span>
+
+                        <span class="text-gray-900 dark:text-white">                    </div>
+
+                            <?= date('M Y', strtotime($currentUser->join_date ?? 'now')) ?>
+
+                        </span>                </div>        $stmt = $db->prepare($query);        $stmt->execute($params);
+
+                    </div>
+
+                    <div class="flex justify-between text-sm">                <div class="flex-1">
+
+                        <span class="text-gray-600 dark:text-gray-400">Role</span>
+
+                        <span class="text-gray-900 dark:text-white">                    <label for="profile_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Picture</label>        $stmt->execute($params);        
+
+                            <?= htmlspecialchars($currentUser->role ?? 'Member') ?>
+
+                        </span>                    <input type="file" 
+
+                    </div>
+
+                    <div class="flex justify-between text-sm">                           id="profile_image"                 return ['success' => true, 'message' => 'Profile updated successfully!'];
+
+                        <span class="text-gray-600 dark:text-gray-400">Status</span>
+
+                        <span class="text-green-600 dark:text-green-400">                           name="profile_image" 
+
+                            <?= $currentUser->active_member ? 'Active' : 'Inactive' ?>
+
+                        </span>                           accept="image/*"        return ['success' => true, 'message' => 'Profile updated successfully!'];    } catch (Exception $e) {
+
+                    </div>
+
+                    <div class="flex justify-between text-sm">                           class="block w-full text-sm text-gray-500 dark:text-gray-400
+
+                        <span class="text-gray-600 dark:text-gray-400">Connected accounts</span>
+
+                        <span class="text-gray-900 dark:text-white">                                  file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0    } catch (Exception $e) {        error_log("Profile update error: " . $e->getMessage());
+
+                            <?= array_sum($linkedAccounts) ?>/4
+
+                        </span>                                  file:text-sm file:font-semibold file:bg-primary file:text-white
+
+                    </div>
+
+                </div>                                  hover:file:bg-primary/90 file:cursor-pointer cursor-pointer        error_log("Profile update error: " . $e->getMessage());        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];
+
+            </div>
+
+        </div>                                  border border-gray-300 dark:border-gray-600 rounded-lg
+
+    </div>
+
+</div>                                  focus:ring-2 focus:ring-primary focus:border-primary">        return ['success' => false, 'message' => 'Database error occurred. Please try again.'];    }
+
+
+
+<script>                    <p id="imageStatus" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+
+// Profile image preview
+
+document.getElementById('profile_image').addEventListener('change', function(e) {                        Upload a JPG, PNG, GIF, or WebP image. Maximum file size: 5MB.    }}
+
+    const file = e.target.files[0];
+
+    if (file) {                    </p>
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {                </div>}
+
+            const preview = document.getElementById('profile-preview');
+
+            preview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-600">`;            </div>
+
+        }
+
+        reader.readAsDataURL(file);/**
+
+    }
+
+});            <!-- Basic Information -->
+
+
+
+// Form validation            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">/** * Handle profile image upload
+
+document.querySelector('form').addEventListener('submit', function(e) {
+
+    const requiredFields = ['first_name', 'last_name', 'email'];                <div>
+
+    let isValid = true;
+
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"> * Handle profile image upload */
+
+    requiredFields.forEach(field => {
+
+        const input = document.getElementById(field);                        First Name <span class="text-red-500">*</span>
+
+        if (!input.value.trim()) {
+
+            isValid = false;                    </label> */function handleProfileImageUpload(): array {
+
+            input.classList.add('border-red-500');
+
+            input.focus();                    <input type="text" 
+
+        } else {
+
+            input.classList.remove('border-red-500');                           id="first_name" function handleProfileImageUpload(): array {    global $currentUser;
+
+        }
+
+    });                           name="first_name" 
+
+    
+
+    if (!isValid) {                           value="<?= htmlspecialchars($currentUser->first_name ?? '') ?>"     global $currentUser;    
+
+        e.preventDefault();
+
+        alert('Please fill in all required fields.');                           required
+
+    }
+
+});                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg        if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {
+
+
+
+// Bio character counter                                  focus:ring-2 focus:ring-primary focus:border-primary
+
+const bioTextarea = document.getElementById('bio');
+
+if (bioTextarea) {                                  dark:bg-gray-700 dark:text-white">    if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] !== UPLOAD_ERR_OK) {        return ['success' => true, 'filename' => null];
+
+    const maxLength = 150;
+
+                    </div>
+
+    function updateCounter() {
+
+        const remaining = maxLength - bioTextarea.value.length;        return ['success' => true, 'filename' => null];    }
+
+        let counter = bioTextarea.parentNode.querySelector('.char-counter');
+
+                        <div>
+
+        if (!counter) {
+
+            counter = document.createElement('div');                    <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">    }
+
+            counter.className = 'char-counter text-xs text-gray-500 dark:text-gray-400 mt-1';
+
+            bioTextarea.parentNode.appendChild(counter);                        Last Name <span class="text-red-500">*</span>
+
+        }
+
+                            </label>    $uploadDir = __DIR__ . '/../uploads/profiles/';
+
+        counter.textContent = `${remaining} characters remaining`;
+
+                            <input type="text" 
+
+        if (remaining < 0) {
+
+            counter.classList.add('text-red-500');                           id="last_name"     $uploadDir = __DIR__ . '/../uploads/profiles/';    if (!is_dir($uploadDir)) {
+
+            counter.classList.remove('text-gray-500', 'dark:text-gray-400');
+
+        } else {                           name="last_name" 
+
+            counter.classList.remove('text-red-500');
+
+            counter.classList.add('text-gray-500', 'dark:text-gray-400');                           value="<?= htmlspecialchars($currentUser->last_name ?? '') ?>"     if (!is_dir($uploadDir)) {        mkdir($uploadDir, 0755, true);
+
+        }
+
+    }                           required
+
+    
+
+    bioTextarea.addEventListener('input', updateCounter);                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg        mkdir($uploadDir, 0755, true);    }
+
+    updateCounter(); // Initial call
+
+}                                  focus:ring-2 focus:ring-primary focus:border-primary
+
+</script>
 
                                   dark:bg-gray-700 dark:text-white">    }
 
+<?php include __DIR__ . '/components/dashboard-footer.php'; ?>
                 </div>
 
             </div>    $file = $_FILES['profile_image'];
