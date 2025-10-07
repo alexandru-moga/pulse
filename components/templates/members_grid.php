@@ -4,8 +4,8 @@ $gridTitle = $block_content['title'] ?? 'Our Team';
 $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
 ?>
 
-<div class="container">
-    <div style="text-align: center; margin: 4rem 0 2rem 0;">
+<div class="container" style="padding: 2rem 0;">
+    <div style="text-align: center; margin: 2rem 0 3rem 0;">
         <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
             <?= htmlspecialchars($gridTitle) ?>
         </h2>
@@ -14,7 +14,7 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
         </p>
     </div>
 
-    <div class="members-grid">
+    <div style="width: 100%;">
         <?php
         global $db;
         if (isset($db)) {
@@ -41,7 +41,7 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
                         <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
                             Leadership
                         </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; justify-items: center; margin-bottom: 2rem;">
+                        <div class="members-grid" style="max-width: 800px; margin: 0 auto 2rem auto;">
                             <?php foreach ($leaders as $member):
                                 // Handle profile image - prioritize custom upload over Discord avatar
                                 $profile_image = $member['profile_image'] ?? '';
@@ -96,7 +96,7 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
                         <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
                             Co-Leaders
                         </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                        <div class="members-grid">
                             <?php foreach ($coLeaders as $member):
                                 // Handle profile image - prioritize custom upload over Discord avatar
                                 $profile_image = $member['profile_image'] ?? '';
@@ -151,7 +151,7 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
                         <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
                             Members
                         </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                        <div class="members-grid">
                             <?php foreach ($members as $member):
                                 // Handle profile image - prioritize custom upload over Discord avatar
                                 $profile_image = $member['profile_image'] ?? '';
