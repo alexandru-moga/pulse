@@ -177,14 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
 
                     $componentConfig = $builder->getComponent($componentType);
                     $settings = json_decode($settingsJson, true) ?: [];
-
-                    // Debug logging for stats component
-                    if ($componentType === 'stats') {
-                        error_log("Stats component debug:");
-                        error_log("Component config: " . json_encode($componentConfig));
-                        error_log("Original settings: " . json_encode($settings));
-                    }
-
                     // Special handling for statistics component migration
                     if ($componentType === 'stats') {
                         // Check if the data is in old format (direct array) vs new format (with 'items' field)
