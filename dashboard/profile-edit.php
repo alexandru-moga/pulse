@@ -80,14 +80,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newDesc = trim($_POST['description'] ?? '');
         $newSchool = trim($_POST['school'] ?? '');
         $newPhone = trim($_POST['phone'] ?? '');
+        $newBio = trim($_POST['bio'] ?? '');
+        $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
         $updateErrors = [];
         if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
         if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
 
+        // Handle profile picture upload
+        $profileImageFilename = $currentUser->profile_image;
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../images/members/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $fileExtension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                $updateErrors[] = "Invalid file type. Allowed: " . implode(', ', $allowedExtensions);
+            } elseif ($_FILES['profile_image']['size'] > 5 * 1024 * 1024) { // 5MB limit
+                $updateErrors[] = "File size must be less than 5MB.";
+            } else {
+                // Delete old profile image if exists
+                if ($profileImageFilename && file_exists($uploadDir . $profileImageFilename)) {
+                    unlink($uploadDir . $profileImageFilename);
+                }
+                
+                // Generate unique filename
+                $profileImageFilename = 'profile_' . $currentUser->id . '_' . time() . '.' . $fileExtension;
+                
+                if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadDir . $profileImageFilename)) {
+                    $updateErrors[] = "Failed to upload profile picture.";
+                    $profileImageFilename = $currentUser->profile_image; // Revert on failure
+                }
+            }
+        }
+
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
-            $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?, bio = ?, profile_image = ?, profile_public = ? WHERE id = ?");
+            $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $newBio, $profileImageFilename, $profilePublic, $currentUser->id]);
 
             $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$currentUser->id]);
@@ -143,7 +176,42 @@ include __DIR__ . '/components/dashboard-header.php';
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h3>
         </div>
 
-        <form method="POST" class="p-6 space-y-6">
+        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+            
+            <!-- Profile Picture Section -->
+            <div class="border-b border-gray-200 dark:border-gray-600 pb-6">
+                <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Profile Picture</h4>
+                <div class="flex items-center space-x-6">
+                    <div class="shrink-0">
+                        <?php if ($currentUser->profile_image): ?>
+                            <img src="<?= $settings['site_url'] ?>/images/members/<?= htmlspecialchars($currentUser->profile_image) ?>" 
+                                 alt="Profile" 
+                                 class="h-24 w-24 object-cover rounded-full border-2 border-gray-300 dark:border-gray-600">
+                        <?php else: ?>
+                            <div class="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-red-600 flex items-center justify-center text-white text-3xl font-bold border-2 border-gray-300 dark:border-gray-600">
+                                <?= strtoupper(substr($currentUser->first_name, 0, 1) . substr($currentUser->last_name, 0, 1)) ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block">
+                            <span class="sr-only">Choose profile photo</span>
+                            <input type="file" 
+                                   name="profile_image" 
+                                   accept="image/jpeg,image/png,image/gif,image/webp"
+                                   class="block w-full text-sm text-gray-500 dark:text-gray-400
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-md file:border-0
+                                          file:text-sm file:font-semibold
+                                          file:bg-primary file:text-white
+                                          hover:file:bg-red-600
+                                          file:cursor-pointer cursor-pointer">
+                        </label>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF or WEBP. Max 5MB.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name *</label>
@@ -195,6 +263,36 @@ include __DIR__ . '/components/dashboard-header.php';
             placeholder="Tell us about yourself, your interests, skills, and what you'd like to achieve..."
             class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
+    </div>
+
+    <!-- Public Profile Section -->
+    <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Public Profile Settings</h4>
+        
+        <div class="mb-4">
+            <label class="flex items-center cursor-pointer">
+                <input type="checkbox" 
+                       name="profile_public" 
+                       value="1"
+                       <?= ($currentUser->profile_public ?? 1) ? 'checked' : '' ?>
+                       class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary dark:focus:ring-primary dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Show my profile on the public members page</span>
+            </label>
+            <p class="ml-6 mt-1 text-xs text-gray-500 dark:text-gray-400">When enabled, your profile will be visible on the team members page</p>
+        </div>
+
+        <div>
+            <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Public Bio / Member Card Message</label>
+            <textarea id="bio"
+                name="bio"
+                rows="3"
+                maxlength="200"
+                placeholder="A short message that will appear on your member card (max 200 characters)..."
+                class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <span id="bioCharCount"><?= strlen($currentUser->bio ?? '') ?></span>/200 characters
+            </p>
+        </div>
     </div>
 
     <!-- Save Button for Profile Form -->
@@ -406,16 +504,72 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-// Simple form submission feedback
 document.addEventListener('DOMContentLoaded', function() {
     const mainForm = document.querySelector('form.p-6.space-y-6');
     const saveButton = mainForm ? mainForm.querySelector('button[type="submit"]') : null;
 
+    // Form submission feedback
     if (mainForm && saveButton) {
         mainForm.addEventListener('submit', function(e) {
-            // Show visual feedback during submission
             saveButton.textContent = 'Saving...';
             saveButton.disabled = true;
+        });
+    }
+
+    // Bio character counter
+    const bioTextarea = document.getElementById('bio');
+    const charCount = document.getElementById('bioCharCount');
+    
+    if (bioTextarea && charCount) {
+        bioTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length;
+            
+            // Visual feedback for character limit
+            if (length > 200) {
+                charCount.classList.add('text-red-600', 'font-bold');
+                this.value = this.value.substring(0, 200);
+            } else if (length > 180) {
+                charCount.classList.add('text-yellow-600');
+                charCount.classList.remove('text-red-600', 'font-bold');
+            } else {
+                charCount.classList.remove('text-red-600', 'text-yellow-600', 'font-bold');
+            }
+        });
+    }
+
+    // Profile image preview
+    const profileImageInput = document.querySelector('input[name="profile_image"]');
+    if (profileImageInput) {
+        profileImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.querySelector('img[alt="Profile"], .h-24.w-24.rounded-full');
+                    if (img) {
+                        if (img.tagName === 'IMG') {
+                            img.src = e.target.result;
+                        } else {
+                            // Replace div with img
+                            const newImg = document.createElement('img');
+                            newImg.src = e.target.result;
+                            newImg.alt = 'Profile';
+                            newImg.className = 'h-24 w-24 object-cover rounded-full border-2 border-gray-300 dark:border-gray-600';
+                            img.replaceWith(newImg);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         });
     }
 });
