@@ -125,70 +125,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($updateErrors)) {
             try {
-                // Begin transaction for atomic updates
-                $db->beginTransaction();
+                // Simple database update - no complex logging for now
+                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
+                $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
 
-                // Log profile changes for audit trail
-                $changesMade = [];
-                $fieldsToTrack = [
-                    'first_name' => $newFirst,
-                    'last_name' => $newLast,
-                    'description' => $newDesc,
-                    'bio' => $newBio,
-                    'school' => $newSchool,
-                    'phone' => $newPhone,
-                    'profile_image' => $profileImageName,
-                    'profile_public' => $profilePublic
-                ];
+                if ($result) {
+                    // Refresh user data
+                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$currentUser->id]);
+                    $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
 
-                // Check for changes and log them
-                foreach ($fieldsToTrack as $field => $newValue) {
-                    $oldValue = $currentUser->$field ?? '';
-                    if ($oldValue != $newValue) {
-                        $changesMade[] = $field;
-
-                        // Log the change (skip sensitive data in logs)
-                        $logValue = $field === 'profile_image' ? 'Image updated' : $newValue;
-                        $logOldValue = $field === 'profile_image' ? 'Previous image' : $oldValue;
-
-                        $logStmt = $db->prepare("INSERT INTO profile_update_logs (user_id, field_changed, old_value, new_value, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)");
-                        $logStmt->execute([
-                            $currentUser->id,
-                            $field,
-                            $logOldValue,
-                            $logValue,
-                            $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
-                            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
-                        ]);
-                    }
-                }
-
-                // Update the user profile with timestamp
-                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ?, last_profile_update = NOW() WHERE id = ?");
-                $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
-
-                // Commit transaction
-                $db->commit();
-
-                // Refresh user data
-                $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-                $stmt->execute([$currentUser->id]);
-                $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
-
-                // Create detailed success message
-                if (empty($changesMade)) {
-                    $success = "No changes were made to your profile.";
+                    $success = "Profile updated successfully!";
                 } else {
-                    $changedFields = implode(', ', array_map(function ($field) {
-                        return ucfirst(str_replace('_', ' ', $field));
-                    }, $changesMade));
-                    $success = "Profile updated successfully! Changed fields: " . $changedFields;
+                    $error = "Failed to update profile. Please try again.";
                 }
             } catch (Exception $e) {
-                // Rollback transaction on error
-                $db->rollback();
                 error_log("Profile update error for user " . $currentUser->id . ": " . $e->getMessage());
-                $error = "An error occurred while updating your profile. Please try again.";
+                $error = "An error occurred while updating your profile: " . $e->getMessage();
             }
         } else {
             $error = implode('<br>', $updateErrors);
