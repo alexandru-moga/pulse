@@ -20,7 +20,7 @@ try {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
             } else {
                 $_SESSION['account_link_success'] = 'Slack account linked successfully!';
-                header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+                header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
             }
         } else {
             if (isset($_SESSION['slack_oauth_action']) && $_SESSION['slack_oauth_action'] === 'login') {
@@ -28,14 +28,14 @@ try {
                 header('Location: ' . $settings['site_url'] . '/dashboard/login.php');
             } else {
                 $_SESSION['account_error'] = $result['error'];
-                header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+                header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
             }
         }
         exit;
     }
     if (isset($_GET['error'])) {
         $_SESSION['account_error'] = 'Slack OAuth was cancelled or failed.';
-        header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+        header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
         exit;
     }
     $isLogin = ($_GET['action'] ?? 'link') === 'login';
@@ -46,7 +46,7 @@ try {
 } catch (Exception $e) {
     error_log('Slack OAuth Error: ' . $e->getMessage());
     $_SESSION['account_error'] = 'An error occurred during Slack authentication.';
-    header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+    header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
     exit;
 }
 ?>

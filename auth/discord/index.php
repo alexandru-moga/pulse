@@ -22,7 +22,7 @@ try {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
             } else {
                 $_SESSION['account_link_success'] = 'Discord account linked successfully!';
-                header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+                header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
             }
         } else {
             error_log("Discord OAuth: Callback failed: " . $result['error']);
@@ -31,7 +31,7 @@ try {
                 header('Location: ' . $settings['site_url'] . '/dashboard/login.php');
             } else {
                 $_SESSION['account_error'] = $result['error'];
-                header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+                header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
             }
         }
         exit;
@@ -40,7 +40,7 @@ try {
     if (isset($_GET['error'])) {
         error_log("Discord OAuth: Received error: " . $_GET['error']);
         $_SESSION['account_error'] = 'Discord OAuth was cancelled or failed.';
-        header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+        header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
         exit;
     }
     
@@ -55,7 +55,7 @@ try {
     $_SESSION['account_error'] = $e->getMessage();
     
     if (isLoggedIn()) {
-        header('Location: ' . $settings['site_url'] . '/dashboard/edit-integrations.php');
+        header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
     } else {
         header('Location: ' . $settings['site_url'] . '/dashboard/login.php');
     }
