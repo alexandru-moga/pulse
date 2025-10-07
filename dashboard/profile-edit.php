@@ -124,14 +124,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
-            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
+            try {
+                // Begin transaction for atomic updates
+                $db->beginTransaction();
 
-            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-            $stmt->execute([$currentUser->id]);
-            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+                // Log profile changes for audit trail
+                $changesMade = [];
+                $fieldsToTrack = [
+                    'first_name' => $newFirst,
+                    'last_name' => $newLast,
+                    'description' => $newDesc,
+                    'bio' => $newBio,
+                    'school' => $newSchool,
+                    'phone' => $newPhone,
+                    'profile_image' => $profileImageName,
+                    'profile_public' => $profilePublic
+                ];
 
-            $success = "Profile updated successfully!";
+                // Check for changes and log them
+                foreach ($fieldsToTrack as $field => $newValue) {
+                    $oldValue = $currentUser->$field ?? '';
+                    if ($oldValue != $newValue) {
+                        $changesMade[] = $field;
+
+                        // Log the change (skip sensitive data in logs)
+                        $logValue = $field === 'profile_image' ? 'Image updated' : $newValue;
+                        $logOldValue = $field === 'profile_image' ? 'Previous image' : $oldValue;
+
+                        $logStmt = $db->prepare("INSERT INTO profile_update_logs (user_id, field_changed, old_value, new_value, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)");
+                        $logStmt->execute([
+                            $currentUser->id,
+                            $field,
+                            $logOldValue,
+                            $logValue,
+                            $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+                            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+                        ]);
+                    }
+                }
+
+                // Update the user profile with timestamp
+                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ?, last_profile_update = NOW() WHERE id = ?");
+                $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
+
+                // Commit transaction
+                $db->commit();
+
+                // Refresh user data
+                $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                $stmt->execute([$currentUser->id]);
+                $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+
+                // Create detailed success message
+                if (empty($changesMade)) {
+                    $success = "No changes were made to your profile.";
+                } else {
+                    $changedFields = implode(', ', array_map(function ($field) {
+                        return ucfirst(str_replace('_', ' ', $field));
+                    }, $changesMade));
+                    $success = "Profile updated successfully! Changed fields: " . $changedFields;
+                }
+            } catch (Exception $e) {
+                // Rollback transaction on error
+                $db->rollback();
+                error_log("Profile update error for user " . $currentUser->id . ": " . $e->getMessage());
+                $error = "An error occurred while updating your profile. Please try again.";
+            }
         } else {
             $error = implode('<br>', $updateErrors);
         }
@@ -148,6 +206,22 @@ include __DIR__ . '/components/dashboard-header.php';
             <div>
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Edit Profile</h2>
                 <p class="text-gray-600 dark:text-gray-300 mt-1">Update your personal information and preferences</p>
+                <?php if (!empty($currentUser->last_profile_update)): ?>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Last updated: <?= date('M j, Y \a\t g:i A', strtotime($currentUser->last_profile_update)) ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+            <div class="text-right">
+                <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div id="profile-status" class="flex items-center">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                        <span>Ready to edit</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -501,9 +575,21 @@ include __DIR__ . '/components/dashboard-header.php';
         </a>
 
         <div class="flex space-x-4">
-            <button type="submit"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                Save Changes
+            <button type="button" onclick="resetForm()"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582s.44 0 1.059-.278C7.221 7.972 9.505 7 12 7c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8"></path>
+                </svg>
+                Reset
+            </button>
+            <button type="submit" id="saveBtn"
+                class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                <span id="saveBtnIcon" class="inline-block mr-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </span>
+                <span id="saveBtnText">Save Changes</span>
             </button>
         </div>
     </div>
@@ -550,14 +636,334 @@ include __DIR__ . '/components/dashboard-header.php';
         }
     });
 
-    // Form submission feedback
-    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function() {
-        const submitBtn = document.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.innerHTML = '⏳ Saving...';
-            submitBtn.disabled = true;
+    // Enhanced save button functionality
+    let originalFormData = {};
+    let isFormDirty = false;
+
+    // Store original form data
+    function storeOriginalData() {
+        const form = document.querySelector('form[enctype="multipart/form-data"]');
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'profile_image') { // Skip file input
+                originalFormData[key] = value;
+            }
+        }
+        // Store checkbox states separately
+        originalFormData['profile_public'] = document.querySelector('input[name="profile_public"]')?.checked || false;
+    }
+
+    // Check if form has been modified
+    function checkFormDirty() {
+        const form = document.querySelector('form[enctype="multipart/form-data"]');
+        const currentData = new FormData(form);
+        let isDirty = false;
+
+        for (let [key, value] of currentData.entries()) {
+            if (key !== 'profile_image' && originalFormData[key] !== value) {
+                isDirty = true;
+                break;
+            }
+        }
+
+        // Check checkbox
+        const profilePublicChecked = document.querySelector('input[name="profile_public"]')?.checked || false;
+        if (originalFormData['profile_public'] !== profilePublicChecked) {
+            isDirty = true;
+        }
+
+        // Check if file was selected
+        const fileInput = document.getElementById('profile_image');
+        if (fileInput && fileInput.files.length > 0) {
+            isDirty = true;
+        }
+
+        isFormDirty = isDirty;
+        updateSaveButton();
+    }
+
+    // Update save button state and profile status
+    function updateSaveButton() {
+        const saveBtn = document.getElementById('saveBtn');
+        const saveBtnText = document.getElementById('saveBtnText');
+        const saveBtnIcon = document.getElementById('saveBtnIcon');
+        const profileStatus = document.getElementById('profile-status');
+
+        if (isFormDirty) {
+            saveBtn.classList.remove('opacity-50');
+            saveBtn.classList.add('pulse-animation');
+            saveBtnText.textContent = 'Save Changes';
+            saveBtnIcon.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            `;
+
+            // Update profile status
+            if (profileStatus) {
+                profileStatus.innerHTML = `
+                    <div class="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                    <span>Unsaved changes</span>
+                `;
+            }
+        } else {
+            saveBtn.classList.add('opacity-50');
+            saveBtn.classList.remove('pulse-animation');
+            saveBtnText.textContent = 'No Changes';
+            saveBtnIcon.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            `;
+
+            // Update profile status
+            if (profileStatus) {
+                profileStatus.innerHTML = `
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>Up to date</span>
+                `;
+            }
+        }
+    }
+
+    // Reset form to original state
+    function resetForm() {
+        if (!isFormDirty) return;
+
+        if (confirm('Are you sure you want to reset all changes? This cannot be undone.')) {
+            // Reset text inputs
+            for (let [key, value] of Object.entries(originalFormData)) {
+                const input = document.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = value;
+                    } else {
+                        input.value = value;
+                    }
+                }
+            }
+
+            // Reset file input and preview
+            const fileInput = document.getElementById('profile_image');
+            if (fileInput) {
+                fileInput.value = '';
+                // Reset image preview to original
+                const img = document.querySelector('.h-20.w-20.rounded-full');
+                if (img && img.dataset.originalSrc) {
+                    img.src = img.dataset.originalSrc;
+                }
+                // Reset file label
+                const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
+                if (label) {
+                    label.innerHTML = 'PNG, JPG, GIF, or WebP up to 5MB';
+                    label.className = 'mt-2 text-xs text-gray-500 dark:text-gray-400';
+                }
+            }
+
+            checkFormDirty();
+        }
+    }
+
+    // Form validation
+    function validateForm() {
+        const requiredFields = ['first_name', 'last_name'];
+        let isValid = true;
+        let errorMessages = [];
+
+        requiredFields.forEach(fieldName => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field && !field.value.trim()) {
+                isValid = false;
+                errorMessages.push(`${fieldName.replace('_', ' ')} is required`);
+                field.classList.add('border-red-500');
+            } else if (field) {
+                field.classList.remove('border-red-500');
+            }
+        });
+
+        if (!isValid) {
+            alert('Please fix the following errors:\n• ' + errorMessages.join('\n• '));
+        }
+
+        return isValid;
+    }
+
+    // Enhanced form submission
+    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveBtn');
+        const saveBtnText = document.getElementById('saveBtnText');
+        const saveBtnIcon = document.getElementById('saveBtnIcon');
+
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.classList.add('opacity-75');
+            saveBtnText.textContent = 'Saving...';
+            saveBtnIcon.innerHTML = `
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            `;
         }
     });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Store original image src for reset functionality
+        const img = document.querySelector('.h-20.w-20.rounded-full');
+        if (img) {
+            img.dataset.originalSrc = img.src;
+        }
+
+        storeOriginalData();
+        checkFormDirty();
+
+        // Add change listeners to all form inputs
+        const form = document.querySelector('form[enctype="multipart/form-data"]');
+        if (form) {
+            form.addEventListener('input', function() {
+                checkFormDirty();
+                autoSaveDraft();
+            });
+            form.addEventListener('change', function() {
+                checkFormDirty();
+                autoSaveDraft();
+            });
+        }
+
+        // Load any saved draft
+        loadDraft();
+
+        // Add keyboard shortcut for save (Ctrl+S)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveBtn');
+                if (saveBtn && !saveBtn.disabled && isFormDirty) {
+                    if (validateForm()) {
+                        saveBtn.click();
+                    }
+                }
+            }
+        });
+    });
+
+    // Auto-save draft functionality
+    let autoSaveTimer;
+
+    function autoSaveDraft() {
+        if (!isFormDirty) return;
+
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            const formData = new FormData(document.querySelector('form[enctype="multipart/form-data"]'));
+            const draftData = {};
+
+            // Convert FormData to plain object (excluding file uploads)
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'profile_image') {
+                    draftData[key] = value;
+                }
+            }
+
+            // Save to localStorage as draft
+            localStorage.setItem('profile_draft_' + <?= $currentUser->id ?>, JSON.stringify({
+                data: draftData,
+                timestamp: new Date().toISOString(),
+                checkboxes: {
+                    profile_public: document.querySelector('input[name="profile_public"]')?.checked || false
+                }
+            }));
+
+            // Show brief draft saved indicator
+            const profileStatus = document.getElementById('profile-status');
+            if (profileStatus && isFormDirty) {
+                const originalHtml = profileStatus.innerHTML;
+                profileStatus.innerHTML = `
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                    <span>Draft saved</span>
+                `;
+                setTimeout(() => {
+                    if (isFormDirty) {
+                        profileStatus.innerHTML = `
+                            <div class="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                            <span>Unsaved changes</span>
+                        `;
+                    }
+                }, 2000);
+            }
+        }, 3000); // Auto-save after 3 seconds of inactivity
+    }
+
+    // Load draft on page load
+    function loadDraft() {
+        const draftKey = 'profile_draft_' + <?= $currentUser->id ?>;
+        const savedDraft = localStorage.getItem(draftKey);
+
+        if (savedDraft) {
+            try {
+                const draft = JSON.parse(savedDraft);
+                const draftDate = new Date(draft.timestamp);
+                const now = new Date();
+                const hoursDiff = (now - draftDate) / (1000 * 60 * 60);
+
+                // Only load draft if it's less than 24 hours old
+                if (hoursDiff < 24) {
+                    const confirmLoad = confirm(
+                        `Found a saved draft from ${draftDate.toLocaleString()}. ` +
+                        'Would you like to load it?'
+                    );
+
+                    if (confirmLoad) {
+                        // Load draft data into form
+                        for (let [key, value] of Object.entries(draft.data)) {
+                            const input = document.querySelector(`[name="${key}"]`);
+                            if (input && input.type !== 'checkbox') {
+                                input.value = value;
+                            }
+                        }
+
+                        // Load checkbox states
+                        for (let [key, value] of Object.entries(draft.checkboxes || {})) {
+                            const checkbox = document.querySelector(`[name="${key}"]`);
+                            if (checkbox) {
+                                checkbox.checked = value;
+                            }
+                        }
+
+                        // Clear the draft and update form state
+                        localStorage.removeItem(draftKey);
+                        storeOriginalData();
+                        checkFormDirty();
+                    }
+                } else {
+                    // Remove old draft
+                    localStorage.removeItem(draftKey);
+                }
+            } catch (e) {
+                console.error('Error loading draft:', e);
+                localStorage.removeItem(draftKey);
+            }
+        }
+    }
+
+    // Add pulse animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
