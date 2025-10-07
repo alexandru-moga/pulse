@@ -628,10 +628,16 @@ include __DIR__ . '/components/dashboard-header.php';
             reader.readAsDataURL(file);
 
             // Show success message
-            const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
-            if (label) {
-                label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-                label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+            const profileLabel = document.querySelector('label[for="profile_image"]');
+            if (profileLabel) {
+                const labelContainer = profileLabel.closest('div');
+                if (labelContainer) {
+                    const label = labelContainer.querySelector('p');
+                    if (label) {
+                        label.innerHTML = '✅ Image selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                        label.className = 'mt-2 text-xs text-green-600 dark:text-green-400';
+                    }
+                }
             }
         }
     });
@@ -767,10 +773,16 @@ include __DIR__ . '/components/dashboard-header.php';
                     img.src = img.dataset.originalSrc;
                 }
                 // Reset file label
-                const label = document.querySelector('label[for="profile_image"]').closest('div').querySelector('p');
-                if (label) {
-                    label.innerHTML = 'PNG, JPG, GIF, or WebP up to 5MB';
-                    label.className = 'mt-2 text-xs text-gray-500 dark:text-gray-400';
+                const profileLabel = document.querySelector('label[for="profile_image"]');
+                if (profileLabel) {
+                    const labelContainer = profileLabel.closest('div');
+                    if (labelContainer) {
+                        const label = labelContainer.querySelector('p');
+                        if (label) {
+                            label.innerHTML = 'PNG, JPG, GIF, or WebP up to 5MB';
+                            label.className = 'mt-2 text-xs text-gray-500 dark:text-gray-400';
+                        }
+                    }
                 }
             }
 
@@ -802,7 +814,8 @@ include __DIR__ . '/components/dashboard-header.php';
         return isValid;
     }
 
-    // Simple form submission with basic validation
+    // Form submission handler (commented out to avoid conflicts)
+    /*
     const form = document.querySelector('form[enctype="multipart/form-data"]');
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -852,6 +865,7 @@ include __DIR__ . '/components/dashboard-header.php';
     } else {
         console.error('Could not find form element!');
     }
+    */
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -1012,13 +1026,49 @@ include __DIR__ . '/components/dashboard-header.php';
     `;
     document.head.appendChild(style);
 
-    // Backup: Ensure save button always works
+    // Simple save button functionality
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
         console.log('Save button found:', saveBtn);
-        saveBtn.addEventListener('click', function(e) {
-            console.log('Save button clicked!');
-            // Don't prevent default - let form submit naturally
+        
+        // Remove any existing event listeners by cloning the button
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+        
+        // Add simple click handler
+        newSaveBtn.addEventListener('click', function(e) {
+            console.log('Save button clicked - validating and submitting...');
+            
+            // Basic validation
+            const firstName = document.querySelector('[name="first_name"]');
+            const lastName = document.querySelector('[name="last_name"]');
+            
+            if (firstName && !firstName.value.trim()) {
+                alert('First name is required');
+                e.preventDefault();
+                firstName.focus();
+                return;
+            }
+            
+            if (lastName && !lastName.value.trim()) {
+                alert('Last name is required');
+                e.preventDefault();
+                lastName.focus();
+                return;
+            }
+            
+            // Show loading state
+            const saveBtnText = document.getElementById('saveBtnText');
+            const saveBtnIcon = document.getElementById('saveBtnIcon');
+            
+            newSaveBtn.disabled = true;
+            newSaveBtn.classList.add('opacity-75');
+            if (saveBtnText) saveBtnText.textContent = 'Saving...';
+            if (saveBtnIcon) {
+                saveBtnIcon.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            }
+            
+            console.log('Form will submit naturally...');
         });
     } else {
         console.error('Save button not found!');
