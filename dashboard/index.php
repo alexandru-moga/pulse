@@ -153,11 +153,27 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
 
                 <div class="space-y-4">
                     <div class="flex items-center space-x-4">
-                        <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-                            <span class="text-white text-xl font-medium">
-                                <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?><?= strtoupper(substr($currentUser->last_name ?? '', 0, 1)) ?>
-                            </span>
-                        </div>
+                        <?php
+                        // Handle profile image - prioritize custom upload over Discord avatar
+                        $profile_image = $currentUser->profile_image ?? '';
+                        $discord_id = $currentUser->discord_id ?? '';
+                        $discord_avatar = $currentUser->discord_avatar ?? '';
+
+                        if (!empty($profile_image)) {
+                            // Use custom uploaded image
+                            $avatar = '/images/members/' . $profile_image;
+                        } elseif (!empty($discord_id) && !empty($discord_avatar)) {
+                            // Fallback to Discord avatar
+                            $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
+                        } else {
+                            // Default avatar
+                            $avatar = '/images/default-avatar.svg';
+                        }
+                        ?>
+                        <img src="<?= htmlspecialchars($avatar) ?>" 
+                             alt="<?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>"
+                             class="w-16 h-16 rounded-full object-cover"
+                             onerror="this.src='/images/default-avatar.svg'">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 dark:text-white">
                                 <?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>
