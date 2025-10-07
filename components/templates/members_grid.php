@@ -31,7 +31,7 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
 
                     if (!empty($profile_image)) {
                         // Use custom uploaded image
-                        $avatar = '/uploads/profiles/' . $profile_image;
+                        $avatar = '/images/members/' . $profile_image;
                     } elseif (!empty($discord_id) && !empty($discord_avatar)) {
                         // Fallback to Discord avatar
                         $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
