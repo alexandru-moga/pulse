@@ -183,8 +183,23 @@ include __DIR__ . '/components/dashboard-header.php';
             class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
     </div>
-    <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
-        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Linked Accounts</h4>
+
+    <!-- Save Button for Profile Form -->
+    <div class="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-600">
+        <button type="submit"
+            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            Save Changes
+        </button>
+    </div>
+    </form>
+</div>
+
+<!-- Account Linking Section (Separate from Profile Form) -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Linked Accounts</h3>
+    </div>
+    <div class="p-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <!-- Only show enabled integrations -->
 
@@ -361,8 +376,15 @@ include __DIR__ . '/components/dashboard-header.php';
             </a>
         </div>
     </div>
+</div>
+</div>
 
-    <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+<!-- Additional Settings Section -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Account Settings</h3>
+    </div>
+    <div class="p-6">
         <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php"
             class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,16 +392,7 @@ include __DIR__ . '/components/dashboard-header.php';
             </svg>
             Change Password
         </a>
-
-        <div class="flex space-x-4">
-            <button type="submit"
-                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                Save Changes
-            </button>
-        </div>
     </div>
-    </form>
-</div>
 </div>
 
 <script>
