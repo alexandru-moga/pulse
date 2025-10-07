@@ -4,24 +4,36 @@ $sections = $sections ?? [
     [
         'title' => 'Personal Information',
         'fields' => [
-            ['name' => 'first_name', 'label' => 'First Name', 'type' => 'text', 'placeholder' => 'Your first name', 'required' => true],
-            ['name' => 'last_name', 'label' => 'Last Name', 'type' => 'text', 'placeholder' => 'Your last name', 'required' => true],
-            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'your.email@example.com', 'required' => true],
-            ['name' => 'phone', 'label' => 'Phone', 'type' => 'tel', 'placeholder' => '+40 XXX XXX XXX', 'required' => true],
+            ['name' => 'first_name', 'label' => 'First Name', 'type' => 'text', 'placeholder' => '', 'required' => true],
+            ['name' => 'last_name', 'label' => 'Last Name', 'type' => 'text', 'placeholder' => '', 'required' => true],
+            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => '', 'required' => true],
+            ['name' => 'phone', 'label' => 'Phone', 'type' => 'tel', 'placeholder' => '', 'required' => true],
             ['name' => 'birthdate', 'label' => 'Birthdate', 'type' => 'date', 'placeholder' => 'mm/dd/yyyy', 'required' => true],
         ]
     ],
     [
         'title' => 'Academic Information',
         'fields' => [
-            ['name' => 'school', 'label' => 'School', 'type' => 'text', 'placeholder' => 'Your school name', 'required' => true],
-            ['name' => 'class', 'label' => 'Grade/Year', 'type' => 'text', 'placeholder' => 'e.g., 10th Grade, Freshman', 'required' => true],
+            ['name' => 'school', 'label' => 'School', 'type' => 'text', 'placeholder' => '', 'required' => true],
+            ['name' => 'class', 'label' => 'Grade/Year', 'type' => 'select', 'placeholder' => 'Select grade', 'required' => true, 'options' => [
+                '' => 'Select grade',
+                '9' => '9th Grade',
+                '10' => '10th Grade',
+                '11' => '11th Grade',
+                '12' => '12th Grade',
+                'freshman' => 'Freshman (University)',
+                'sophomore' => 'Sophomore (University)',
+                'junior' => 'Junior (University)',
+                'senior' => 'Senior (University)',
+                'graduate' => 'Graduate Student',
+                'other' => 'Other'
+            ]],
         ]
     ],
     [
         'title' => 'Additional Information',
         'fields' => [
-            ['name' => 'description', 'label' => 'Coding Skills/Superpowers', 'type' => 'textarea', 'placeholder' => 'Tell us about your coding experience, projects, or what you\'d like to learn...', 'required' => true],
+            ['name' => 'description', 'label' => 'Coding Skills/Superpowers', 'type' => 'textarea', 'placeholder' => '', 'required' => true],
         ]
     ]
 ];
@@ -80,8 +92,19 @@ $pageSubtitle = $page_subtitle ?? 'Ready to start your coding journey with us?';
                                 name="<?= htmlspecialchars($field1['name']) ?>"
                                 rows="4"
                                 <?= ($field1['required'] ?? false) ? 'required' : '' ?>
-                                placeholder="<?= htmlspecialchars($field1['placeholder'] ?? '') ?>"
-                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid rgba(236, 55, 80, 0.15); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1rem; font-family: inherit;"><?= isset($_SESSION['form_data'][$field1['name']]) ? htmlspecialchars($_SESSION['form_data'][$field1['name']]) : '' ?></textarea>
+                                placeholder="<?= htmlspecialchars($field1['placeholder'] ?? '') ?>"><?= isset($_SESSION['form_data'][$field1['name']]) ? htmlspecialchars($_SESSION['form_data'][$field1['name']]) : '' ?></textarea>
+                        <?php elseif ($field1['type'] === 'select'): ?>
+                            <select
+                                id="<?= htmlspecialchars($field1['name']) ?>"
+                                name="<?= htmlspecialchars($field1['name']) ?>"
+                                <?= ($field1['required'] ?? false) ? 'required' : '' ?>>
+                                <?php foreach ($field1['options'] as $value => $label): ?>
+                                    <option value="<?= htmlspecialchars($value) ?>" 
+                                        <?= (isset($_SESSION['form_data'][$field1['name']]) && $_SESSION['form_data'][$field1['name']] === $value) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($label) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         <?php else: ?>
                             <input
                                 type="<?= htmlspecialchars($field1['type']) ?>"
@@ -107,8 +130,19 @@ $pageSubtitle = $page_subtitle ?? 'Ready to start your coding journey with us?';
                                     name="<?= htmlspecialchars($field2['name']) ?>"
                                     rows="4"
                                     <?= ($field2['required'] ?? false) ? 'required' : '' ?>
-                                    placeholder="<?= htmlspecialchars($field2['placeholder'] ?? '') ?>"
-                                    style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid rgba(236, 55, 80, 0.15); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1rem; font-family: inherit;"><?= isset($_SESSION['form_data'][$field2['name']]) ? htmlspecialchars($_SESSION['form_data'][$field2['name']]) : '' ?></textarea>
+                                    placeholder="<?= htmlspecialchars($field2['placeholder'] ?? '') ?>"><?= isset($_SESSION['form_data'][$field2['name']]) ? htmlspecialchars($_SESSION['form_data'][$field2['name']]) : '' ?></textarea>
+                            <?php elseif ($field2['type'] === 'select'): ?>
+                                <select
+                                    id="<?= htmlspecialchars($field2['name']) ?>"
+                                    name="<?= htmlspecialchars($field2['name']) ?>"
+                                    <?= ($field2['required'] ?? false) ? 'required' : '' ?>>
+                                    <?php foreach ($field2['options'] as $value => $label): ?>
+                                        <option value="<?= htmlspecialchars($value) ?>" 
+                                            <?= (isset($_SESSION['form_data'][$field2['name']]) && $_SESSION['form_data'][$field2['name']] === $value) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($label) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             <?php else: ?>
                                 <input
                                     type="<?= htmlspecialchars($field2['type']) ?>"
