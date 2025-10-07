@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($updateErrors)) {
             $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
             $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
-            
+
             // Debug: log the update result
             error_log("DEBUG: Profile update - Result: " . ($result ? 'SUCCESS' : 'FAILED') . ", Affected rows: " . $stmt->rowCount() . ", User ID: " . $currentUser->id . " at " . date("Y-m-d H:i:s"));
 
@@ -383,43 +383,49 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-// Debug JavaScript for form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form[method="POST"]');
-    const saveButton = document.querySelector('button[type="submit"]');
-    
-    console.log('DEBUG: Form found:', form);
-    console.log('DEBUG: Save button found:', saveButton);
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            console.log('DEBUG: Form submit event triggered');
-            console.log('DEBUG: Form action:', this.action);
-            console.log('DEBUG: Form method:', this.method);
-            
-            // Log form data
-            const formData = new FormData(this);
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            console.log('DEBUG: Form data being submitted:', data);
-            
-            // Don't prevent default - let the form submit normally
-        });
-    }
-    
-    if (saveButton) {
-        saveButton.addEventListener('click', function(e) {
-            console.log('DEBUG: Save button clicked');
-        });
-    }
-});
+    // Debug JavaScript for form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainForm = document.querySelector('form.p-6.space-y-6');
+        const saveButton = mainForm ? mainForm.querySelector('button[type="submit"]') : null;
 
-// Log any JavaScript errors
-window.addEventListener('error', function(e) {
-    console.error('JavaScript Error:', e.error);
-});
+        console.log('DEBUG: Main form found:', mainForm);
+        console.log('DEBUG: Save button found:', saveButton);
+        console.log('DEBUG: Save button text:', saveButton ? saveButton.textContent.trim() : 'No button');
+
+        if (mainForm) {
+            mainForm.addEventListener('submit', function(e) {
+                console.log('DEBUG: Main form submit event triggered');
+                console.log('DEBUG: Form action:', this.action || 'same page');
+                console.log('DEBUG: Form method:', this.method);
+
+                // Log form data
+                const formData = new FormData(this);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                console.log('DEBUG: Form data being submitted:', data);
+
+                // Show visual feedback
+                if (saveButton) {
+                    saveButton.textContent = 'Saving...';
+                    saveButton.disabled = true;
+                }
+            });
+        }
+
+        if (saveButton) {
+            saveButton.addEventListener('click', function(e) {
+                console.log('DEBUG: Save Changes button clicked');
+                console.log('DEBUG: Button disabled?', this.disabled);
+            });
+        }
+    });
+
+    // Log any JavaScript errors
+    window.addEventListener('error', function(e) {
+        console.error('JavaScript Error:', e.error);
+    });
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>

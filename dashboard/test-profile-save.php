@@ -24,7 +24,7 @@ $testResult['request_method'] = "Request method: " . $_SERVER['REQUEST_METHOD'];
 // Test 4: Check if POST data exists
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $testResult['post_data'] = "POST data received: " . json_encode($_POST);
-    
+
     // Test 5: Try a simple database update
     if ($currentUser) {
         try {
@@ -58,4 +58,3 @@ try {
 
 header('Content-Type: application/json');
 echo json_encode($testResult, JSON_PRETTY_PRINT);
-?>

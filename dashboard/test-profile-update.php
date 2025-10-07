@@ -16,7 +16,7 @@ $logData = [
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $logData['processing'] = 'Starting form processing';
-    
+
     try {
         // Try the exact same logic as profile-edit.php
         $newFirst = trim($_POST['first_name'] ?? '');
@@ -41,13 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($updateErrors) && $currentUser) {
             $logData['attempting_update'] = true;
-            
+
             $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
             $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
-            
+
             $logData['update_result'] = $result;
             $logData['affected_rows'] = $stmt->rowCount();
-            
+
             if ($result) {
                 $logData['status'] = 'SUCCESS';
             } else {
@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $logData['status'] = 'VALIDATION_FAILED';
         }
-        
     } catch (Exception $e) {
         $logData['status'] = 'EXCEPTION';
         $logData['exception'] = $e->getMessage();
@@ -69,4 +68,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Return results
 header('Content-Type: application/json');
 echo json_encode($logData, JSON_PRETTY_PRINT);
-?>

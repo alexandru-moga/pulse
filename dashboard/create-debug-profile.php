@@ -25,4 +25,3 @@ $debugVersion = str_replace(
 file_put_contents(__DIR__ . '/profile-edit.php', $debugVersion);
 
 echo "Debug version created successfully\n";
-?>
