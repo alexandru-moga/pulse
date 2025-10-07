@@ -689,15 +689,26 @@ include __DIR__ . '/components/dashboard-header.php';
         const saveBtnIcon = document.getElementById('saveBtnIcon');
         const profileStatus = document.getElementById('profile-status');
 
-        if (isFormDirty) {
+        // Always ensure button is enabled and can submit
+        if (saveBtn) {
+            saveBtn.disabled = false;
             saveBtn.classList.remove('opacity-50');
-            saveBtn.classList.add('pulse-animation');
-            saveBtnText.textContent = 'Save Changes';
-            saveBtnIcon.innerHTML = `
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            `;
+        }
+
+        if (isFormDirty) {
+            if (saveBtn) {
+                saveBtn.classList.add('pulse-animation');
+            }
+            if (saveBtnText) {
+                saveBtnText.textContent = 'Save Changes';
+            }
+            if (saveBtnIcon) {
+                saveBtnIcon.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                `;
+            }
 
             // Update profile status
             if (profileStatus) {
@@ -707,26 +718,29 @@ include __DIR__ . '/components/dashboard-header.php';
                 `;
             }
         } else {
-            saveBtn.classList.add('opacity-50');
-            saveBtn.classList.remove('pulse-animation');
-            saveBtnText.textContent = 'No Changes';
-            saveBtnIcon.innerHTML = `
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            `;
+            if (saveBtn) {
+                saveBtn.classList.remove('pulse-animation');
+            }
+            if (saveBtnText) {
+                saveBtnText.textContent = 'Save Changes';
+            }
+            if (saveBtnIcon) {
+                saveBtnIcon.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                `;
+            }
 
             // Update profile status
             if (profileStatus) {
                 profileStatus.innerHTML = `
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span>Up to date</span>
+                    <span>Ready to save</span>
                 `;
             }
         }
-    }
-
-    // Reset form to original state
+    } // Reset form to original state
     function resetForm() {
         if (!isFormDirty) return;
 
@@ -788,29 +802,56 @@ include __DIR__ . '/components/dashboard-header.php';
         return isValid;
     }
 
-    // Enhanced form submission
-    document.querySelector('form[enctype="multipart/form-data"]').addEventListener('submit', function(e) {
-        if (!validateForm()) {
-            e.preventDefault();
-            return;
-        }
+    // Simple form submission with basic validation
+    const form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered');
 
-        const saveBtn = document.getElementById('saveBtn');
-        const saveBtnText = document.getElementById('saveBtnText');
-        const saveBtnIcon = document.getElementById('saveBtnIcon');
+            const saveBtn = document.getElementById('saveBtn');
+            const saveBtnText = document.getElementById('saveBtnText');
+            const saveBtnIcon = document.getElementById('saveBtnIcon');
 
-        if (saveBtn) {
-            saveBtn.disabled = true;
-            saveBtn.classList.add('opacity-75');
-            saveBtnText.textContent = 'Saving...';
-            saveBtnIcon.innerHTML = `
-                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            `;
-        }
-    });
+            // Basic validation - check required fields only if they exist
+            const firstName = document.querySelector('[name="first_name"]');
+            const lastName = document.querySelector('[name="last_name"]');
+
+            if (firstName && !firstName.value.trim()) {
+                alert('First name is required');
+                e.preventDefault();
+                firstName.focus();
+                return false;
+            }
+
+            if (lastName && !lastName.value.trim()) {
+                alert('Last name is required');
+                e.preventDefault();
+                lastName.focus();
+                return false;
+            }
+
+            // Show loading state
+            if (saveBtn) {
+                console.log('Setting button to loading state');
+                saveBtn.disabled = true;
+                saveBtn.classList.add('opacity-75');
+                if (saveBtnText) saveBtnText.textContent = 'Saving...';
+                if (saveBtnIcon) {
+                    saveBtnIcon.innerHTML = `
+                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
+                }
+            }
+
+            console.log('Form submission allowed to proceed');
+            return true;
+        });
+    } else {
+        console.error('Could not find form element!');
+    }
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -820,24 +861,30 @@ include __DIR__ . '/components/dashboard-header.php';
             img.dataset.originalSrc = img.src;
         }
 
-        storeOriginalData();
-        checkFormDirty();
+        console.log('Profile edit page loaded');
 
-        // Add change listeners to all form inputs
-        const form = document.querySelector('form[enctype="multipart/form-data"]');
-        if (form) {
-            form.addEventListener('input', function() {
-                checkFormDirty();
-                autoSaveDraft();
-            });
-            form.addEventListener('change', function() {
-                checkFormDirty();
-                autoSaveDraft();
-            });
+        try {
+            storeOriginalData();
+            checkFormDirty();
+
+            // Add change listeners to all form inputs  
+            const form = document.querySelector('form[enctype="multipart/form-data"]');
+            if (form) {
+                console.log('Form found, adding listeners');
+                form.addEventListener('input', checkFormDirty);
+                form.addEventListener('change', checkFormDirty);
+            } else {
+                console.error('Form not found!');
+            }
+        } catch (e) {
+            console.error('Error initializing form:', e);
+            // Ensure button works even if JS fails
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.style.opacity = '1';
+            }
         }
-
-        // Load any saved draft
-        loadDraft();
 
         // Add keyboard shortcut for save (Ctrl+S)
         document.addEventListener('keydown', function(e) {
@@ -964,6 +1011,18 @@ include __DIR__ . '/components/dashboard-header.php';
         }
     `;
     document.head.appendChild(style);
+
+    // Backup: Ensure save button always works
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        console.log('Save button found:', saveBtn);
+        saveBtn.addEventListener('click', function(e) {
+            console.log('Save button clicked!');
+            // Don't prevent default - let form submit naturally
+        });
+    } else {
+        console.error('Save button not found!');
+    }
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
