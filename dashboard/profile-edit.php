@@ -382,4 +382,44 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 </div>
 
+<script>
+// Debug JavaScript for form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[method="POST"]');
+    const saveButton = document.querySelector('button[type="submit"]');
+    
+    console.log('DEBUG: Form found:', form);
+    console.log('DEBUG: Save button found:', saveButton);
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('DEBUG: Form submit event triggered');
+            console.log('DEBUG: Form action:', this.action);
+            console.log('DEBUG: Form method:', this.method);
+            
+            // Log form data
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            console.log('DEBUG: Form data being submitted:', data);
+            
+            // Don't prevent default - let the form submit normally
+        });
+    }
+    
+    if (saveButton) {
+        saveButton.addEventListener('click', function(e) {
+            console.log('DEBUG: Save button clicked');
+        });
+    }
+});
+
+// Log any JavaScript errors
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+});
+</script>
+
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
