@@ -441,11 +441,17 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium">
-                            <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?>
-                        </span>
-                    </div>
+                    <?php if (!empty($currentUser->profile_image)): ?>
+                        <img src="<?= $settings['site_url'] ?>/images/members/<?= htmlspecialchars($currentUser->profile_image) ?>" 
+                             alt="<?= htmlspecialchars($currentUser->first_name ?? 'User') ?>" 
+                             class="w-8 h-8 rounded-full object-cover ring-2 ring-primary">
+                    <?php else: ?>
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">
+                                <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                             <?= htmlspecialchars($currentUser->first_name ?? 'User') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>

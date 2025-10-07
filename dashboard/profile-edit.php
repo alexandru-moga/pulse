@@ -75,6 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
     } else {
+        // Debug: Log file upload status
+        if (isset($_FILES['profile_image'])) {
+            error_log("File upload detected - Name: " . ($_FILES['profile_image']['name'] ?? 'none') . ", Error: " . ($_FILES['profile_image']['error'] ?? 'none') . ", Size: " . ($_FILES['profile_image']['size'] ?? 0));
+        }
+        
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
         $newDesc = trim($_POST['description'] ?? '');
@@ -120,10 +125,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Generate unique filename
                     $profileImageFilename = 'profile_' . $currentUser->id . '_' . time() . '.' . $fileExtension;
+                    
+                    $targetPath = $uploadDir . $profileImageFilename;
+                    error_log("Attempting to upload to: " . $targetPath);
 
-                    if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadDir . $profileImageFilename)) {
+                    if (!move_uploaded_file($_FILES['profile_image']['tmp_name'], $targetPath)) {
+                        error_log("Upload failed - Target: " . $targetPath . ", Temp: " . $_FILES['profile_image']['tmp_name']);
                         $updateErrors[] = "Failed to upload profile picture. Please contact an administrator.";
                         $profileImageFilename = $currentUser->profile_image ?? null;
+                    } else {
+                        error_log("Upload successful: " . $profileImageFilename);
                     }
                 }
             }
@@ -133,11 +144,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?, bio = ?, profile_image = ?, profile_public = ? WHERE id = ?");
             $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $newBio, $profileImageFilename, $profilePublic, $currentUser->id]);
 
-            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-            $stmt->execute([$currentUser->id]);
-            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($result) {
+                $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                $stmt->execute([$currentUser->id]);
+                $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
 
-            $success = "Profile updated successfully!";
+                $successMsg = "Profile updated successfully!";
+                if ($profileImageFilename && $profileImageFilename !== ($currentUser->profile_image ?? null)) {
+                    $successMsg .= " Profile picture uploaded.";
+                }
+                $success = $successMsg;
+            } else {
+                $error = "Failed to update profile. Please try again.";
+            }
         } else {
             $error = implode('<br>', $updateErrors);
         }
