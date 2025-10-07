@@ -19,61 +19,185 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
         global $db;
         if (isset($db)) {
             try {
-                $stmt = $db->prepare("SELECT * FROM users WHERE role IN ('Leader', 'Co-leader', 'Member') AND active_member = 1 AND profile_public = 1 ORDER BY role DESC, first_name ASC");
-                $stmt->execute();
-                $members = $stmt->fetchAll();
+                // Fetch leaders separately
+                $leaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Leader' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $leaderStmt->execute();
+                $leaders = $leaderStmt->fetchAll();
+                
+                // Fetch co-leaders separately  
+                $coLeaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Co-leader' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $coLeaderStmt->execute();
+                $coLeaders = $coLeaderStmt->fetchAll();
+                
+                // Fetch regular members
+                $memberStmt = $db->prepare("SELECT * FROM users WHERE role = 'Member' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $memberStmt->execute();
+                $members = $memberStmt->fetchAll();
 
-                foreach ($members as $member):
-                    // Handle profile image - prioritize custom upload over Discord avatar
-                    $profile_image = $member['profile_image'] ?? '';
-                    $discord_id = $member['discord_id'] ?? '';
-                    $discord_avatar = $member['discord_avatar'] ?? '';
-
-                    if (!empty($profile_image)) {
-                        // Use custom uploaded image
-                        $avatar = '/images/members/' . $profile_image;
-                    } elseif (!empty($discord_id) && !empty($discord_avatar)) {
-                        // Fallback to Discord avatar
-                        $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
-                    } else {
-                        // Default avatar
-                        $avatar = '/images/default-avatar.svg';
-                    }
-
-                    $roleColors = [
-                        'Leader' => '#ec3750',
-                        'Co-leader' => '#ff8c37',
-                        'Member' => '#33d6a6'
-                    ];
-                    $roleColor = $roleColors[$member['role'] ?? ''] ?? '#8492a6';
+                // Display Leaders Section
+                if (!empty($leaders)):
         ?>
-                    <div class="member-card">
-                        <div class="member-image">
-                            <img src="<?= htmlspecialchars($avatar) ?>"
-                                alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
-                                onerror="this.src='/images/default-avatar.svg'">
-                        </div>
-                        <div class="member-info">
-                            <div class="member-name">
-                                <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
-                            </div>
-                            <div class="member-role" style="color: <?= htmlspecialchars($roleColor) ?>;">
-                                <?= htmlspecialchars($member['role'] ?? '') ?>
-                            </div>
-                            <?php if (!empty($member['bio'] ?? '')): ?>
-                                <div class="member-desc">
-                                    <?= htmlspecialchars($member['bio'] ?? '') ?>
+                    <div style="width: 100%; margin-bottom: 3rem;">
+                        <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                            Leadership
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; justify-items: center; margin-bottom: 2rem;">
+                            <?php foreach ($leaders as $member):
+                                // Handle profile image - prioritize custom upload over Discord avatar
+                                $profile_image = $member['profile_image'] ?? '';
+                                $discord_id = $member['discord_id'] ?? '';
+                                $discord_avatar = $member['discord_avatar'] ?? '';
+
+                                if (!empty($profile_image)) {
+                                    $avatar = '/images/members/' . $profile_image;
+                                } elseif (!empty($discord_id) && !empty($discord_avatar)) {
+                                    $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
+                                } else {
+                                    $avatar = '/images/default-avatar.svg';
+                                }
+
+                                $roleColor = '#ec3750'; // Leader color
+                            ?>
+                                <div class="member-card">
+                                    <div class="member-image">
+                                        <img src="<?= htmlspecialchars($avatar) ?>"
+                                            alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
+                                            onerror="this.src='/images/default-avatar.svg'">
+                                    </div>
+                                    <div class="member-info">
+                                        <div class="member-name">
+                                            <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
+                                        </div>
+                                        <div class="member-role" style="color: <?= htmlspecialchars($roleColor) ?>;">
+                                            <?= htmlspecialchars($member['role'] ?? '') ?>
+                                        </div>
+                                        <?php if (!empty($member['bio'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                <?= htmlspecialchars($member['bio'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($member['school'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                📚 <?= htmlspecialchars($member['school'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
-                            <?php if (!empty($member['school'] ?? '')): ?>
-                                <div class="member-desc">
-                                    📚 <?= htmlspecialchars($member['school'] ?? '') ?>
-                                </div>
-                            <?php endif; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
         <?php
-                endforeach;
+                endif;
+                
+                // Display Co-Leaders Section
+                if (!empty($coLeaders)):
+        ?>
+                    <div style="width: 100%; margin-bottom: 3rem;">
+                        <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                            Co-Leaders
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+                            <?php foreach ($coLeaders as $member):
+                                // Handle profile image - prioritize custom upload over Discord avatar
+                                $profile_image = $member['profile_image'] ?? '';
+                                $discord_id = $member['discord_id'] ?? '';
+                                $discord_avatar = $member['discord_avatar'] ?? '';
+
+                                if (!empty($profile_image)) {
+                                    $avatar = '/images/members/' . $profile_image;
+                                } elseif (!empty($discord_id) && !empty($discord_avatar)) {
+                                    $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
+                                } else {
+                                    $avatar = '/images/default-avatar.svg';
+                                }
+
+                                $roleColor = '#ff8c37'; // Co-leader color
+                            ?>
+                                <div class="member-card">
+                                    <div class="member-image">
+                                        <img src="<?= htmlspecialchars($avatar) ?>"
+                                            alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
+                                            onerror="this.src='/images/default-avatar.svg'">
+                                    </div>
+                                    <div class="member-info">
+                                        <div class="member-name">
+                                            <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
+                                        </div>
+                                        <div class="member-role" style="color: <?= htmlspecialchars($roleColor) ?>;">
+                                            <?= htmlspecialchars($member['role'] ?? '') ?>
+                                        </div>
+                                        <?php if (!empty($member['bio'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                <?= htmlspecialchars($member['bio'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($member['school'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                📚 <?= htmlspecialchars($member['school'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+        <?php
+                endif;
+                
+                // Display Members Section
+                if (!empty($members)):
+        ?>
+                    <div style="width: 100%;">
+                        <h3 style="font-size: 2rem; font-weight: 700; text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                            Members
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                            <?php foreach ($members as $member):
+                                // Handle profile image - prioritize custom upload over Discord avatar
+                                $profile_image = $member['profile_image'] ?? '';
+                                $discord_id = $member['discord_id'] ?? '';
+                                $discord_avatar = $member['discord_avatar'] ?? '';
+
+                                if (!empty($profile_image)) {
+                                    $avatar = '/images/members/' . $profile_image;
+                                } elseif (!empty($discord_id) && !empty($discord_avatar)) {
+                                    $avatar = "https://cdn.discordapp.com/avatars/{$discord_id}/{$discord_avatar}.png?size=128";
+                                } else {
+                                    $avatar = '/images/default-avatar.svg';
+                                }
+
+                                $roleColor = '#33d6a6'; // Member color
+                            ?>
+                                <div class="member-card">
+                                    <div class="member-image">
+                                        <img src="<?= htmlspecialchars($avatar) ?>"
+                                            alt="<?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>"
+                                            onerror="this.src='/images/default-avatar.svg'">
+                                    </div>
+                                    <div class="member-info">
+                                        <div class="member-name">
+                                            <?= htmlspecialchars(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? '')) ?>
+                                        </div>
+                                        <div class="member-role" style="color: <?= htmlspecialchars($roleColor) ?>;">
+                                            <?= htmlspecialchars($member['role'] ?? '') ?>
+                                        </div>
+                                        <?php if (!empty($member['bio'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                <?= htmlspecialchars($member['bio'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($member['school'] ?? '')): ?>
+                                            <div class="member-desc">
+                                                📚 <?= htmlspecialchars($member['school'] ?? '') ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+        <?php
+                endif;
             } catch (Exception $e) {
                 echo '<div style="color: #ec3750; text-align: center; padding: 2rem;">Error loading members: ' . htmlspecialchars($e->getMessage()) . '</div>';
             }
