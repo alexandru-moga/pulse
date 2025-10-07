@@ -196,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                     if ($componentType === 'core_values') {
                         if (isset($settings['values'])) {
                             $values = $settings['values'];
-                            
+
                             // If it's a JSON string, decode it
                             if (is_string($values)) {
                                 $decodedValues = json_decode($values, true);
@@ -204,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                                     $values = $decodedValues;
                                 }
                             }
-                            
+
                             // Migrate icon format from raw emoji to emoji: prefix
                             if (is_array($values)) {
                                 foreach ($values as &$value) {
@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
                                 $settings['values'] = $values;
                             }
                         }
-                        
+
                         error_log("Core values migrated settings: " . json_encode($settings));
                     }
 

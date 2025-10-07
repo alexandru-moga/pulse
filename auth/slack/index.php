@@ -6,7 +6,7 @@ global $db, $settings;
 
 try {
     $slack = new SlackOAuth($db);
-    
+
     if (!$slack->isConfigured()) {
         $_SESSION['account_error'] = 'Slack OAuth is not configured. Please contact an administrator.';
         header('Location: ' . $settings['site_url'] . '/dashboard/');
@@ -14,7 +14,7 @@ try {
     }
     if (isset($_GET['code']) && isset($_GET['state'])) {
         $result = $slack->handleCallback($_GET['code'], $_GET['state']);
-        
+
         if ($result['success']) {
             if ($result['action'] === 'login') {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
@@ -42,11 +42,9 @@ try {
     $authUrl = $slack->generateAuthUrl($isLogin);
     header('Location: ' . $authUrl);
     exit;
-    
 } catch (Exception $e) {
     error_log('Slack OAuth Error: ' . $e->getMessage());
     $_SESSION['account_error'] = 'An error occurred during Slack authentication.';
     header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
     exit;
 }
-?>
