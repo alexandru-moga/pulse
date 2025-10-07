@@ -6,90 +6,121 @@ $sections = $sections ?? [
         'fields' => [
             ['name' => 'first_name', 'label' => 'First Name', 'type' => 'text', 'placeholder' => 'Your first name', 'required' => true],
             ['name' => 'last_name', 'label' => 'Last Name', 'type' => 'text', 'placeholder' => 'Your last name', 'required' => true],
+            ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'your.email@example.com', 'required' => true],
+            ['name' => 'phone', 'label' => 'Phone', 'type' => 'tel', 'placeholder' => '+40 XXX XXX XXX', 'required' => true],
+            ['name' => 'birthdate', 'label' => 'Birthdate', 'type' => 'date', 'placeholder' => 'mm/dd/yyyy', 'required' => true],
         ]
     ],
     [
         'title' => 'Academic Information',
         'fields' => [
             ['name' => 'school', 'label' => 'School', 'type' => 'text', 'placeholder' => 'Your school name', 'required' => true],
+            ['name' => 'class', 'label' => 'Grade/Year', 'type' => 'text', 'placeholder' => 'e.g., 10th Grade, Freshman', 'required' => true],
+        ]
+    ],
+    [
+        'title' => 'Additional Information',
+        'fields' => [
+            ['name' => 'description', 'label' => 'Coding Skills/Superpowers', 'type' => 'textarea', 'placeholder' => 'Tell us about your coding experience, projects, or what you\'d like to learn...', 'required' => true],
         ]
     ]
 ];
 ?>
 
-<div class="ddb-apply-form py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-            <form action="/apply.php" method="POST" class="divide-y divide-gray-200 dark:divide-gray-700">
-                <?php foreach ($sections as $sectionIndex => $section): ?>
-                    <div class="p-8">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-                            <?= htmlspecialchars($section['title']) ?>
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <?php foreach ($section['fields'] as $field):
-                                $fieldType = $field['type'] ?? 'text';
-                                $isRequired = $field['required'] ?? false;
-                                $placeholder = $field['placeholder'] ?? '';
-                                $options = $field['options'] ?? [];
-                            ?>
-                                <div class="<?= (count($section['fields']) === 1) ? 'md:col-span-2' : '' ?>">
-                                    <label for="<?= htmlspecialchars($field['name']) ?>"
-                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        <?= htmlspecialchars($field['label']) ?>
-                                        <?php if ($isRequired): ?>
-                                            <span class="text-red-500">*</span>
-                                        <?php endif; ?>
-                                    </label>
-
-                                    <?php if ($fieldType === 'textarea'): ?>
-                                        <textarea
-                                            id="<?= htmlspecialchars($field['name']) ?>"
-                                            name="<?= htmlspecialchars($field['name']) ?>"
-                                            rows="4"
-                                            <?= $isRequired ? 'required' : '' ?>
-                                            placeholder="<?= htmlspecialchars($placeholder) ?>"
-                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"></textarea>
-
-                                    <?php elseif ($fieldType === 'select' && !empty($options)): ?>
-                                        <select
-                                            id="<?= htmlspecialchars($field['name']) ?>"
-                                            name="<?= htmlspecialchars($field['name']) ?>"
-                                            <?= $isRequired ? 'required' : '' ?>
-                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white">
-                                            <option value="">Select <?= htmlspecialchars($field['label']) ?></option>
-                                            <?php foreach ($options as $value => $label): ?>
-                                                <option value="<?= htmlspecialchars($value) ?>">
-                                                    <?= htmlspecialchars($label) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-
-                                    <?php else: ?>
-                                        <input
-                                            type="<?= htmlspecialchars($fieldType) ?>"
-                                            id="<?= htmlspecialchars($field['name']) ?>"
-                                            name="<?= htmlspecialchars($field['name']) ?>"
-                                            <?= $isRequired ? 'required' : '' ?>
-                                            placeholder="<?= htmlspecialchars($placeholder) ?>"
-                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500">
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
+<!-- Display error messages -->
+<?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
+    <div style="max-width: 560px; margin: 1rem auto; background: rgba(220, 38, 38, 0.1); border-left: 4px solid #dc2626; padding: 1rem; border-radius: 0.5rem;">
+        <div style="color: #fca5a5;">
+            <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Please correct the following errors:</h3>
+            <ul style="font-size: 0.875rem; list-style: disc; padding-left: 1.5rem;">
+                <?php foreach ($_SESSION['form_errors'] as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
                 <?php endforeach; ?>
-
-                <div class="p-8 bg-gray-50 dark:bg-gray-900">
-                    <div class="flex justify-end">
-                        <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-md shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                            Submit Application
-                        </button>
-                    </div>
-                </div>
-            </form>
+            </ul>
         </div>
     </div>
-</div>
+    <?php unset($_SESSION['form_errors']); ?>
+<?php endif; ?>
+
+<form action="/apply.php" method="POST" class="apply-form">
+    <?php foreach ($sections as $sectionIndex => $section): ?>
+        <fieldset>
+            <legend><?= htmlspecialchars($section['title']) ?></legend>
+            
+            <?php
+            // Group fields into rows of 2
+            $fields = $section['fields'];
+            $fieldCount = count($fields);
+            
+            for ($i = 0; $i < $fieldCount; $i += 2):
+                $field1 = $fields[$i];
+                $field2 = isset($fields[$i + 1]) ? $fields[$i + 1] : null;
+            ?>
+                <div class="form-row">
+                    <!-- First field -->
+                    <div class="form-group">
+                        <label for="<?= htmlspecialchars($field1['name']) ?>">
+                            <?= htmlspecialchars($field1['label']) ?>
+                            <?php if ($field1['required'] ?? false): ?><span class="required">*</span><?php endif; ?>
+                        </label>
+                        
+                        <?php if ($field1['type'] === 'textarea'): ?>
+                            <textarea
+                                id="<?= htmlspecialchars($field1['name']) ?>"
+                                name="<?= htmlspecialchars($field1['name']) ?>"
+                                rows="4"
+                                <?= ($field1['required'] ?? false) ? 'required' : '' ?>
+                                placeholder="<?= htmlspecialchars($field1['placeholder'] ?? '') ?>"
+                                style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid rgba(236, 55, 80, 0.15); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1rem; font-family: inherit;"><?= isset($_SESSION['form_data'][$field1['name']]) ? htmlspecialchars($_SESSION['form_data'][$field1['name']]) : '' ?></textarea>
+                        <?php else: ?>
+                            <input
+                                type="<?= htmlspecialchars($field1['type']) ?>"
+                                id="<?= htmlspecialchars($field1['name']) ?>"
+                                name="<?= htmlspecialchars($field1['name']) ?>"
+                                <?= ($field1['required'] ?? false) ? 'required' : '' ?>
+                                placeholder="<?= htmlspecialchars($field1['placeholder'] ?? '') ?>"
+                                value="<?= isset($_SESSION['form_data'][$field1['name']]) ? htmlspecialchars($_SESSION['form_data'][$field1['name']]) : '' ?>">
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Second field (if exists) -->
+                    <?php if ($field2): ?>
+                        <div class="form-group">
+                            <label for="<?= htmlspecialchars($field2['name']) ?>">
+                                <?= htmlspecialchars($field2['label']) ?>
+                                <?php if ($field2['required'] ?? false): ?><span class="required">*</span><?php endif; ?>
+                            </label>
+                            
+                            <?php if ($field2['type'] === 'textarea'): ?>
+                                <textarea
+                                    id="<?= htmlspecialchars($field2['name']) ?>"
+                                    name="<?= htmlspecialchars($field2['name']) ?>"
+                                    rows="4"
+                                    <?= ($field2['required'] ?? false) ? 'required' : '' ?>
+                                    placeholder="<?= htmlspecialchars($field2['placeholder'] ?? '') ?>"
+                                    style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid rgba(236, 55, 80, 0.15); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1rem; font-family: inherit;"><?= isset($_SESSION['form_data'][$field2['name']]) ? htmlspecialchars($_SESSION['form_data'][$field2['name']]) : '' ?></textarea>
+                            <?php else: ?>
+                                <input
+                                    type="<?= htmlspecialchars($field2['type']) ?>"
+                                    id="<?= htmlspecialchars($field2['name']) ?>"
+                                    name="<?= htmlspecialchars($field2['name']) ?>"
+                                    <?= ($field2['required'] ?? false) ? 'required' : '' ?>
+                                    placeholder="<?= htmlspecialchars($field2['placeholder'] ?? '') ?>"
+                                    value="<?= isset($_SESSION['form_data'][$field2['name']]) ? htmlspecialchars($_SESSION['form_data'][$field2['name']]) : '' ?>">
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endfor; ?>
+        </fieldset>
+    <?php endforeach; ?>
+    
+    <button type="submit" class="cta-button">Submit Application</button>
+</form>
+
+<?php
+// Clear form data after rendering
+if (isset($_SESSION['form_data'])) {
+    unset($_SESSION['form_data']);
+}
+?>

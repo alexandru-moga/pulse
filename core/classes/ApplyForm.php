@@ -20,21 +20,27 @@ class ApplyForm {
 
     private function validate(array $data) {
         $requiredFields = [
-            'email', 'first_name', 'last_name', 
-            'school', 'class', 'birthdate', 'phone', 'superpowers'
+            'email' => 'Email',
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'school' => 'School',
+            'class' => 'Grade/Year',
+            'birthdate' => 'Birthdate',
+            'phone' => 'Phone',
+            'description' => 'Coding Skills/Superpowers'
         ];
 
-        foreach($requiredFields as $field) {
+        foreach($requiredFields as $field => $label) {
             if(empty($data[$field])) {
-                $this->errors[$field] = "This field is required";
+                $this->errors[$field] = "$label is required";
             }
         }
 
-        if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if(!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $this->errors['email'] = "Invalid email format";
         }
 
-        if(!preg_match('/^[0-9]{10,15}$/', $data['phone'])) {
+        if(!empty($data['phone']) && !preg_match('/^[\d\s\+\-\(\)]+$/', $data['phone'])) {
             $this->errors['phone'] = "Invalid phone number format";
         }
     }
@@ -49,7 +55,7 @@ class ApplyForm {
                 'class' => $data['class'],
                 'birthdate' => $data['birthdate'],
                 'phone' => $data['phone'],
-                'superpowers' => $data['superpowers'],
+                'description' => $data['description'],
                 'student_id' => $data['student_id'] ?? null,
                 'discord_username' => $data['discord_username'] ?? null
             ];
