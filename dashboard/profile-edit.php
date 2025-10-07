@@ -71,13 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($updateErrors)) {
             $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
-            $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+            $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+            
+            // Debug: log the update result
+            error_log("DEBUG: Profile update - Result: " . ($result ? 'SUCCESS' : 'FAILED') . ", Affected rows: " . $stmt->rowCount() . ", User ID: " . $currentUser->id . " at " . date("Y-m-d H:i:s"));
 
             $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$currentUser->id]);
             $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
 
-            $success = "Profile updated successfully!";
+            $success = "Profile updated successfully! ✅ DEBUG: Update completed at " . date("H:i:s");
         } else {
             $error = implode('<br>', $updateErrors);
         }
