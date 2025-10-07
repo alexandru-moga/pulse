@@ -36,6 +36,22 @@ $githubConfigured = $github->isConfigured();
 $googleConfigured = $google->isConfigured();
 $slackConfigured = $slack->isConfigured();
 
+// Count enabled integrations for responsive grid
+$enabledIntegrations = 0;
+if ($discordConfigured) $enabledIntegrations++;
+if ($githubConfigured) $enabledIntegrations++;
+if ($googleConfigured) $enabledIntegrations++;
+if ($slackConfigured) $enabledIntegrations++;
+
+// Set grid classes based on number of enabled integrations
+$gridClasses = match($enabledIntegrations) {
+    1 => 'grid grid-cols-1',
+    2 => 'grid grid-cols-1 sm:grid-cols-2',
+    3 => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+    4 => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+    default => 'grid grid-cols-1'
+};
+
 $discordLink = $discord->getUserDiscordLink($currentUser->id);
 $githubLink = $github->getUserGitHubLink($currentUser->id);
 $googleLink = $google->getUserGoogleLink($currentUser->id);
@@ -200,8 +216,9 @@ include __DIR__ . '/components/dashboard-header.php';
         <h3 class="text-lg font-medium text-gray-900 dark:text-white">Linked Accounts</h3>
     </div>
     <div class="p-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <!-- Only show enabled integrations -->
+        <?php if ($enabledIntegrations > 0): ?>
+            <div class="<?= $gridClasses ?> gap-4">
+                <!-- Only show enabled integrations -->
 
             <?php if ($discordConfigured): ?>
                 <div class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -364,7 +381,13 @@ include __DIR__ . '/components/dashboard-header.php';
                     </div>
                 </div>
             <?php endif; ?>
-        </div>
+            </div>
+        <?php else: ?>
+            <div class="text-center py-8">
+                <p class="text-gray-500 dark:text-gray-400">No integrations are currently configured.</p>
+            </div>
+        <?php endif; ?>
+        
         <div class="text-center mt-6">
             <a href="<?= $settings['site_url'] ?>/dashboard/edit-integrations.php"
                 class="inline-flex items-center text-sm text-primary hover:text-red-600 dark:text-red-400 dark:hover:text-red-300">
