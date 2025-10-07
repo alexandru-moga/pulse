@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
     } else {
+        // Handle profile update - simple approach like site-settings.php
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
         $newDesc = trim($_POST['description'] ?? '');
@@ -72,30 +73,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newPhone = trim($_POST['phone'] ?? '');
         $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
-        $updateErrors = [];
-        if ($newFirst === '') $updateErrors[] = "First name cannot be empty.";
-        if ($newLast === '') $updateErrors[] = "Last name cannot be empty.";
+        // Simple validation
+        if ($newFirst === '' || $newLast === '') {
+            $error = "First name and last name are required.";
+        } else {
+            // Handle profile image upload
+            $profileImageName = $currentUser->profile_image ?? '';
+            if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../uploads/profiles/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
 
-        // Check if user can set profile to public (only active members)
-        if ($profilePublic && !$currentUser->active_member) {
-            $updateErrors[] = "Only active members can set their profile to public.";
-            $profilePublic = 0;
-        }
+                $fileInfo = pathinfo($_FILES['profile_image']['name']);
+                $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $fileExt = strtolower($fileInfo['extension'] ?? '');
 
-        // Handle profile image upload
-        $profileImageName = $currentUser->profile_image ?? '';
-        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../uploads/profiles/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $fileInfo = pathinfo($_FILES['profile_image']['name']);
-            $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $fileExt = strtolower($fileInfo['extension'] ?? '');
-
-            if (in_array($fileExt, $allowedTypes)) {
-                if ($_FILES['profile_image']['size'] <= 5 * 1024 * 1024) { // 5MB limit
+                if (in_array($fileExt, $allowedTypes) && $_FILES['profile_image']['size'] <= 5 * 1024 * 1024) {
                     $profileImageName = $currentUser->id . '_' . time() . '.' . $fileExt;
                     $uploadPath = $uploadDir . $profileImageName;
 
@@ -104,83 +98,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (!empty($currentUser->profile_image) && file_exists($uploadDir . $currentUser->profile_image)) {
                             unlink($uploadDir . $currentUser->profile_image);
                         }
-                    } else {
-                        $updateErrors[] = "Failed to upload profile image. Please check file permissions.";
-                        $profileImageName = $currentUser->profile_image ?? '';
                     }
-                } else {
-                    $updateErrors[] = "Profile image must be smaller than 5MB.";
                 }
-            } else {
-                $updateErrors[] = "Profile image must be a JPG, PNG, GIF, or WebP file.";
             }
-        } elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] != UPLOAD_ERR_NO_FILE) {
-            // Handle other upload errors
-            $uploadErrors = [
-                UPLOAD_ERR_INI_SIZE => 'File is too large (server limit)',
-                UPLOAD_ERR_FORM_SIZE => 'File is too large (form limit)',
-                UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
-                UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
-                UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
-                UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
-            ];
-            $errorCode = $_FILES['profile_image']['error'];
-            $updateErrors[] = "Upload failed: " . ($uploadErrors[$errorCode] ?? "Unknown error ($errorCode)");
-        }
 
-        if (empty($updateErrors)) {
-            // Add debugging
-            error_log("Profile update attempt for user: " . $currentUser->id);
-            error_log("POST data: " . print_r($_POST, true));
+            // Simple database update - exactly like site-settings.php pattern
+            $stmt = $db->prepare("UPDATE users SET first_name=?, last_name=?, description=?, bio=?, school=?, phone=?, profile_image=?, profile_public=? WHERE id=?");
+            $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
             
-            try {
-                // Test database connection first
-                $testStmt = $db->prepare("SELECT 1");
-                $testStmt->execute();
-                error_log("Database connection OK");
-                
-                // Check if columns exist before updating
-                $checkStmt = $db->prepare("DESCRIBE users");
-                $checkStmt->execute();
-                $columns = $checkStmt->fetchAll(PDO::FETCH_COLUMN);
-                error_log("Available columns: " . implode(', ', $columns));
-                
-                // Simple database update with only existing columns
-                if (in_array('bio', $columns) && in_array('profile_public', $columns)) {
-                    $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
-                    $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
-                } else {
-                    // Fallback to basic columns only
-                    error_log("Using fallback columns only");
-                    $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
-                    $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
-                }
-                
-                error_log("Update query executed, result: " . ($result ? 'SUCCESS' : 'FAILED'));
-
-                if ($result) {
-                    // Refresh user data
-                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-                    $stmt->execute([$currentUser->id]);
-                    $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
-                    
-                    error_log("Profile update completed successfully");
-                    $success = "Profile updated successfully!";
-                    
-                    // Force redirect to avoid hanging
-                    header("Location: " . $_SERVER['REQUEST_URI'] . "?updated=1");
-                    exit();
-                } else {
-                    error_log("Database update failed");
-                    $error = "Failed to update profile. Please try again.";
-                }
-            } catch (Exception $e) {
-                error_log("Profile update error for user " . $currentUser->id . ": " . $e->getMessage());
-                error_log("Stack trace: " . $e->getTraceAsString());
-                $error = "An error occurred while updating your profile: " . $e->getMessage();
-            }
-        } else {
-            $error = implode('<br>', $updateErrors);
+            $success = "Profile updated successfully!";
+            
+            // Refresh user data
+            $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$currentUser->id]);
+            $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
         }
     }
 }
@@ -571,14 +502,12 @@ include __DIR__ . '/components/dashboard-header.php';
                 </svg>
                 Reset
             </button>
-            <button type="submit" id="saveBtn"
-                class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                <span id="saveBtnIcon" class="inline-block mr-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </span>
-                <span id="saveBtnText">Save Changes</span>
+            <button type="submit"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Save Changes
             </button>
         </div>
     </div>
@@ -587,6 +516,37 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
+    // Simple profile image preview functionality only
+    document.getElementById('profile_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPG, PNG, GIF, or WebP)');
+                e.target.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                e.target.value = '';
+                return;
+            }
+
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.querySelector('.h-20.w-20.rounded-full');
+                if (img) {
+                    img.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
     // Profile image preview functionality
     document.getElementById('profile_image').addEventListener('change', function(e) {
         const file = e.target.files[0];
