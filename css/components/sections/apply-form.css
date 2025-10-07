@@ -52,6 +52,7 @@ input[type="text"],
 input[type="email"],
 input[type="tel"],
 input[type="number"],
+input[type="date"],
 select {
     padding: 0.75rem 1rem;
     border: 1.5px solid rgba(236, 55, 80, 0.15);
@@ -63,8 +64,14 @@ select {
     transition: border 0.2s, background 0.2s;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     border-color: var(--primary, #ec3750);
     outline: none;
     background: rgba(255, 255, 255, 0.15);

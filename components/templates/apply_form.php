@@ -25,7 +25,17 @@ $sections = $sections ?? [
         ]
     ]
 ];
+
+// Page title and subtitle
+$pageTitle = $page_title ?? 'Join Phoenix Club';
+$pageSubtitle = $page_subtitle ?? 'Ready to start your coding journey with us?';
 ?>
+
+<!-- Page Title -->
+<h2 class="title-3"><?= htmlspecialchars($pageTitle) ?></h2>
+
+<!-- Page Subtitle -->
+<h3 class="heading-3"><?= htmlspecialchars($pageSubtitle) ?></h3>
 
 <!-- Display error messages -->
 <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>

@@ -1,13 +1,9 @@
 <?php
 // Title Style 3 Component Template
 $titleText = $text ?? 'Section Title';
-$titleLevel = $level ?? 'h3';
+$titleLevel = $level ?? 'h2';
 ?>
 
-<section class="section-heading-3">
-    <div class="container">
-        <<?= $titleLevel ?> class="title-style-3">
-            <?= htmlspecialchars($titleText) ?>
-        </<?= $titleLevel ?>>
-    </div>
-</section>
+<<?= $titleLevel ?> class="title-3">
+    <?= htmlspecialchars($titleText) ?>
+</<?= $titleLevel ?>>
