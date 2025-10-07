@@ -16,6 +16,11 @@ if (!$currentUser) {
 
 $success = $error = null;
 
+// Check for update success parameter
+if (isset($_GET['updated']) && $_GET['updated'] == '1') {
+    $success = "Profile updated successfully!";
+}
+
 if (isset($_SESSION['account_link_success'])) {
     $success = $_SESSION['account_link_success'];
     unset($_SESSION['account_link_success']);
@@ -124,23 +129,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($updateErrors)) {
+            // Add debugging
+            error_log("Profile update attempt for user: " . $currentUser->id);
+            error_log("POST data: " . print_r($_POST, true));
+            
             try {
-                // Simple database update - no complex logging for now
-                $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
-                $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
+                // Test database connection first
+                $testStmt = $db->prepare("SELECT 1");
+                $testStmt->execute();
+                error_log("Database connection OK");
+                
+                // Check if columns exist before updating
+                $checkStmt = $db->prepare("DESCRIBE users");
+                $checkStmt->execute();
+                $columns = $checkStmt->fetchAll(PDO::FETCH_COLUMN);
+                error_log("Available columns: " . implode(', ', $columns));
+                
+                // Simple database update with only existing columns
+                if (in_array('bio', $columns) && in_array('profile_public', $columns)) {
+                    $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, bio = ?, school = ?, phone = ?, profile_image = ?, profile_public = ? WHERE id = ?");
+                    $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newBio, $newSchool, $newPhone, $profileImageName, $profilePublic, $currentUser->id]);
+                } else {
+                    // Fallback to basic columns only
+                    error_log("Using fallback columns only");
+                    $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ? WHERE id = ?");
+                    $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $currentUser->id]);
+                }
+                
+                error_log("Update query executed, result: " . ($result ? 'SUCCESS' : 'FAILED'));
 
                 if ($result) {
                     // Refresh user data
                     $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
                     $stmt->execute([$currentUser->id]);
                     $currentUser = $stmt->fetch(PDO::FETCH_OBJ);
-
+                    
+                    error_log("Profile update completed successfully");
                     $success = "Profile updated successfully!";
+                    
+                    // Force redirect to avoid hanging
+                    header("Location: " . $_SERVER['REQUEST_URI'] . "?updated=1");
+                    exit();
                 } else {
+                    error_log("Database update failed");
                     $error = "Failed to update profile. Please try again.";
                 }
             } catch (Exception $e) {
                 error_log("Profile update error for user " . $currentUser->id . ": " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
                 $error = "An error occurred while updating your profile: " . $e->getMessage();
             }
         } else {
