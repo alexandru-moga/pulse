@@ -1,116 +1,112 @@
 <?php
 
-class DiscordOAuth
+class SlackOAuth
 {
     private $db;
     private $clientId;
     private $clientSecret;
     private $redirectUri;
-    private $botToken;
-    private $guildId;
 
     public function __construct($db)
     {
         $this->db = $db;
-        $this->loadSettings();
+        $this->loadConfig();
+        global $settings;
+        $siteUrl = $settings['site_url'] ?? (getRequestScheme() . '://' . $_SERVER['HTTP_HOST']);
+        $this->redirectUri = $siteUrl . '/auth/slack/';
     }
 
-    private function loadSettings()
+    private function loadConfig()
     {
-        $settings = $this->db->query("SELECT name, value FROM settings WHERE name LIKE 'discord_%'")->fetchAll(PDO::FETCH_KEY_PAIR);
+        $stmt = $this->db->prepare("SELECT name, value FROM settings WHERE name IN ('slack_client_id', 'slack_client_secret')");
+        $stmt->execute();
+        $settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        $this->clientId = $settings['discord_client_id'] ?? '';
-        $this->clientSecret = $settings['discord_client_secret'] ?? '';
-        $this->redirectUri = $settings['discord_redirect_uri'] ?? '';
-        $this->botToken = $settings['discord_bot_token'] ?? '';
-        $this->guildId = $settings['discord_guild_id'] ?? '';
+        $this->clientId = $settings['slack_client_id'] ?? null;
+        $this->clientSecret = $settings['slack_client_secret'] ?? null;
     }
 
     public function isConfigured()
     {
-        return !empty($this->clientId) && !empty($this->clientSecret) && !empty($this->redirectUri);
+        return !empty($this->clientId) && !empty($this->clientSecret);
+    }
+
+    public function getUserSlackLink($userId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM slack_links WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function unlinkSlackAccount($userId)
+    {
+        $stmt = $this->db->prepare("DELETE FROM slack_links WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        return true;
     }
 
     public function generateAuthUrl($isLogin = false)
     {
         if (!$this->isConfigured()) {
-            throw new Exception('Discord OAuth not configured');
+            throw new Exception('Slack OAuth is not configured');
         }
 
         $state = bin2hex(random_bytes(16));
-        $csrf = bin2hex(random_bytes(16));
-        $expiresAt = date('Y-m-d H:i:s', time() + 600); // 10 minutes
-
-        error_log("Discord OAuth: Generating auth URL with state: $state, expires: $expiresAt");
-
-        $stmt = $this->db->prepare("INSERT INTO discord_login_sessions (state_token, csrf_token, expires_at) VALUES (?, ?, ?)");
-        $stmt->execute([$state, $csrf, $expiresAt]);
-
-        $_SESSION['discord_csrf_token'] = $csrf;
-        $_SESSION['discord_is_login'] = $isLogin;
+        $_SESSION['slack_oauth_state'] = $state;
+        $_SESSION['slack_oauth_action'] = $isLogin ? 'login' : 'link';
 
         $params = [
             'client_id' => $this->clientId,
+            'scope' => 'identity.basic identity.email',
             'redirect_uri' => $this->redirectUri,
-            'response_type' => 'code',
-            'scope' => 'identify email guilds.join',
             'state' => $state
         ];
 
-        return 'https://discord.com/api/oauth2/authorize?' . http_build_query($params);
+        return 'https://slack.com/oauth/authorize?' . http_build_query($params);
     }
 
     public function handleCallback($code, $state)
     {
-        if (!$this->isConfigured()) {
-            throw new Exception('Discord OAuth not configured');
+        $savedState = $_SESSION['slack_oauth_state'] ?? null;
+        $action = $_SESSION['slack_oauth_action'] ?? 'link';
+
+        unset($_SESSION['slack_oauth_state'], $_SESSION['slack_oauth_action']);
+
+        if ($state !== $savedState) {
+            return ['success' => false, 'error' => 'Invalid state parameter'];
         }
 
-        error_log("Discord OAuth: Handling callback with state: $state");
+        try {
+            $tokenData = $this->exchangeCodeForToken($code);
+            $userData = $this->getUserData($tokenData['access_token']);
 
-        $stmt = $this->db->prepare("SELECT csrf_token, used FROM discord_login_sessions WHERE state_token = ? AND expires_at > NOW()");
-        $stmt->execute([$state]);
-        $session = $stmt->fetch();
-
-        error_log("Discord OAuth: Session data: " . json_encode($session));
-        error_log("Discord OAuth: Expected CSRF: " . ($_SESSION['discord_csrf_token'] ?? 'none'));
-
-        if (!$session || $session['used'] == 1 || $session['csrf_token'] !== ($_SESSION['discord_csrf_token'] ?? '')) {
-            error_log("Discord OAuth: State validation failed");
-            throw new Exception('Invalid or expired state token');
-        }
-
-        $this->db->prepare("UPDATE discord_login_sessions SET used = 1 WHERE state_token = ?")->execute([$state]);
-
-        $tokenData = $this->exchangeCodeForToken($code);
-        $discordUser = $this->getDiscordUser($tokenData['access_token']);
-
-        $isLogin = $_SESSION['discord_is_login'] ?? false;
-        unset($_SESSION['discord_csrf_token'], $_SESSION['discord_is_login']);
-
-        if ($isLogin) {
-            return $this->handleDiscordLogin($discordUser, $tokenData);
-        } else {
-            return $this->linkDiscordAccount($discordUser, $tokenData);
+            if ($action === 'login') {
+                return $this->handleLogin($userData, $tokenData);
+            } else {
+                return $this->handleLinking($userData, $tokenData);
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
     private function exchangeCodeForToken($code)
     {
-        $data = [
+        $postData = [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'grant_type' => 'authorization_code',
             'code' => $code,
             'redirect_uri' => $this->redirectUri
         ];
 
-        $ch = curl_init('https://discord.com/api/oauth2/token');
+        $ch = curl_init('https://slack.com/api/oauth.access');
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query($data),
+            CURLOPT_POSTFIELDS => http_build_query($postData),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded']
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/x-www-form-urlencoded'
+            ]
         ]);
 
         $response = curl_exec($ch);
@@ -121,15 +117,22 @@ class DiscordOAuth
             throw new Exception('Failed to exchange code for token');
         }
 
-        return json_decode($response, true);
+        $data = json_decode($response, true);
+        if (!$data['ok']) {
+            throw new Exception('Slack OAuth error: ' . ($data['error'] ?? 'Unknown error'));
+        }
+
+        return $data;
     }
 
-    private function getDiscordUser($accessToken)
+    private function getUserData($accessToken)
     {
-        $ch = curl_init('https://discord.com/api/users/@me');
+        $ch = curl_init('https://slack.com/api/users.identity');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: Bearer $accessToken"]
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $accessToken
+            ]
         ]);
 
         $response = curl_exec($ch);
@@ -137,124 +140,69 @@ class DiscordOAuth
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            throw new Exception('Failed to get Discord user info');
+            throw new Exception('Failed to fetch user data');
         }
 
-        return json_decode($response, true);
+        $data = json_decode($response, true);
+        if (!$data['ok']) {
+            throw new Exception('Slack API error: ' . ($data['error'] ?? 'Unknown error'));
+        }
+
+        return $data;
     }
 
-    private function handleDiscordLogin($discordUser, $tokenData)
+    private function handleLogin($userData, $tokenData)
     {
-        $stmt = $this->db->prepare("SELECT u.* FROM users u JOIN discord_links udl ON u.id = udl.user_id WHERE udl.discord_id = ?");
-        $stmt->execute([$discordUser['id']]);
+        $email = $userData['user']['email'] ?? null;
+        if (empty($email)) {
+            return ['success' => false, 'error' => 'No email found in Slack account'];
+        }
+
+        $stmt = $this->db->prepare("SELECT u.* FROM users u INNER JOIN slack_links sl ON u.id = sl.user_id WHERE sl.slack_id = ? AND u.active_member = 1");
+        $stmt->execute([$userData['user']['id']]);
         $user = $stmt->fetch();
 
-        if ($user) {
-            $this->updateDiscordLink($user['id'], $discordUser, $tokenData);
-            $_SESSION['user_id'] = $user['id'];
-            return ['success' => true, 'user' => $user, 'action' => 'login'];
-        } else {
-            return ['success' => false, 'error' => 'No account linked to this Discord user', 'discord_user' => $discordUser];
+        if (!$user) {
+            return ['success' => false, 'error' => 'No account found linked to this Slack account'];
         }
+
+        $_SESSION['user_id'] = $user['id'];
+        return ['success' => true, 'action' => 'login'];
     }
 
-    private function linkDiscordAccount($discordUser, $tokenData)
+    private function handleLinking($userData, $tokenData)
     {
         if (!isLoggedIn()) {
-            throw new Exception('Must be logged in to link Discord account');
+            return ['success' => false, 'error' => 'You must be logged in to link accounts'];
         }
 
         global $currentUser;
 
         // Additional safety check for $currentUser
         if (!$currentUser) {
-            throw new Exception('User session not found');
+            return ['success' => false, 'error' => 'User session not found'];
         }
 
-        $stmt = $this->db->prepare("SELECT user_id FROM discord_links WHERE discord_id = ?");
-        $stmt->execute([$discordUser['id']]);
-        $existingLink = $stmt->fetch();
-
-        if ($existingLink && $existingLink['user_id'] != $currentUser->id) {
-            throw new Exception('This Discord account is already linked to another user');
+        $slackUserId = $userData['user']['id'] ?? null;
+        if (empty($slackUserId)) {
+            return ['success' => false, 'error' => 'No Slack user ID found'];
         }
-        $this->db->prepare("DELETE FROM discord_links WHERE user_id = ?")->execute([$currentUser->id]);
-        $stmt = $this->db->prepare("
-            INSERT INTO discord_links 
-            (user_id, discord_id, discord_username, discord_discriminator, discord_avatar, access_token, refresh_token, expires_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ");
+        $stmt = $this->db->prepare("SELECT user_id FROM slack_links WHERE slack_id = ? AND user_id != ?");
+        $stmt->execute([$slackUserId, $currentUser->id]);
 
-        $expiresAt = date('Y-m-d H:i:s', time() + $tokenData['expires_in']);
+        if ($stmt->fetch()) {
+            return ['success' => false, 'error' => 'This Slack account is already linked to another user'];
+        }
+        $stmt = $this->db->prepare("INSERT INTO slack_links (user_id, slack_id, slack_username, team_id, team_name, access_token, linked_at) VALUES (?, ?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE slack_username = VALUES(slack_username), team_id = VALUES(team_id), team_name = VALUES(team_name), access_token = VALUES(access_token), linked_at = NOW()");
         $stmt->execute([
             $currentUser->id,
-            $discordUser['id'],
-            $discordUser['username'],
-            $discordUser['discriminator'] ?? '0000',
-            $discordUser['avatar'],
-            $tokenData['access_token'],
-            $tokenData['refresh_token'] ?? null,
-            $expiresAt
-        ]);
-        $this->addUserToGuild($discordUser['id'], $tokenData['access_token']);
-
-        return ['success' => true, 'user' => $discordUser, 'action' => 'link'];
-    }
-
-    private function updateDiscordLink($userId, $discordUser, $tokenData)
-    {
-        $expiresAt = date('Y-m-d H:i:s', time() + $tokenData['expires_in']);
-
-        $stmt = $this->db->prepare("
-            UPDATE discord_links 
-            SET discord_username = ?, discord_discriminator = ?, discord_avatar = ?, 
-                access_token = ?, refresh_token = ?, expires_at = ?
-            WHERE user_id = ?
-        ");
-
-        $stmt->execute([
-            $discordUser['username'],
-            $discordUser['discriminator'] ?? '0000',
-            $discordUser['avatar'],
-            $tokenData['access_token'],
-            $tokenData['refresh_token'] ?? null,
-            $expiresAt,
-            $userId
-        ]);
-    }
-
-    private function addUserToGuild($discordUserId, $accessToken)
-    {
-        if (empty($this->botToken) || empty($this->guildId)) {
-            return;
-        }
-
-        $data = json_encode(['access_token' => $accessToken]);
-
-        $ch = curl_init("https://discord.com/api/guilds/{$this->guildId}/members/$discordUserId");
-        curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => 'PUT',
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                "Authorization: Bot {$this->botToken}",
-                'Content-Type: application/json'
-            ]
+            $slackUserId,
+            $userData['user']['name'] ?? ($userData['user']['real_name'] ?? null),
+            $tokenData['team']['id'] ?? null,
+            $tokenData['team']['name'] ?? null,
+            $tokenData['access_token'] ?? null
         ]);
 
-        curl_exec($ch);
-        curl_close($ch);
-    }
-
-    public function getUserDiscordLink($userId)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM discord_links WHERE user_id = ?");
-        $stmt->execute([$userId]);
-        return $stmt->fetch();
-    }
-
-    public function unlinkDiscordAccount($userId)
-    {
-        $this->db->prepare("DELETE FROM discord_links WHERE user_id = ?")->execute([$userId]);
+        return ['success' => true, 'action' => 'link'];
     }
 }
