@@ -1,79 +1,87 @@
 <?php
 // Contact Form Component Template
-$formTitle = $title ?? 'Contact Us';
-$formSubtitle = $subtitle ?? 'Get in touch with our team';
-$formDescription = $description ?? 'We would love to hear from you';
+$formTitle = $title ?? 'Get in Touch';
+$formSubtitle = $subtitle ?? 'We\'ll respond within 24 hours';
+$formDescription = $description ?? 'Have a question or want to join our team? Fill out the form below and we\'ll get back to you.';
 $buttonText = $button_text ?? 'Send Message';
 $formFields = $fields ?? array();
 
 // Default fields if none provided
 if (empty($formFields)) {
     $formFields = array(
-        array('name' => 'name', 'label' => 'Name', 'type' => 'text', 'placeholder' => 'Your name', 'required' => true),
-        array('name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'your@email.com', 'required' => true),
-        array('name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'placeholder' => 'Your message', 'required' => true)
+        array('name' => 'name', 'label' => 'Full Name', 'type' => 'text', 'placeholder' => '', 'required' => true),
+        array('name' => 'email', 'label' => 'Email Address', 'type' => 'email', 'placeholder' => '', 'required' => true),
+        array('name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'placeholder' => '', 'required' => true)
     );
 }
 
 if (!is_array($formFields)) {
     $formFields = array();
 }
-$buttonText = $button_text ?? 'Send Message';
 ?>
 
-<div class="ddb-contact-form py-12">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($formTitle) ?></h2>
-            <p class="mt-4 text-lg text-gray-600 dark:text-gray-300"><?= htmlspecialchars($formSubtitle) ?></p>
-            <?php if (!empty($formDescription)): ?>
-                <p class="mt-2 text-gray-600 dark:text-gray-400"><?= htmlspecialchars($formDescription) ?></p>
-            <?php endif; ?>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-            <form action="/contact.php" method="POST" class="space-y-6">
-                <?php foreach ($fields as $field):
-                    $fieldType = $field['type'] ?? 'text';
-                    $isRequired = $field['required'] ?? false;
-                    $placeholder = $field['placeholder'] ?? '';
-                ?>
-                    <div>
-                        <label for="<?= htmlspecialchars($field['name']) ?>"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <?= htmlspecialchars($field['label']) ?>
-                            <?php if ($isRequired): ?>
-                                <span class="text-red-500">*</span>
-                            <?php endif; ?>
-                        </label>
-
-                        <?php if ($fieldType === 'textarea'): ?>
-                            <textarea
-                                id="<?= htmlspecialchars($field['name']) ?>"
-                                name="<?= htmlspecialchars($field['name']) ?>"
-                                rows="4"
-                                <?= $isRequired ? 'required' : '' ?>
-                                placeholder="<?= htmlspecialchars($placeholder) ?>"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"></textarea>
-                        <?php else: ?>
-                            <input
-                                type="<?= htmlspecialchars($fieldType) ?>"
-                                id="<?= htmlspecialchars($field['name']) ?>"
-                                name="<?= htmlspecialchars($field['name']) ?>"
-                                <?= $isRequired ? 'required' : '' ?>
-                                placeholder="<?= htmlspecialchars($placeholder) ?>"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-500">
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
-
-                <div class="pt-4">
-                    <button type="submit"
-                        class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        <?= htmlspecialchars($buttonText) ?>
-                    </button>
-                </div>
-            </form>
-        </div>
+<section class="contact-form-section">
+    <div class="text-center" style="margin-bottom: 2rem;">
+        <h2 class="contact-title"><?= htmlspecialchars($formTitle) ?></h2>
+        <p class="contact-subtitle"><?= htmlspecialchars($formSubtitle) ?></p>
+        <?php if (!empty($formDescription)): ?>
+            <p class="contact-description"><?= htmlspecialchars($formDescription) ?></p>
+        <?php endif; ?>
     </div>
-</div>
+
+    <!-- Display error messages -->
+    <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
+        <div class="form-errors">
+            <p style="font-weight: 600; margin-bottom: 0.5rem;">Please correct the following errors:</p>
+            <?php foreach ($_SESSION['form_errors'] as $error): ?>
+                <p class="error"><?= htmlspecialchars($error) ?></p>
+            <?php endforeach; ?>
+        </div>
+        <?php unset($_SESSION['form_errors']); ?>
+    <?php endif; ?>
+
+    <form action="/contact.php" method="POST" class="contact-form">
+        <?php foreach ($formFields as $field):
+            $fieldType = $field['type'] ?? 'text';
+            $isRequired = $field['required'] ?? false;
+            $placeholder = $field['placeholder'] ?? '';
+        ?>
+            <div class="form-group">
+                <label for="<?= htmlspecialchars($field['name']) ?>">
+                    <?= htmlspecialchars($field['label']) ?>
+                    <?php if ($isRequired): ?>
+                        <span class="required">*</span>
+                    <?php endif; ?>
+                </label>
+
+                <?php if ($fieldType === 'textarea'): ?>
+                    <textarea
+                        id="<?= htmlspecialchars($field['name']) ?>"
+                        name="<?= htmlspecialchars($field['name']) ?>"
+                        rows="6"
+                        <?= $isRequired ? 'required' : '' ?>
+                        placeholder="<?= htmlspecialchars($placeholder) ?>"><?= isset($_SESSION['form_data'][$field['name']]) ? htmlspecialchars($_SESSION['form_data'][$field['name']]) : '' ?></textarea>
+                <?php else: ?>
+                    <input
+                        type="<?= htmlspecialchars($fieldType) ?>"
+                        id="<?= htmlspecialchars($field['name']) ?>"
+                        name="<?= htmlspecialchars($field['name']) ?>"
+                        <?= $isRequired ? 'required' : '' ?>
+                        placeholder="<?= htmlspecialchars($placeholder) ?>"
+                        value="<?= isset($_SESSION['form_data'][$field['name']]) ? htmlspecialchars($_SESSION['form_data'][$field['name']]) : '' ?>">
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+
+        <button type="submit" class="cta-button">
+            <?= htmlspecialchars($buttonText) ?>
+        </button>
+    </form>
+
+    <?php
+    // Clear form data after rendering
+    if (isset($_SESSION['form_data'])) {
+        unset($_SESSION['form_data']);
+    }
+    ?>
+</section>
