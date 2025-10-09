@@ -1,10 +1,8 @@
 <?php
 require_once 'core/init.php';
 checkMaintenanceMode();
-global $db;
 ?>
 <?php include 'components/layout/header.php'; ?>
-
 
 <head>
     <link rel="stylesheet" href="css/main.css">
@@ -14,11 +12,7 @@ global $db;
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
-    <?php
-    renderMembersGrid($db);
-    ?>
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php $effectsManager->renderPageEffects('index'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

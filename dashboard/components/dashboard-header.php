@@ -343,18 +343,6 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </li>
                     <?php endif; ?>
 
-                    <?php if ($currentUser && $currentUser->active_member == 1): ?>
-                        <li>
-                            <a href="<?= $settings['site_url'] ?>/dashboard/edit-integrations.php"
-                                class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'edit-integrations.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                                </svg>
-                                Edit Integrations
-                            </a>
-                        </li>
-                    <?php endif; ?>
-
                     <?php if (in_array($role, ['Leader', 'Co-leader']) && $currentUser && $currentUser->active_member == 1): ?>
                         <li class="pt-4">
                             <div class="px-4 py-2">
@@ -453,11 +441,17 @@ $currentFile = basename($_SERVER['PHP_SELF']);
 
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium">
-                            <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?>
-                        </span>
-                    </div>
+                    <?php if (!empty($currentUser->profile_image)): ?>
+                        <img src="<?= $settings['site_url'] ?>/images/members/<?= htmlspecialchars($currentUser->profile_image) ?>"
+                            alt="<?= htmlspecialchars($currentUser->first_name ?? 'User') ?>"
+                            class="w-8 h-8 rounded-full object-cover ring-2 ring-primary">
+                    <?php else: ?>
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">
+                                <?= strtoupper(substr($currentUser->first_name ?? 'U', 0, 1)) ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                             <?= htmlspecialchars($currentUser->first_name ?? 'User') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>
@@ -558,8 +552,40 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                             const mainContent = document.getElementById('mainContent');
                             const hamburgerIcon = document.getElementById('hamburgerIcon');
                             const closeIcon = document.getElementById('closeIcon');
+                            const darkModeToggle = document.getElementById('darkModeToggle');
 
                             let sidebarOpen = false;
+
+                            // Dark mode functionality
+                            function initDarkMode() {
+                                const savedTheme = localStorage.getItem('theme');
+                                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                                if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                                    document.documentElement.classList.add('dark');
+                                } else {
+                                    document.documentElement.classList.remove('dark');
+                                }
+                            }
+
+                            function toggleDarkMode() {
+                                const isDark = document.documentElement.classList.contains('dark');
+                                if (isDark) {
+                                    document.documentElement.classList.remove('dark');
+                                    localStorage.setItem('theme', 'light');
+                                } else {
+                                    document.documentElement.classList.add('dark');
+                                    localStorage.setItem('theme', 'dark');
+                                }
+                            }
+
+                            // Initialize dark mode
+                            initDarkMode();
+
+                            // Dark mode toggle event
+                            if (darkModeToggle) {
+                                darkModeToggle.addEventListener('click', toggleDarkMode);
+                            }
 
                             // Load saved sidebar state for desktop
                             function loadSidebarState() {

@@ -105,15 +105,34 @@ class ComponentManager
                 'category' => 'content',
                 'icon' => '📊',
                 'fields' => array(
-                    'title' => array(
-                        'type' => 'text',
-                        'label' => 'Title',
-                        'default' => 'Our Achievements'
-                    ),
-                    'subtitle' => array(
-                        'type' => 'text',
-                        'label' => 'Subtitle',
-                        'default' => 'Numbers that speak for themselves'
+                    'items' => array(
+                        'type' => 'repeater',
+                        'label' => 'Statistics Items',
+                        'default' => '[
+                            {"value": "150", "label": "Active Members"},
+                            {"value": "25", "label": "Projects Active"},
+                            {"value": "50", "label": "Projects Completed"}
+                        ]',
+                        'fields' => array(
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => '',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
+                            'value' => array(
+                                'type' => 'text',
+                                'label' => 'Value',
+                                'default' => '100',
+                                'placeholder' => 'e.g., 150'
+                            ),
+                            'label' => array(
+                                'type' => 'text',
+                                'label' => 'Label',
+                                'default' => 'Statistic',
+                                'placeholder' => 'e.g., Active Members'
+                            )
+                        )
                     )
                 )
             ),
@@ -138,6 +157,35 @@ class ComponentManager
                         'label' => 'Columns',
                         'options' => array('2' => '2 Columns', '3' => '3 Columns', '4' => '4 Columns'),
                         'default' => '3'
+                    ),
+                    'features' => array(
+                        'type' => 'repeater',
+                        'label' => 'Features',
+                        'fields' => array(
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:⭐',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
+                            'title' => array(
+                                'type' => 'text',
+                                'label' => 'Feature Title',
+                                'default' => 'Feature Title',
+                                'placeholder' => 'e.g., Fast Performance'
+                            ),
+                            'description' => array(
+                                'type' => 'textarea',
+                                'label' => 'Feature Description',
+                                'default' => 'Feature description goes here.',
+                                'placeholder' => 'e.g., Lightning fast performance for all your needs.'
+                            )
+                        ),
+                        'default' => array(
+                            array('icon' => 'emoji:🚀', 'title' => 'Fast Performance', 'description' => 'Lightning fast performance for all your needs.'),
+                            array('icon' => 'emoji:🔒', 'title' => 'Secure', 'description' => 'Top-notch security to protect your data.'),
+                            array('icon' => 'emoji:💡', 'title' => 'Innovative', 'description' => 'Cutting-edge solutions for modern challenges.')
+                        )
                     )
                 )
             ),
@@ -312,32 +360,18 @@ class ComponentManager
                         'fields' => array(
                             'name' => array('type' => 'text', 'label' => 'Service Name'),
                             'description' => array('type' => 'textarea', 'label' => 'Description'),
-                            'icon' => array('type' => 'text', 'label' => 'Icon/Emoji'),
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:🛠️',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
                             'price' => array('type' => 'text', 'label' => 'Price (optional)')
                         ),
                         'default' => array()
                     )
                 )
             ),
-            'stickers' => array(
-                'name' => 'JukeBox Stickers',
-                'description' => 'JukeBox custom stickers partnership announcement',
-                'category' => 'content',
-                'icon' => '🏷️',
-                'fields' => array(
-                    'title' => array(
-                        'type' => 'text',
-                        'label' => 'Section Title',
-                        'default' => 'Sticker Credits Available!'
-                    ),
-                    'description' => array(
-                        'type' => 'textarea',
-                        'label' => 'Description',
-                        'default' => 'Thanks to JukeBox, we can get amazing custom stickers for our events!'
-                    )
-                )
-            ),
-
             // Special effects components
             'mouse_effects' => array(
                 'name' => 'Mouse Effects',
@@ -402,6 +436,413 @@ class ComponentManager
                         'type' => 'color',
                         'label' => 'Grid Color',
                         'default' => '#333333'
+                    )
+                )
+            ),
+
+            // Migrated old components
+            'welcome' => array(
+                'name' => 'Welcome Section',
+                'description' => 'Hero-style welcome section with title, subtitle, and buttons',
+                'category' => 'header',
+                'icon' => '👋',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Main Title',
+                        'default' => 'Welcome to PULSE'
+                    ),
+                    'subtitle' => array(
+                        'type' => 'text',
+                        'label' => 'Subtitle/Badge Text',
+                        'default' => 'STUDENT-LED TECH COMMUNITY'
+                    ),
+                    'description' => array(
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                        'default' => 'Join a vibrant community of students passionate about technology.'
+                    ),
+                    'primary_button_text' => array(
+                        'type' => 'text',
+                        'label' => 'Primary Button Text',
+                        'default' => 'Get Involved'
+                    ),
+                    'primary_button_url' => array(
+                        'type' => 'url',
+                        'label' => 'Primary Button URL',
+                        'default' => '#'
+                    ),
+                    'secondary_button_text' => array(
+                        'type' => 'text',
+                        'label' => 'Secondary Button Text',
+                        'default' => 'Contact us'
+                    ),
+                    'secondary_button_url' => array(
+                        'type' => 'url',
+                        'label' => 'Secondary Button URL',
+                        'default' => '#'
+                    )
+                )
+            ),
+            'core_values' => array(
+                'name' => 'Core Values',
+                'description' => 'Display organization values with icons and descriptions',
+                'category' => 'content',
+                'icon' => '⭐',
+                'fields' => array(
+                    'values' => array(
+                        'type' => 'repeater',
+                        'label' => 'Values',
+                        'fields' => array(
+                            'icon' => array(
+                                'type' => 'image',
+                                'label' => 'Icon/Image',
+                                'default' => 'emoji:💎',
+                                'placeholder' => 'Upload image or select emoji'
+                            ),
+                            'title' => array('type' => 'text', 'label' => 'Title', 'default' => 'Excellence'),
+                            'description' => array('type' => 'textarea', 'label' => 'Description', 'default' => 'We strive for excellence in everything we do.')
+                        ),
+                        'default' => array(
+                            array('icon' => 'emoji:💎', 'title' => 'Excellence', 'description' => 'We strive for excellence in everything we do.'),
+                            array('icon' => 'emoji:🤝', 'title' => 'Collaboration', 'description' => 'We work together to achieve great things.'),
+                            array('icon' => 'emoji:🚀', 'title' => 'Innovation', 'description' => 'We embrace new technologies and ideas.')
+                        )
+                    )
+                )
+            ),
+            'stickers' => array(
+                'name' => 'JukeBox Stickers',
+                'description' => 'Special stickers partnership section',
+                'category' => 'content',
+                'icon' => '🏷️',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Section Title',
+                        'default' => 'Sticker Credits Available!'
+                    ),
+                    'description' => array(
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                        'default' => 'Thanks to JukeBox for our custom stickers!'
+                    ),
+                    'partner_url' => array(
+                        'type' => 'url',
+                        'label' => 'Partner URL',
+                        'default' => 'https://www.jukeboxprint.com/custom-stickers'
+                    )
+                )
+            ),
+            'scroll_arrow' => array(
+                'name' => 'Scroll Arrow',
+                'description' => 'Animated scroll indicator arrow',
+                'category' => 'media',
+                'icon' => '⬇️',
+                'fields' => array(
+                    'color' => array(
+                        'type' => 'color',
+                        'label' => 'Arrow Color',
+                        'default' => 'rgba(255,255,255,0.7)'
+                    ),
+                    'size' => array(
+                        'type' => 'range',
+                        'label' => 'Arrow Size',
+                        'min' => 16,
+                        'max' => 48,
+                        'default' => 24
+                    )
+                )
+            ),
+            'contact_form' => array(
+                'name' => 'Contact Form',
+                'description' => 'Contact form with customizable fields',
+                'category' => 'forms',
+                'icon' => '📧',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Form Title',
+                        'default' => 'Contact Us'
+                    ),
+                    'subtitle' => array(
+                        'type' => 'text',
+                        'label' => 'Subtitle',
+                        'default' => 'Get in touch with our team'
+                    ),
+                    'description' => array(
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                        'default' => 'We would love to hear from you'
+                    ),
+                    'button_text' => array(
+                        'type' => 'text',
+                        'label' => 'Button Text',
+                        'default' => 'Send Message'
+                    ),
+                    'fields' => array(
+                        'type' => 'repeater',
+                        'label' => 'Form Fields',
+                        'fields' => array(
+                            'name' => array('type' => 'text', 'label' => 'Field Name', 'default' => 'name'),
+                            'label' => array('type' => 'text', 'label' => 'Field Label', 'default' => 'Name'),
+                            'type' => array(
+                                'type' => 'select',
+                                'label' => 'Field Type',
+                                'options' => array('text' => 'Text', 'email' => 'Email', 'textarea' => 'Textarea'),
+                                'default' => 'text'
+                            ),
+                            'placeholder' => array('type' => 'text', 'label' => 'Placeholder', 'default' => ''),
+                            'required' => array('type' => 'checkbox', 'label' => 'Required', 'default' => true)
+                        ),
+                        'default' => array(
+                            array('name' => 'name', 'label' => 'Name', 'type' => 'text', 'placeholder' => 'Your name', 'required' => true),
+                            array('name' => 'email', 'label' => 'Email', 'type' => 'email', 'placeholder' => 'your@email.com', 'required' => true),
+                            array('name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'placeholder' => 'Your message', 'required' => true)
+                        )
+                    )
+                )
+            ),
+            'apply_form' => array(
+                'name' => 'Application Form',
+                'description' => 'Multi-section application form',
+                'category' => 'forms',
+                'icon' => '📝',
+                'fields' => array(
+                    'sections' => array(
+                        'type' => 'repeater',
+                        'label' => 'Form Sections',
+                        'fields' => array(
+                            'title' => array('type' => 'text', 'label' => 'Section Title', 'default' => 'Personal Information'),
+                            'fields' => array('type' => 'textarea', 'label' => 'Fields JSON', 'default' => '[]')
+                        ),
+                        'default' => array(
+                            array(
+                                'title' => 'Personal Information',
+                                'fields' => '[{"name":"first_name","label":"First Name","type":"text","required":true},{"name":"last_name","label":"Last Name","type":"text","required":true}]'
+                            )
+                        )
+                    )
+                )
+            ),
+            'applied' => array(
+                'name' => 'Application Success',
+                'description' => 'Success message after form submission',
+                'category' => 'content',
+                'icon' => '✅',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Title',
+                        'default' => 'Application Received!'
+                    ),
+                    'message' => array(
+                        'type' => 'textarea',
+                        'label' => 'Success Message',
+                        'default' => 'Your application has been successfully submitted.'
+                    ),
+                    'next_steps' => array(
+                        'type' => 'repeater',
+                        'label' => 'Next Steps',
+                        'fields' => array(
+                            'step' => array('type' => 'text', 'label' => 'Step', 'default' => 'We will review your application')
+                        ),
+                        'default' => array(
+                            array('step' => 'We will review your application within 3-5 business days'),
+                            array('step' => 'Check your email regularly for updates'),
+                            array('step' => 'Join our Discord community for real-time updates')
+                        )
+                    )
+                )
+            ),
+            'contacted' => array(
+                'name' => 'Contact Success',
+                'description' => 'Success message after contact form submission',
+                'category' => 'content',
+                'icon' => '📧',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Title',
+                        'default' => 'Message Received!'
+                    ),
+                    'message' => array(
+                        'type' => 'textarea',
+                        'label' => 'Success Message',
+                        'default' => 'Your message has been successfully submitted.'
+                    )
+                )
+            ),
+            'title' => array(
+                'name' => 'Title Section',
+                'description' => 'Simple title section',
+                'category' => 'content',
+                'icon' => '📄',
+                'fields' => array(
+                    'text' => array(
+                        'type' => 'text',
+                        'label' => 'Title Text',
+                        'default' => 'Section Title'
+                    ),
+                    'level' => array(
+                        'type' => 'select',
+                        'label' => 'Heading Level',
+                        'options' => array('h1' => 'H1', 'h2' => 'H2', 'h3' => 'H3', 'h4' => 'H4'),
+                        'default' => 'h2'
+                    ),
+                    'align' => array(
+                        'type' => 'select',
+                        'label' => 'Text Alignment',
+                        'options' => array('left' => 'Left', 'center' => 'Center', 'right' => 'Right'),
+                        'default' => 'center'
+                    )
+                )
+            ),
+            'title_2' => array(
+                'name' => 'Title Style 2',
+                'description' => 'Two-part title with different colors',
+                'category' => 'content',
+                'icon' => '📄',
+                'fields' => array(
+                    'first' => array(
+                        'type' => 'text',
+                        'label' => 'First Title (Grey)',
+                        'default' => 'OUR',
+                        'placeholder' => 'First part of title'
+                    ),
+                    'second' => array(
+                        'type' => 'text',
+                        'label' => 'Second Title (Red)',
+                        'default' => 'MISSION',
+                        'placeholder' => 'Second part of title'
+                    )
+                )
+            ),
+            'title_3' => array(
+                'name' => 'Title Style 3',
+                'description' => 'Third title style variation',
+                'category' => 'content',
+                'icon' => '📄',
+                'fields' => array(
+                    'text' => array(
+                        'type' => 'text',
+                        'label' => 'Title Text',
+                        'default' => 'Section Title'
+                    ),
+                    'level' => array(
+                        'type' => 'select',
+                        'label' => 'Heading Level',
+                        'options' => array('h1' => 'H1', 'h2' => 'H2', 'h3' => 'H3', 'h4' => 'H4'),
+                        'default' => 'h3'
+                    )
+                )
+            ),
+            'values' => array(
+                'name' => 'Values Hero',
+                'description' => 'Hero section with values and mission',
+                'category' => 'header',
+                'icon' => '🎯',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Main Title',
+                        'default' => 'Welcome to <span class="text-red-500">Suceava Hacks</span>'
+                    ),
+                    'subtitle' => array(
+                        'type' => 'text',
+                        'label' => 'Subtitle',
+                        'default' => 'STUDENT-LED TECH COMMUNITY'
+                    ),
+                    'description' => array(
+                        'type' => 'textarea',
+                        'label' => 'Description',
+                        'default' => 'Join a vibrant community of students passionate about technology and innovation.'
+                    ),
+                    'primary_button_text' => array(
+                        'type' => 'text',
+                        'label' => 'Primary Button Text',
+                        'default' => 'Get Involved'
+                    ),
+                    'primary_button_url' => array(
+                        'type' => 'url',
+                        'label' => 'Primary Button URL',
+                        'default' => '/join.php'
+                    ),
+                    'secondary_button_text' => array(
+                        'type' => 'text',
+                        'label' => 'Secondary Button Text',
+                        'default' => 'Learn More'
+                    ),
+                    'secondary_button_url' => array(
+                        'type' => 'url',
+                        'label' => 'Secondary Button URL',
+                        'default' => '/about.php'
+                    )
+                )
+            ),
+            'box' => array(
+                'name' => 'Content Box',
+                'description' => 'Simple content container box',
+                'category' => 'content',
+                'icon' => '📦',
+                'fields' => array(
+                    'content' => array(
+                        'type' => 'wysiwyg',
+                        'label' => 'Box Content',
+                        'default' => '<p>Your content here</p>'
+                    ),
+                    'background_color' => array(
+                        'type' => 'color',
+                        'label' => 'Background Color',
+                        'default' => '#f8f9fa'
+                    ),
+                    'padding' => array(
+                        'type' => 'select',
+                        'label' => 'Padding',
+                        'options' => array('small' => 'Small', 'medium' => 'Medium', 'large' => 'Large'),
+                        'default' => 'medium'
+                    )
+                )
+            ),
+            'custom' => array(
+                'name' => 'Custom HTML',
+                'description' => 'Custom HTML content block',
+                'category' => 'content',
+                'icon' => '🔧',
+                'fields' => array(
+                    'html' => array(
+                        'type' => 'wysiwyg',
+                        'label' => 'Custom HTML',
+                        'default' => '<div class="custom-section"><p>Your custom content here</p></div>'
+                    )
+                )
+            ),
+            'members_grid' => array(
+                'name' => 'Members Grid',
+                'description' => 'Display team members in a grid layout',
+                'category' => 'content',
+                'icon' => '👥',
+                'fields' => array(
+                    'title' => array(
+                        'type' => 'text',
+                        'label' => 'Grid Title',
+                        'default' => 'Our Team'
+                    ),
+                    'subtitle' => array(
+                        'type' => 'text',
+                        'label' => 'Grid Subtitle',
+                        'default' => 'Meet the PULSE community'
+                    ),
+                    'show_all_members' => array(
+                        'type' => 'checkbox',
+                        'label' => 'Show All Members',
+                        'default' => true
+                    ),
+                    'members_per_row' => array(
+                        'type' => 'select',
+                        'label' => 'Members Per Row',
+                        'options' => array('2' => '2', '3' => '3', '4' => '4'),
+                        'default' => '3'
                     )
                 )
             )

@@ -1,0 +1,147 @@
+/* Feature Grid Component Styles */
+.feature-grid {
+    background: var(--background);
+    color: var(--text);
+}
+
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+}
+
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.feature-icon-img {
+    max-width: 48px;
+    max-height: 48px;
+    border-radius: 8px;
+}
+
+.feature-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.feature-description {
+    line-height: 1.6;
+}
+
+/* Services Section Styles */
+.services-section {
+    background: var(--background);
+}
+
+.service-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+}
+
+.service-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.service-icon-img {
+    max-width: 48px;
+    max-height: 48px;
+    border-radius: 8px;
+}
+
+.service-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.service-description {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.service-price {
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 0.5rem;
+    display: inline-block;
+}
+
+/* Projects Section Styles */
+.projects-section {
+    background: var(--background);
+    color: var(--text);
+}
+
+.project-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+}
+
+.project-image {
+    overflow: hidden;
+}
+
+.project-image img {
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-image img {
+    transform: scale(1.05);
+}
+
+.project-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.project-description {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.project-link {
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.project-link:hover {
+    text-decoration: underline;
+}
+
+/* Icon/Image rendering improvements */
+.value-icon-img,
+.feature-icon-img,
+.service-icon-img,
+.stat-icon-img {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode adjustments */
+.dark .feature-card,
+.dark .service-card,
+.dark .project-card {
+    background: var(--elevated);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .service-price {
+    background: rgba(59, 130, 246, 0.2);
+}

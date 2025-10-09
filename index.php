@@ -12,9 +12,7 @@ checkMaintenanceMode();
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
-    <?php include 'components/effects/mouse.php'; ?>
-    <?php include 'components/effects/globe.php'; ?>
-    <?php include 'components/effects/grid.php'; ?>
+    <?php $effectsManager->renderPageEffects('index'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>

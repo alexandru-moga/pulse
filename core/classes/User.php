@@ -1,6 +1,7 @@
 <?php
 
-class User {
+class User
+{
     public $id;
     public $first_name;
     public $last_name;
@@ -19,14 +20,20 @@ class User {
     public $join_date;
     public $description;
     public $active_member;
+    public $profile_image;
+    public $bio;
+    public $profile_public;
+    public $discord_avatar;
 
     private $db;
 
-    public function __construct($db = null) {
+    public function __construct($db = null)
+    {
         $this->db = $db;
     }
 
-    public static function getById($id) {
+    public static function getById($id)
+    {
         global $db;
         $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->execute([$id]);

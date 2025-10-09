@@ -56,6 +56,7 @@ foreach ($db->query("SELECT name, value FROM settings") as $row) {
 }
 
 $pageManager = new PageManager($db);
+$effectsManager = new EffectsManager($db);
 
 $currentPage = basename($_SERVER['SCRIPT_NAME'], '.php');
 
