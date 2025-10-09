@@ -12,7 +12,7 @@ checkMaintenanceMode();
     <?php foreach ($pageStructure['components'] as $component): ?>
         <?= $pageManager->renderComponent($component) ?>
     <?php endforeach; ?>
-    <?php $effectsManager->renderPageEffects('index'); ?>
+    <?php $effectsManager->renderPageEffects('members'); ?>
 </main>
 
 <?php include 'components/layout/footer.php'; ?>
