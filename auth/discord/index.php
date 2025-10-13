@@ -21,7 +21,15 @@ try {
             if ($result['action'] === 'login') {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
             } else {
-                $_SESSION['account_link_success'] = 'Discord account linked successfully!';
+                // Check if user came from Discord welcome message
+                $fromWelcome = isset($_GET['from']) && $_GET['from'] === 'welcome';
+                
+                if ($fromWelcome) {
+                    $_SESSION['account_link_success'] = 'Discord account linked successfully! Your roles are being synced automatically. Welcome to Phoenix Club! 🎉';
+                } else {
+                    $_SESSION['account_link_success'] = 'Discord account linked successfully! Your roles have been synced.';
+                }
+                
                 header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
             }
         } else {

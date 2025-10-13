@@ -242,8 +242,51 @@ class DiscordOAuth
             ]
         ]);
 
-        curl_exec($ch);
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+        // If user was successfully added or already in guild, trigger role sync
+        if ($httpCode === 201 || $httpCode === 204) {
+            $this->triggerRoleSync($discordUserId);
+        }
+    }
+
+    private function triggerRoleSync($discordUserId)
+    {
+        try {
+            // Get bot API URL from settings or use default
+            $botAPIUrl = 'http://localhost:3000';
+            
+            // Call the Discord bot's role sync API endpoint
+            $syncData = json_encode(['userId' => $discordUserId]);
+
+            $ch = curl_init("{$botAPIUrl}/api/sync-user");
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $syncData,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'X-Bot-Token: ' . $this->botToken
+                ],
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_CONNECTTIMEOUT => 5
+            ]);
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError) {
+                error_log("CURL error triggering role sync: $curlError");
+            } else {
+                error_log("Role sync triggered for user $discordUserId, HTTP code: $httpCode, Response: $result");
+            }
+        } catch (Exception $e) {
+            error_log("Failed to trigger role sync: " . $e->getMessage());
+        }
     }
 
     public function getUserDiscordLink($userId)
