@@ -262,36 +262,95 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
-                    <div class="mt-1 flex rounded-md shadow-sm">
-                        <select name="country_code" id="country_code" class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm focus:ring-primary focus:border-primary">
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                            <option value="+91">🇮🇳 +91</option>
-                            <option value="+86">🇨🇳 +86</option>
-                            <option value="+81">🇯🇵 +81</option>
-                            <option value="+49">🇩🇪 +49</option>
-                            <option value="+33">🇫🇷 +33</option>
-                            <option value="+39">🇮🇹 +39</option>
-                            <option value="+34">🇪🇸 +34</option>
-                            <option value="+7">🇷🇺 +7</option>
-                            <option value="+55">🇧🇷 +55</option>
-                            <option value="+61">🇦🇺 +61</option>
-                            <option value="+27">🇿🇦 +27</option>
-                            <option value="+82">🇰🇷 +82</option>
-                            <option value="+52">🇲🇽 +52</option>
-                            <option value="+31">🇳🇱 +31</option>
-                            <option value="+46">🇸🇪 +46</option>
-                            <option value="+41">🇨🇭 +41</option>
-                            <option value="+65">🇸🇬 +65</option>
-                            <option value="+971">🇦🇪 +971</option>
-                        </select>
-                        <input type="tel"
-                            id="phone"
-                            name="phone"
-                            value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
-                            placeholder="123-456-7890"
-                            class="flex-1 block w-full rounded-none rounded-r-md border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                    <div class="flex">
+                        <button id="dropdown-phone-button-profile" data-dropdown-toggle="dropdown-phone-profile" class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-s-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:focus:ring-gray-700" type="button">
+                            <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
+                                <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
+                                <mask id="a" style="mask-type:luminance" width="20" height="15" x="0" y="0" maskUnits="userSpaceOnUse">
+                                    <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
+                                </mask>
+                                <g mask="url(#a)">
+                                    <path fill="#D02F44" fill-rule="evenodd" d="M19.6.5H0v.933h19.6V.5zm0 1.867H0V3.3h19.6v-.933zM0 4.233h19.6v.934H0v-.934zM19.6 6.1H0v.933h19.6V6.1zM0 7.967h19.6V8.9H0v-.933zm19.6 1.866H0v.934h19.6v-.934zM0 11.7h19.6v.933H0V11.7zm19.6 1.867H0v.933h19.6v-.933z" clip-rule="evenodd"/>
+                                    <path fill="#46467F" d="M0 .5h8.4v6.533H0z"/>
+                                    <g filter="url(#filter0_d_343_121520)">
+                                        <path fill="url(#paint0_linear_343_121520)" fill-rule="evenodd" d="M1.867 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.866 0a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM7.467 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zM2.333 3.3a.467.467 0 100-.933.467.467 0 000 .933zm2.334-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.4.467a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm-2.334.466a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.466a.467.467 0 11-.933 0 .467.467 0 01.933 0zM1.4 4.233a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM6.533 4.7a.467.467 0 11-.933 0 .467.467 0 01.933 0zM7 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zM3.267 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0z" clip-rule="evenodd"/>
+                                    </g>
+                                </g>
+                                <defs>
+                                    <linearGradient id="paint0_linear_343_121520" x1=".933" x2=".933" y1="1.433" y2="6.1" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#fff"/>
+                                        <stop offset="1" stop-color="#F0F0F0"/>
+                                    </linearGradient>
+                                    <filter id="filter0_d_343_121520" width="6.533" height="5.667" x=".933" y="1.433" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                        <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+                                        <feOffset dy="1"/>
+                                        <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0"/>
+                                        <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_343_121520"/>
+                                        <feBlend in="SourceGraphic" in2="effect1_dropShadow_343_121520" result="shape"/>
+                                    </filter>
+                                </defs>
+                            </svg>
+                            <span id="selected-country-code-profile">+1</span>
+                            <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            </svg>
+                        </button>
+                        <div id="dropdown-phone-profile" class="z-10 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow w-52">
+                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-phone-button-profile">
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+1">
+                                        <span class="inline-flex items-center">🇸 United States (+1)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+44">
+                                        <span class="inline-flex items-center">�� United Kingdom (+44)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+49">
+                                        <span class="inline-flex items-center">�� Germany (+49)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+33">
+                                        <span class="inline-flex items-center">�� France (+33)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+39">
+                                        <span class="inline-flex items-center">�� Italy (+39)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+34">
+                                        <span class="inline-flex items-center">🇪🇸 Spain (+34)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+61">
+                                        <span class="inline-flex items-center">�� Australia (+61)</span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+91">
+                                        <span class="inline-flex items-center">�� India (+91)</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <input type="hidden" name="country_code" id="country_code_profile" value="+1">
+                        <label for="phone-input-profile" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Phone number:</label>
+                        <div class="relative w-full">
+                            <input type="text"
+                                id="phone-input-profile"
+                                name="phone"
+                                value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
+                                placeholder="123-456-7890"
+                                class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-0 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                        </div>
                     </div>
                 </div>
 
@@ -541,6 +600,40 @@ include __DIR__ . '/components/dashboard-header.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Phone Country Code Dropdown
+        const dropdownButton = document.getElementById('dropdown-phone-button-profile');
+        const dropdownMenu = document.getElementById('dropdown-phone-profile');
+        const selectedCodeSpan = document.getElementById('selected-country-code-profile');
+        const hiddenCountryCodeInput = document.getElementById('country_code_profile');
+        
+        if (dropdownButton && dropdownMenu) {
+            // Toggle dropdown
+            dropdownButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+            
+            // Handle country selection
+            const countryButtons = dropdownMenu.querySelectorAll('button[data-country-code]');
+            countryButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const countryCode = this.getAttribute('data-country-code');
+                    selectedCodeSpan.textContent = countryCode;
+                    hiddenCountryCodeInput.value = countryCode;
+                    dropdownMenu.classList.add('hidden');
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+        }
+        
         const mainForm = document.querySelector('form.p-6.space-y-6');
         const saveButton = mainForm ? mainForm.querySelector('button[type="submit"]') : null;
 

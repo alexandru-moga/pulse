@@ -192,40 +192,102 @@ include __DIR__ . '/components/dashboard-header.php';
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
                             <div>
-                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                                <div class="mt-1 flex rounded-md shadow-sm">
-                                    <select name="country_code" id="country_code" class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm focus:ring-primary focus:border-primary">
-                                        <option value="+1">🇺🇸 +1</option>
-                                        <option value="+44">🇬🇧 +44</option>
-                                        <option value="+91">🇮🇳 +91</option>
-                                        <option value="+86">🇨🇳 +86</option>
-                                        <option value="+81">🇯🇵 +81</option>
-                                        <option value="+49">🇩🇪 +49</option>
-                                        <option value="+33">🇫🇷 +33</option>
-                                        <option value="+39">🇮🇹 +39</option>
-                                        <option value="+34">🇪🇸 +34</option>
-                                        <option value="+7">🇷🇺 +7</option>
-                                        <option value="+55">🇧🇷 +55</option>
-                                        <option value="+61">🇦🇺 +61</option>
-                                        <option value="+27">🇿🇦 +27</option>
-                                        <option value="+82">🇰🇷 +82</option>
-                                        <option value="+52">🇲🇽 +52</option>
-                                        <option value="+31">🇳🇱 +31</option>
-                                        <option value="+46">🇸🇪 +46</option>
-                                        <option value="+41">🇨🇭 +41</option>
-                                        <option value="+65">🇸🇬 +65</option>
-                                        <option value="+971">🇦🇪 +971</option>
-                                    </select>
-                                    <input type="tel" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
-                                           placeholder="123-456-7890"
-                                           class="flex-1 block w-full rounded-none rounded-r-md border-gray-300 focus:ring-primary focus:border-primary">
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <div class="flex">
+                                    <button id="dropdown-phone-button" data-dropdown-toggle="dropdown-phone" class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100" type="button">
+                                        <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
+                                            <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
+                                            <mask id="a" style="mask-type:luminance" width="20" height="15" x="0" y="0" maskUnits="userSpaceOnUse">
+                                                <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
+                                            </mask>
+                                            <g mask="url(#a)">
+                                                <path fill="#D02F44" fill-rule="evenodd" d="M19.6.5H0v.933h19.6V.5zm0 1.867H0V3.3h19.6v-.933zM0 4.233h19.6v.934H0v-.934zM19.6 6.1H0v.933h19.6V6.1zM0 7.967h19.6V8.9H0v-.933zm19.6 1.866H0v.934h19.6v-.934zM0 11.7h19.6v.933H0V11.7zm19.6 1.867H0v.933h19.6v-.933z" clip-rule="evenodd"/>
+                                                <path fill="#46467F" d="M0 .5h8.4v6.533H0z"/>
+                                                <g filter="url(#filter0_d_343_121520)">
+                                                    <path fill="url(#paint0_linear_343_121520)" fill-rule="evenodd" d="M1.867 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.866 0a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM7.467 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zM2.333 3.3a.467.467 0 100-.933.467.467 0 000 .933zm2.334-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.4.467a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm-2.334.466a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.466a.467.467 0 11-.933 0 .467.467 0 01.933 0zM1.4 4.233a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM6.533 4.7a.467.467 0 11-.933 0 .467.467 0 01.933 0zM7 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zM3.267 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0z" clip-rule="evenodd"/>
+                                                </g>
+                                            </g>
+                                            <defs>
+                                                <linearGradient id="paint0_linear_343_121520" x1=".933" x2=".933" y1="1.433" y2="6.1" gradientUnits="userSpaceOnUse">
+                                                    <stop stop-color="#fff"/>
+                                                    <stop offset="1" stop-color="#F0F0F0"/>
+                                                </linearGradient>
+                                                <filter id="filter0_d_343_121520" width="6.533" height="5.667" x=".933" y="1.433" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+                                                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                                    <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+                                                    <feOffset dy="1"/>
+                                                    <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0"/>
+                                                    <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_343_121520"/>
+                                                    <feBlend in="SourceGraphic" in2="effect1_dropShadow_343_121520" result="shape"/>
+                                                </filter>
+                                            </defs>
+                                        </svg>
+                                        <span id="selected-country-code">+1</span>
+                                        <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                        </svg>
+                                    </button>
+                                    <div id="dropdown-phone" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-52">
+                                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+1">
+                                                    <span class="inline-flex items-center">🇸 United States (+1)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+44">
+                                                    <span class="inline-flex items-center">�� United Kingdom (+44)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+49">
+                                                    <span class="inline-flex items-center">�� Germany (+49)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+33">
+                                                    <span class="inline-flex items-center">�� France (+33)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+39">
+                                                    <span class="inline-flex items-center">�� Italy (+39)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+34">
+                                                    <span class="inline-flex items-center">�� Spain (+34)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+61">
+                                                    <span class="inline-flex items-center">�� Australia (+61)</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-country-code="+91">
+                                                    <span class="inline-flex items-center">�� India (+91)</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="country_code" id="country_code" value="+1">
+                                    <label for="phone-input" class="mb-2 text-sm font-medium text-gray-900 sr-only">Phone number:</label>
+                                    <div class="relative w-full">
+                                        <input type="text" name="phone" id="phone-input" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-0 border border-gray-300 focus:ring-blue-500 focus:border-blue-500" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="123-456-7890" />
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                                <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
-                                       placeholder="YYYY-MM-DD" readonly
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary cursor-pointer">
+                                <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-2">Birth Date</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5" placeholder="Select date" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -346,23 +408,49 @@ function confirmToggleStatus(userId, willEnable) {
     }
 }
 
-// Custom Date Picker
+// Initialize components
 document.addEventListener('DOMContentLoaded', function() {
+    // Phone Country Code Dropdown
+    const dropdownButton = document.getElementById('dropdown-phone-button');
+    const dropdownMenu = document.getElementById('dropdown-phone');
+    const selectedCodeSpan = document.getElementById('selected-country-code');
+    const hiddenCountryCodeInput = document.getElementById('country_code');
+    
+    if (dropdownButton && dropdownMenu) {
+        // Toggle dropdown
+        dropdownButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        });
+        
+        // Handle country selection
+        const countryButtons = dropdownMenu.querySelectorAll('button[data-country-code]');
+        countryButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const countryCode = this.getAttribute('data-country-code');
+                selectedCodeSpan.textContent = countryCode;
+                hiddenCountryCodeInput.value = countryCode;
+                dropdownMenu.classList.add('hidden');
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Custom Date Picker
     const birthdateInput = document.getElementById('birthdate');
     
     if (birthdateInput) {
-        // Create custom date picker
-        const picker = document.createElement('div');
-        picker.id = 'customDatePicker';
-        picker.className = 'absolute z-50 mt-1 bg-white border-2 border-primary rounded-lg shadow-xl p-4 hidden';
-        picker.style.width = '320px';
-        
-        // Insert picker after input
-        birthdateInput.parentNode.style.position = 'relative';
-        birthdateInput.parentNode.appendChild(picker);
-        
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth();
+        let picker = null;
         
         // Parse existing date if present
         if (birthdateInput.value) {
@@ -373,93 +461,113 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        function renderCalendar(year, month) {
+        // Create picker element
+        function createPicker() {
+            if (picker) return;
+            
+            picker = document.createElement('div');
+            picker.id = 'customDatePicker';
+            picker.className = 'absolute z-50 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 hidden';
+            picker.style.width = '280px';
+            birthdateInput.parentNode.appendChild(picker);
+        }
+        
+        function renderCalendar() {
+            if (!picker) createPicker();
+            
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                               'July', 'August', 'September', 'October', 'November', 'December'];
             
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             
-            let html = `
-                <div class="flex items-center justify-between mb-4">
-                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded" onclick="changeMonth(-1)">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            picker.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <button type="button" class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg p-2.5" id="prevMonth">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                     </button>
-                    <div class="font-semibold text-gray-900">${monthNames[month]} ${year}</div>
-                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded" onclick="changeMonth(1)">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    <div class="text-sm font-semibold text-gray-900">${monthNames[currentMonth]} ${currentYear}</div>
+                    <button type="button" class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg p-2.5" id="nextMonth">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                         </svg>
                     </button>
                 </div>
-                <div class="grid grid-cols-7 gap-1 text-center text-sm">
-                    <div class="font-medium text-gray-500">Su</div>
-                    <div class="font-medium text-gray-500">Mo</div>
-                    <div class="font-medium text-gray-500">Tu</div>
-                    <div class="font-medium text-gray-500">We</div>
-                    <div class="font-medium text-gray-500">Th</div>
-                    <div class="font-medium text-gray-500">Fr</div>
-                    <div class="font-medium text-gray-500">Sa</div>
+                <div class="grid grid-cols-7 mb-1">
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Su</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Mo</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Tu</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">We</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Th</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Fr</span>
+                    <span class="flex items-center justify-center h-6 text-xs font-medium text-gray-500">Sa</span>
+                </div>
+                <div class="grid grid-cols-7" id="calendarDays"></div>
             `;
+            
+            const calendarDays = picker.querySelector('#calendarDays');
             
             // Empty cells before first day
             for (let i = 0; i < firstDay; i++) {
-                html += '<div></div>';
+                const emptyCell = document.createElement('div');
+                calendarDays.appendChild(emptyCell);
             }
             
             // Days of month
             for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = birthdateInput.value === dateStr;
-                html += `
-                    <button type="button" 
-                            class="p-2 hover:bg-primary hover:text-white rounded transition-colors ${isSelected ? 'bg-primary text-white' : ''}"
-                            onclick="selectDate('${dateStr}')">
-                        ${day}
-                    </button>
-                `;
+                
+                const dayButton = document.createElement('button');
+                dayButton.type = 'button';
+                dayButton.className = `flex items-center justify-center h-8 text-sm rounded-lg hover:bg-gray-100 ${isSelected ? 'bg-blue-700 text-white hover:bg-blue-800' : 'text-gray-900'}`;
+                dayButton.textContent = day;
+                dayButton.addEventListener('click', function() {
+                    birthdateInput.value = dateStr;
+                    picker.classList.add('hidden');
+                });
+                
+                calendarDays.appendChild(dayButton);
             }
             
-            html += '</div>';
-            picker.innerHTML = html;
+            // Attach month navigation handlers
+            picker.querySelector('#prevMonth').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+            
+            picker.querySelector('#nextMonth').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
         }
         
-        window.changeMonth = function(delta) {
-            currentMonth += delta;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            renderCalendar(currentYear, currentMonth);
-        };
-        
-        window.selectDate = function(dateStr) {
-            birthdateInput.value = dateStr;
-            picker.classList.add('hidden');
-        };
-        
+        // Show/hide picker
         birthdateInput.addEventListener('click', function(e) {
             e.stopPropagation();
-            picker.classList.toggle('hidden');
-            if (!picker.classList.contains('hidden')) {
-                renderCalendar(currentYear, currentMonth);
+            if (!picker) {
+                createPicker();
+                renderCalendar();
             }
+            picker.classList.toggle('hidden');
         });
         
         // Close picker when clicking outside
         document.addEventListener('click', function(e) {
-            if (!picker.contains(e.target) && e.target !== birthdateInput) {
+            if (picker && !picker.contains(e.target) && e.target !== birthdateInput) {
                 picker.classList.add('hidden');
             }
         });
-        
-        // Initial render
-        renderCalendar(currentYear, currentMonth);
     }
 });
 </script>
