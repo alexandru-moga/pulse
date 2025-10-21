@@ -22,38 +22,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-    
-    if ($password !== $confirmPassword) {
-        $createError = "Passwords do not match.";
+    $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
+    $exists->execute([$data['email']]);
+    if ($exists->fetch()) {
+        $createError = "A user with this email already exists.";
     } else {
-        // Validate password
-        $passwordValidation = PasswordValidator::validate($password);
-        if (!$passwordValidation['valid']) {
-            $createError = $passwordValidation['message'];
-        } else {
-            $data['password'] = password_hash($password, PASSWORD_DEFAULT);
-
-            $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
-            $exists->execute([$data['email']]);
-            if ($exists->fetch()) {
-                $createError = "A user with this email already exists.";
-            } else {
-            $stmt = $db->prepare("INSERT INTO users
-                (first_name, last_name, email, password, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([
-                $data['first_name'], $data['last_name'], $data['email'], $data['password'],
-                $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
-                $data['hcb_member'], $data['birthdate'], $data['class'],
-                $data['phone'], $data['role'], $data['description'], $data['active_member']
-            ]);
-            header("Location: users.php?created=1");
-            exit();
-        }
-        }
+        $stmt = $db->prepare("INSERT INTO users
+            (first_name, last_name, email, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $data['first_name'], $data['last_name'], $data['email'],
+            $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
+            $data['hcb_member'], $data['birthdate'], $data['class'],
+            $data['phone'], $data['role'], $data['description'], $data['active_member']
+        ]);
+        header("Location: users.php?created=1");
+        exit();
     }
+}
 }
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
@@ -74,38 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
     $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
-    $updatePassword = !empty($_POST['password']);
-    if ($updatePassword) {
-        $password = $_POST['password'];
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        
-        if ($password !== $confirmPassword) {
-            $editError = "Passwords do not match.";
-        } else {
-            // Validate password
-            $passwordValidation = PasswordValidator::validate($password);
-            if (!$passwordValidation['valid']) {
-                $editError = $passwordValidation['message'];
-            } else {
-                $data['password'] = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $db->prepare("UPDATE users SET
-                    first_name=?, last_name=?, email=?, password=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
-                    WHERE id=?");
-                $params = array_values($data);
-                $params[] = $id;
-                $stmt->execute($params);
-                $editSuccess = "User updated successfully!";
-            }
-        }
-    } else {
-        $stmt = $db->prepare("UPDATE users SET
-            first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
-            WHERE id=?");
-        $params = array_values($data);
-        $params[] = $id;
-        $stmt->execute($params);
-        $editSuccess = "User updated successfully!";
-    }
+    $stmt = $db->prepare("UPDATE users SET
+        first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+        WHERE id=?");
+    $params = array_values($data);
+    $params[] = $id;
+    $stmt->execute($params);
+    $editSuccess = "User updated successfully!";
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
@@ -115,225 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     exit();
 }
 
-$resetSuccess = $resetError = null;
-if (isset($_GET['reset']) && is_numeric($_GET['reset'])) {
-    $userId = $_GET['reset'];
-    $user = $db->prepare("SELECT * FROM users WHERE id=?");
-    $user->execute([$userId]);
-    $user = $user->fetch();
-    if ($user) {
-        $token = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', time() + 3600);
-        $db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
-            ->execute([$userId, $token, $expires]);
-        $resetLink = $settings['site_url'] . "/dashboard/reset.php?token=$token";
-        $smtp = [];
-        foreach ($db->query("SELECT name, value FROM settings") as $row) $smtp[$row['name']] = $row['value'];
-        $mail = new PHPMailer(true);
-        try {
-                $mail->isSMTP();
-                $mail->Host = $smtp['smtp_host'];
-                $mail->SMTPAuth = true;
-                $mail->Username = $smtp['smtp_user'];
-                $mail->Password = $smtp['smtp_pass'];
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = $smtp['smtp_port'];
-
-                $mail->setFrom($smtp['smtp_from'], $smtp['smtp_from_name']);
-                $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
-                $mail->isHTML(true);
-                $mail->Subject = 'Set Your PULSE Password';
-                
-                // Modern HTML email template matching the reset page design
-                $emailBody = '
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Set Your PULSE Password</title>
-                    <style>
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                            line-height: 1.6;
-                            color: #374151;
-                            background-color: #f9fafb;
-                        }
-                        .container {
-                            max-width: 600px;
-                            margin: 0 auto;
-                            padding: 40px 20px;
-                        }
-                        .card {
-                            background-color: #ffffff;
-                            border-radius: 8px;
-                            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-                            overflow: hidden;
-                        }
-                        .header {
-                            text-align: center;
-                            padding: 40px 40px 20px 40px;
-                            background-color: #ffffff;
-                        }
-                        .logo-img {
-                            width: 64px;
-                            height: 64px;
-                            margin: 0 auto 24px auto;
-                            display: block;
-                            border-radius: 8px;
-                        }
-                        .logo-fallback {
-                            width: 64px;
-                            height: 64px;
-                            margin: 0 auto 24px auto;
-                            background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%);
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-family: system-ui, -apple-system, sans-serif;
-                            font-weight: bold;
-                            font-size: 24px;
-                            color: white;
-                            text-decoration: none;
-                        }
-                        .title {
-                            font-size: 24px;
-                            font-weight: 800;
-                            color: #111827;
-                            margin: 0 0 8px 0;
-                        }
-                        .subtitle {
-                            font-size: 14px;
-                            color: #6b7280;
-                            margin: 0;
-                        }
-                        .content {
-                            padding: 20px 40px 40px 40px;
-                        }
-                        .greeting {
-                            font-size: 16px;
-                            margin-bottom: 20px;
-                        }
-                        .message {
-                            font-size: 14px;
-                            line-height: 1.5;
-                            margin-bottom: 30px;
-                            color: #4b5563;
-                        }
-                        .button {
-                            display: inline-block;
-                            padding: 12px 24px;
-                            background-color: #ec4a0a;
-                            color: white;
-                            text-decoration: none;
-                            border-radius: 6px;
-                            font-weight: 500;
-                            font-size: 14px;
-                            text-align: center;
-                            margin: 20px 0;
-                        }
-                        .button:hover {
-                            background-color: #dc2626;
-                        }
-                        .link-fallback {
-                            font-size: 12px;
-                            color: #6b7280;
-                            margin-top: 20px;
-                            word-break: break-all;
-                        }
-                        .footer {
-                            text-align: center;
-                            padding: 20px 40px;
-                            background-color: #f9fafb;
-                            border-top: 1px solid #e5e7eb;
-                        }
-                        .footer-text {
-                            font-size: 12px;
-                            color: #6b7280;
-                            margin: 0;
-                        }
-                        .welcome-notice {
-                            background-color: #dbeafe;
-                            border: 1px solid #93c5fd;
-                            border-radius: 6px;
-                            padding: 16px;
-                            margin: 20px 0;
-                        }
-                        .welcome-notice p {
-                            margin: 0;
-                            font-size: 14px;
-                            color: #1e40af;
-                        }
-                        @media only screen and (max-width: 600px) {
-                            .container {
-                                padding: 20px 10px;
-                            }
-                            .header, .content, .footer {
-                                padding-left: 20px;
-                                padding-right: 20px;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="card">
-                            <div class="header">
-                                <img src="' . $settings['site_url'] . '/images/hackclub-logo.png" 
-                                     alt="Hack Club Logo" 
-                                     class="logo-img"
-                                     style="width: 64px; height: 64px; margin: 0 auto 24px auto; display: block; border-radius: 8px;"
-                                     onerror="this.style.display=\'none\'; document.getElementById(\'logo-fallback-users\').style.display=\'flex\';">
-                                <div id="logo-fallback-users" class="logo-fallback" style="width: 64px; height: 64px; margin: 0 auto 24px auto; background: linear-gradient(135deg, #FF8C37 0%, #EC3750 100%); border-radius: 50%; display: none; align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 24px; color: white;">
-                                    H
-                                </div>
-                                <h1 class="title">Set Your Password</h1>
-                                <p class="subtitle">Welcome to ' . htmlspecialchars($settings['site_title']) . ' - Complete your account setup</p>
-                            </div>
-                            
-                            <div class="content">
-                                <div class="greeting">Hello ' . htmlspecialchars($user['first_name']) . ',</div>
-                                
-                                <div class="message">
-                                    Welcome to ' . htmlspecialchars($settings['site_title']) . '! Your account has been created and it\'s time to set your password. Click the button below to complete your account setup.
-                                </div>
-                                
-                                <div style="text-align: center;">
-                                    <a href="' . $resetLink . '" class="button">Set Password</a>
-                                </div>
-                                
-                                <div class="welcome-notice">
-                                    <p><strong>Getting Started:</strong> This link will expire in 1 hour for security. Once you set your password, you\'ll have full access to your ' . htmlspecialchars($settings['site_title']) . ' dashboard.</p>
-                                </div>
-                                
-                                <div class="link-fallback">
-                                    If the button above does not work, copy and paste this link into your browser:<br>
-                                    <a href="' . $resetLink . '" style="color: #ec4a0a;">' . $resetLink . '</a>
-                                </div>
-                            </div>
-                            
-                            <div class="footer">
-                                <p class="footer-text">
-                                    This email was sent by ' . htmlspecialchars($settings['site_title']) . '. If you have any questions, please contact our support team.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </body>
-                </html>';
-                
-                $mail->Body = $emailBody;
-
-                $mail->send();
-            $resetSuccess = "Password reset email sent to " . htmlspecialchars($user['email']);
-        } catch (Exception $e) {
-            $resetError = "Failed to send email: " . $mail->ErrorInfo;
-        }
-    }
-}
 
 $users = $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
 

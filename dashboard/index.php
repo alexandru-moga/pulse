@@ -264,17 +264,6 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                         </div>
                     </a>
 
-                    <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php"
-                        class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Change Password</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Update your account security</p>
-                        </div>
-                    </a>
-
                     <?php if (in_array($currentUser->role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1): ?>
                         <a href="<?= $settings['site_url'] ?>/dashboard/applications.php"
                             class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
