@@ -24,7 +24,7 @@ try {
                 // Check if user came from Discord welcome message or verification
                 $from = $_SESSION['discord_oauth_from'] ?? '';
                 unset($_SESSION['discord_oauth_from']);
-                
+
                 if ($from === 'welcome' || $from === 'verify') {
                     $_SESSION['account_link_success'] = '✅ Discord account linked successfully! Your roles are being synced automatically. Welcome to Phoenix Club! 🎉';
                     error_log("Discord OAuth: Redirecting to discord-linked.php (from: $from)");
@@ -59,12 +59,12 @@ try {
 
     $isLogin = ($_GET['action'] ?? 'link') === 'login';
     $from = $_GET['from'] ?? '';
-    
+
     // Store the 'from' parameter in session to preserve it through OAuth flow
     if ($from) {
         $_SESSION['discord_oauth_from'] = $from;
     }
-    
+
     error_log("Discord OAuth: Starting flow, isLogin: " . ($isLogin ? 'true' : 'false') . ", from: " . $from);
     $authUrl = $discord->generateAuthUrl($isLogin);
     header('Location: ' . $authUrl);

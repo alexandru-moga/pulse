@@ -83,11 +83,9 @@ try {
     $_SESSION['redirect_after_login'] = '/auth/discord/?action=link&from=verify';
     header('Location: ' . $settings['site_url'] . '/login.php');
     exit;
-
 } catch (Exception $e) {
     error_log("Discord verification error: " . $e->getMessage());
     $_SESSION['error'] = 'An error occurred during verification: ' . $e->getMessage();
     header('Location: ' . $settings['site_url'] . '/login.php');
     exit;
 }
-?>

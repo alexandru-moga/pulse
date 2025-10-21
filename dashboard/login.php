@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($passwordMatch) {
                 $_SESSION['user_id'] = $user['id'];
                 error_log("Login successful for user " . $user['id'] . " (active: " . $user['active_member'] . ")");
-                
+
                 // Check for redirect after login
                 if (isset($_SESSION['redirect_after_login'])) {
                     $redirect = $_SESSION['redirect_after_login'];
@@ -129,7 +129,7 @@ $slackConfigured = $slack->isConfigured();
                     </div>
                 </div>
             <?php endif; ?>
-            
+
             <?php if ($error): ?>
                 <div class="rounded-md bg-red-50 p-4 mb-6">
                     <div class="flex">

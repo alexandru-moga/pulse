@@ -34,7 +34,7 @@ exit();
             padding: 2rem;
             text-align: center;
         }
-        
+
         .welcome-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -42,7 +42,7 @@ exit();
             border-radius: 15px;
             margin-bottom: 2rem;
         }
-        
+
         .welcome-step {
             background: white;
             border-radius: 10px;
@@ -51,7 +51,7 @@ exit();
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #667eea;
         }
-        
+
         .step-number {
             background: #667eea;
             color: white;
@@ -64,11 +64,11 @@ exit();
             margin-right: 1rem;
             font-weight: bold;
         }
-        
+
         .cta-buttons {
             margin: 2rem 0;
         }
-        
+
         .cta-button {
             display: inline-block;
             padding: 1rem 2rem;
@@ -80,15 +80,15 @@ exit();
             font-weight: bold;
             transition: background 0.3s;
         }
-        
+
         .cta-button:hover {
             background: #5a67d8;
         }
-        
+
         .cta-button.secondary {
             background: #4a5568;
         }
-        
+
         .cta-button.secondary:hover {
             background: #2d3748;
         }
@@ -105,7 +105,7 @@ exit();
                 <p>Join our amazing community of innovators, developers, and creators!</p>
             <?php endif; ?>
         </div>
-        
+
         <div class="welcome-steps">
             <div class="welcome-step">
                 <div class="step-number">1</div>
@@ -114,7 +114,7 @@ exit();
                     <p>Sign up for your Phoenix Club account to access all our features and projects.</p>
                 </div>
             </div>
-            
+
             <div class="welcome-step">
                 <div class="step-number">2</div>
                 <div>
@@ -122,7 +122,7 @@ exit();
                     <p>Connect your Discord account to get access to project roles and community features.</p>
                 </div>
             </div>
-            
+
             <div class="welcome-step">
                 <div class="step-number">3</div>
                 <div>
@@ -131,7 +131,7 @@ exit();
                 </div>
             </div>
         </div>
-        
+
         <div class="cta-buttons">
             <?php if (isLoggedIn()): ?>
                 <a href="/auth/discord/?action=link&from=welcome" class="cta-button">
@@ -149,7 +149,7 @@ exit();
                 </a>
             <?php endif; ?>
         </div>
-        
+
         <div style="margin-top: 3rem; padding: 1.5rem; background: #f7fafc; border-radius: 10px;">
             <h3>Need Help?</h3>
             <p>If you have any questions or need assistance, feel free to:</p>

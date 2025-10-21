@@ -60,10 +60,10 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                     $avatar = '/images/default-avatar.svg';
                 }
                 ?>
-                <img src="<?= htmlspecialchars($avatar) ?>" 
-                     alt="<?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>"
-                     class="w-16 h-16 rounded-full object-cover ring-2 ring-primary"
-                     onerror="this.src='/images/default-avatar.svg'">
+                <img src="<?= htmlspecialchars($avatar) ?>"
+                    alt="<?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>"
+                    class="w-16 h-16 rounded-full object-cover ring-2 ring-primary"
+                    onerror="this.src='/images/default-avatar.svg'">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                         Welcome back, <?= htmlspecialchars($currentUser->first_name) ?>!
@@ -193,10 +193,10 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                             $avatar = '/images/default-avatar.svg';
                         }
                         ?>
-                        <img src="<?= htmlspecialchars($avatar) ?>" 
-                             alt="<?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>"
-                             class="w-16 h-16 rounded-full object-cover"
-                             onerror="this.src='/images/default-avatar.svg'">
+                        <img src="<?= htmlspecialchars($avatar) ?>"
+                            alt="<?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>"
+                            class="w-16 h-16 rounded-full object-cover"
+                            onerror="this.src='/images/default-avatar.svg'">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 dark:text-white">
                                 <?= htmlspecialchars($currentUser->first_name ?? '') ?> <?= htmlspecialchars($currentUser->last_name ?? '') ?>

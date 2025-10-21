@@ -272,7 +272,7 @@ class DiscordOAuth
         try {
             // Get bot API URL from settings or use default
             $botAPIUrl = 'http://localhost:3000';
-            
+
             // Call the Discord bot's role sync API endpoint
             $syncData = json_encode(['userId' => $discordUserId]);
 
