@@ -514,22 +514,6 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 </div>
 
-<!-- Additional Settings Section -->
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow mt-6">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Account Settings</h3>
-    </div>
-    <div class="p-6">
-        <a href="<?= $settings['site_url'] ?>/dashboard/change-password.php"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            Change Password
-        </a>
-    </div>
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const mainForm = document.querySelector('form.p-6.space-y-6');

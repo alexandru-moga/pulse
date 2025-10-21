@@ -129,7 +129,6 @@ function checkActiveOrLimitedAccess()
         $allowedPages = [
             'index.php',
             'profile-edit.php',
-            'change-password.php',
             'logout.php',
             'certificates.php',
             'download-manual-certificate.php',

@@ -206,77 +206,6 @@ include __DIR__ . '/components/dashboard-header.php';
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <div class="mt-1 relative">
-                                <input type="password" name="password" id="password" required minlength="8"
-                                       class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                <button type="button" 
-                                        id="toggleCreatePassword" 
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                    <svg id="createEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                    <svg id="createEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <!-- Password Strength Indicator -->
-                            <div id="createPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                <div id="createPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        
-                        <div id="createConfirmPasswordSection">
-                            <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                            <div class="mt-1 relative">
-                                <input type="password" name="confirm_password" id="confirm_password" required minlength="8"
-                                       class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                <button type="button" 
-                                        id="toggleCreateConfirm" 
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                    <svg id="createConfirmEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                    <svg id="createConfirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <!-- Confirm Password Strength Indicator -->
-                            <div id="createConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                <div id="createConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                            <!-- Password Requirements -->
-                            <div id="password-requirements-create" class="text-xs text-gray-500 mt-1">
-                                <p class="mb-2">Password must contain:</p>
-                                <ul class="space-y-1">
-                                    <li class="requirement-item flex items-center" data-check="minLength">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 8 characters</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasUppercase">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 uppercase letter</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasLowercase">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 lowercase letter</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasNumber">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 number</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasSpecialChar">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 special character</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div>
                             <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
                             <input type="text" name="discord_id" id="discord_id"
                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
@@ -384,77 +313,6 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <input type="email" name="email" id="email" value="<?= htmlspecialchars($editUser['email']) ?>" required
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
-                            <div>
-                                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                                <p class="text-xs text-gray-500 mb-1">Leave blank to keep current password</p>
-                                <div class="mt-1 relative">
-                                    <input type="password" name="password" id="edit-password" minlength="8"
-                                           class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                    <button type="button" 
-                                            id="toggleEditPassword" 
-                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                        <svg id="editEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                        <svg id="editEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <!-- Password Strength Indicator -->
-                            <div id="editPasswordStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                <div id="editPasswordStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                            
-                            <div id="editConfirmPasswordSection">
-                                <label for="edit_confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                                <div class="mt-1 relative">
-                                    <input type="password" name="confirm_password" id="edit_confirm_password" minlength="8"
-                                           class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                    <button type="button" 
-                                            id="toggleEditConfirm" 
-                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                        <svg id="editConfirmEyeIcon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                        <svg id="editConfirmEyeSlashIcon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464a10.025 10.025 0 00-5.21 2.506m5.624.872l4.242 4.242M9.878 9.878l4.242 4.242m-4.242-4.242L8.464 8.464m7.07 7.07l-7.07-7.07m7.07 7.07l1.414 1.414a10.025 10.025 0 005.21-2.506m-5.624-.872L9.878 9.878"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <!-- Confirm Password Strength Indicator -->
-                            <div id="editConfirmStrength" class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                <div id="editConfirmStrengthBar" class="h-full bg-red-500 rounded-full transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                            <!-- Password Requirements -->
-                            <div id="password-requirements-edit" class="text-xs text-gray-500 mt-1">
-                                <p class="mb-2">Password must contain:</p>
-                                <ul class="space-y-1">
-                                    <li class="requirement-item flex items-center" data-check="minLength">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 8 characters</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasUppercase">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 uppercase letter</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasLowercase">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 lowercase letter</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasNumber">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 number</span>
-                                    </li>
-                                    <li class="requirement-item flex items-center" data-check="hasSpecialChar">
-                                        <span class="requirement-dot w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
-                                        <span>At least 1 special character</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
                         <div>
                             <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
                             <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
@@ -658,43 +516,7 @@ include __DIR__ . '/components/dashboard-header.php';
     <?php endif; ?>
 </div>
 
-<script src="<?= $settings['site_url'] ?>/js/password-validation.js"></script>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Setup validation for create user form
-    setupPasswordValidation({
-        passwordFieldId: 'password',
-        confirmFieldId: 'confirm_password',
-        confirmSectionId: 'createConfirmPasswordSection',
-        requirementsSelector: '#password-requirements-create',
-        strengthBarId: 'createPasswordStrengthBar',
-        confirmStrengthBarId: 'createConfirmStrengthBar',
-        togglePasswordId: 'toggleCreatePassword',
-        toggleConfirmId: 'toggleCreateConfirm',
-        eyeIconId: 'createEyeIcon',
-        eyeSlashIconId: 'createEyeSlashIcon',
-        confirmEyeIconId: 'createConfirmEyeIcon',
-        confirmEyeSlashIconId: 'createConfirmEyeSlashIcon'
-    });
-    
-    // Setup validation for edit user form
-    setupPasswordValidation({
-        passwordFieldId: 'edit-password',
-        confirmFieldId: 'edit_confirm_password',
-        confirmSectionId: 'editConfirmPasswordSection',
-        requirementsSelector: '#password-requirements-edit',
-        strengthBarId: 'editPasswordStrengthBar',
-        confirmStrengthBarId: 'editConfirmStrengthBar',
-        togglePasswordId: 'toggleEditPassword',
-        toggleConfirmId: 'toggleEditConfirm',
-        eyeIconId: 'editEyeIcon',
-        eyeSlashIconId: 'editEyeSlashIcon',
-        confirmEyeIconId: 'editConfirmEyeIcon',
-        confirmEyeSlashIconId: 'editConfirmEyeSlashIcon'
-    });
-});
-
 function toggleActive(checkbox, userId) {
     var formData = new FormData();
     formData.append('toggle_active', 1);
