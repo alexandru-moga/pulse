@@ -329,8 +329,8 @@ $events = $db->query("SELECT id, title FROM events ORDER BY title")->fetchAll(PD
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">PDF Template *</label>
-                            <input type="file" name="template_file" id="template_file" accept="application/pdf" <span id="fileRequired">required</span>
+                            <label class="block text-sm font-medium text-gray-700">PDF Template <span id="fileRequired">*</span></label>
+                            <input type="file" name="template_file" id="template_file" accept="application/pdf" required
                                 class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             <p class="text-xs text-gray-500 mt-1">Upload a PDF file containing "First Name" and "Last Name" text to be replaced</p>
                             <p class="text-xs text-indigo-600 mt-1" id="currentFileInfo"></p>
@@ -374,7 +374,7 @@ function showCreateModal() {
     document.getElementById('enabled').checked = true;
     document.getElementById('current_template_file').value = '';
     document.getElementById('currentFileInfo').textContent = '';
-    document.getElementById('fileRequired').style.display = 'inline';
+    document.getElementById('fileRequired').textContent = '*';
     document.getElementById('template_file').required = true;
     updateRelatedOptions();
     document.getElementById('templateModal').classList.remove('hidden');
@@ -391,7 +391,7 @@ function editTemplate(template) {
     document.getElementById('enabled').checked = template.enabled == 1;
     document.getElementById('current_template_file').value = template.template_file || '';
     document.getElementById('currentFileInfo').textContent = 'Current file: ' + (template.template_file ? template.template_file.split('/').pop() : 'None');
-    document.getElementById('fileRequired').style.display = 'none';
+    document.getElementById('fileRequired').textContent = '(optional)';
     document.getElementById('template_file').required = false;
     updateRelatedOptions();
     document.getElementById('related_id').value = template.related_id || '';
