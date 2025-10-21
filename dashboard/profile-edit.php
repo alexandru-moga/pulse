@@ -263,94 +263,103 @@ include __DIR__ . '/components/dashboard-header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
-                    <div class="flex">
-                        <button id="dropdown-phone-button-profile" data-dropdown-toggle="dropdown-phone-profile" class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-s-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:focus:ring-gray-700" type="button">
-                            <svg fill="none" aria-hidden="true" class="h-4 w-4 me-2" viewBox="0 0 20 15">
-                                <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
-                                <mask id="a" style="mask-type:luminance" width="20" height="15" x="0" y="0" maskUnits="userSpaceOnUse">
-                                    <rect width="19.6" height="14" y=".5" fill="#fff" rx="2"/>
-                                </mask>
-                                <g mask="url(#a)">
-                                    <path fill="#D02F44" fill-rule="evenodd" d="M19.6.5H0v.933h19.6V.5zm0 1.867H0V3.3h19.6v-.933zM0 4.233h19.6v.934H0v-.934zM19.6 6.1H0v.933h19.6V6.1zM0 7.967h19.6V8.9H0v-.933zm19.6 1.866H0v.934h19.6v-.934zM0 11.7h19.6v.933H0V11.7zm19.6 1.867H0v.933h19.6v-.933z" clip-rule="evenodd"/>
-                                    <path fill="#46467F" d="M0 .5h8.4v6.533H0z"/>
-                                    <g filter="url(#filter0_d_343_121520)">
-                                        <path fill="url(#paint0_linear_343_121520)" fill-rule="evenodd" d="M1.867 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.866 0a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM7.467 1.9a.467.467 0 11-.934 0 .467.467 0 01.934 0zM2.333 3.3a.467.467 0 100-.933.467.467 0 000 .933zm2.334-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm1.4.467a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.934 0 .467.467 0 01.934 0zm-2.334.466a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.466a.467.467 0 11-.933 0 .467.467 0 01.933 0zM1.4 4.233a.467.467 0 100-.933.467.467 0 000 .933zm1.4.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zm1.4.467a.467.467 0 100-.934.467.467 0 000 .934zM6.533 4.7a.467.467 0 11-.933 0 .467.467 0 01.933 0zM7 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.933 0 .467.467 0 01.933 0zM3.267 6.1a.467.467 0 100-.933.467.467 0 000 .933zm-1.4-.467a.467.467 0 11-.934 0 .467.467 0 01.934 0z" clip-rule="evenodd"/>
-                                    </g>
-                                </g>
-                                <defs>
-                                    <linearGradient id="paint0_linear_343_121520" x1=".933" x2=".933" y1="1.433" y2="6.1" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#fff"/>
-                                        <stop offset="1" stop-color="#F0F0F0"/>
-                                    </linearGradient>
-                                    <filter id="filter0_d_343_121520" width="6.533" height="5.667" x=".933" y="1.433" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                        <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-                                        <feOffset dy="1"/>
-                                        <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0"/>
-                                        <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_343_121520"/>
-                                        <feBlend in="SourceGraphic" in2="effect1_dropShadow_343_121520" result="shape"/>
-                                    </filter>
-                                </defs>
-                            </svg>
-                            <span id="selected-country-code-profile">+1</span>
-                            <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                            </svg>
+                    <div class="relative">
+                        <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 absolute z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
+                            <span id="selected-flag-profile" class="text-lg mr-1">🇺🇸</span>
+                            <span id="selected-country-code-profile" class="text-xs font-medium dark:text-white">+1</span>
                         </button>
-                        <div id="dropdown-phone-profile" class="z-10 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow w-52">
+                        <div id="dropdown-phone-profile" class="absolute top-full left-0 z-20 mt-2 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-phone-button-profile">
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+1">
-                                        <span class="inline-flex items-center">🇸 United States (+1)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+1" data-flag="🇺🇸">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇺🇸</span>
+                                            <span class="flex-1 text-left font-medium">United States</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+1</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+44">
-                                        <span class="inline-flex items-center">�� United Kingdom (+44)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+44" data-flag="🇬🇧">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇬🇧</span>
+                                            <span class="flex-1 text-left font-medium">United Kingdom</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+44</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+49">
-                                        <span class="inline-flex items-center">�� Germany (+49)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+40" data-flag="🇷🇴">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇷🇴</span>
+                                            <span class="flex-1 text-left font-medium">Romania</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+40</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+33">
-                                        <span class="inline-flex items-center">�� France (+33)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+49" data-flag="🇩🇪">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇩🇪</span>
+                                            <span class="flex-1 text-left font-medium">Germany</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+49</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+39">
-                                        <span class="inline-flex items-center">�� Italy (+39)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+33" data-flag="🇫🇷">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇫🇷</span>
+                                            <span class="flex-1 text-left font-medium">France</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+33</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+34">
-                                        <span class="inline-flex items-center">🇪🇸 Spain (+34)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+39" data-flag="🇮🇹">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇮🇹</span>
+                                            <span class="flex-1 text-left font-medium">Italy</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+39</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+61">
-                                        <span class="inline-flex items-center">�� Australia (+61)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+34" data-flag="🇪🇸">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇪🇸</span>
+                                            <span class="flex-1 text-left font-medium">Spain</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+34</span>
+                                        </span>
                                     </button>
                                 </li>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem" data-country-code="+91">
-                                        <span class="inline-flex items-center">�� India (+91)</span>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+61" data-flag="🇦🇺">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇦🇺</span>
+                                            <span class="flex-1 text-left font-medium">Australia</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+61</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+91" data-flag="🇮🇳">
+                                        <span class="inline-flex items-center w-full">
+                                            <span class="text-xl mr-3">🇮🇳</span>
+                                            <span class="flex-1 text-left font-medium">India</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+91</span>
+                                        </span>
                                     </button>
                                 </li>
                             </ul>
                         </div>
                         <input type="hidden" name="country_code" id="country_code_profile" value="+1">
-                        <label for="phone-input-profile" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Phone number:</label>
-                        <div class="relative w-full">
-                            <input type="text"
-                                id="phone-input-profile"
-                                name="phone"
-                                value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
-                                placeholder="123-456-7890"
-                                class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-0 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
-                        </div>
+                        <input type="tel"
+                            id="phone-input-profile"
+                            name="phone"
+                            value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
+                            placeholder="123-456-7890"
+                            class="block p-2.5 w-full pl-20 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
                     </div>
                 </div>
 
@@ -530,8 +539,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                    </button>
-                                </form>
+                                    </form>
                             <?php else: ?>
                                 <a href="<?= $settings['site_url'] ?>/auth/google/?action=link" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Link Google">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -603,6 +611,7 @@ include __DIR__ . '/components/dashboard-header.php';
         // Phone Country Code Dropdown
         const dropdownButton = document.getElementById('dropdown-phone-button-profile');
         const dropdownMenu = document.getElementById('dropdown-phone-profile');
+        const selectedFlagSpan = document.getElementById('selected-flag-profile');
         const selectedCodeSpan = document.getElementById('selected-country-code-profile');
         const hiddenCountryCodeInput = document.getElementById('country_code_profile');
         
@@ -620,6 +629,8 @@ include __DIR__ . '/components/dashboard-header.php';
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const countryCode = this.getAttribute('data-country-code');
+                    const flag = this.getAttribute('data-flag');
+                    selectedFlagSpan.textContent = flag;
                     selectedCodeSpan.textContent = countryCode;
                     hiddenCountryCodeInput.value = countryCode;
                     dropdownMenu.classList.add('hidden');
