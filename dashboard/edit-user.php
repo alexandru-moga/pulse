@@ -18,10 +18,13 @@ $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $fields = [
         'first_name', 'last_name', 'email',
-        'school', 'birthdate', 'class', 'phone', 'role', 'description'
+        'school', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
+    
+    // Use birthdate_iso if available, otherwise fall back to birthdate
+    $data['birthdate'] = trim($_POST['birthdate_iso'] ?? $_POST['birthdate'] ?? '');
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
 
     // Check if email already exists for another user
@@ -296,6 +299,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                         </svg>
                                     </div>
                                     <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>" placeholder="Select date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5" readonly>
+                                    <input type="hidden" name="birthdate_iso" id="birthdate_iso" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>">
                                 </div>
                             </div>
                         </div>
@@ -419,11 +423,54 @@ function confirmToggleStatus(userId, willEnable) {
 
 // Initialize components
 document.addEventListener('DOMContentLoaded', function() {
+    // Countries using DD.MM.YYYY format
+    const ddmmyyyyCountries = ['+40', '+49', '+33', '+39', '+34', '+48', '+31', '+32', '+43', '+41', '+351', '+30', '+45', '+46', '+47', '+358'];
+    
+    // Get user's date format preference based on country code
+    function getDateFormat() {
+        const countryCode = document.getElementById('country_code')?.value || '+1';
+        return ddmmyyyyCountries.includes(countryCode) ? 'DD.MM.YYYY' : 'YYYY-MM-DD';
+    }
+    
+    // Format date according to locale
+    function formatDateForDisplay(isoDate) {
+        if (!isoDate) return '';
+        const parts = isoDate.split('-');
+        if (parts.length !== 3) return isoDate;
+        
+        const format = getDateFormat();
+        if (format === 'DD.MM.YYYY') {
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+        return isoDate;
+    }
+    
+    // Parse display date to ISO format
+    function parseDateToISO(displayDate) {
+        if (!displayDate) return '';
+        
+        const format = getDateFormat();
+        if (format === 'DD.MM.YYYY') {
+            const parts = displayDate.split('.');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+        }
+        return displayDate;
+    }
+    
     // Phone Country Code Dropdown
     const dropdownButton = document.getElementById('dropdown-phone-button');
     const dropdownMenu = document.getElementById('dropdown-phone');
     const selectedCodeSpan = document.getElementById('selected-country-code');
     const hiddenCountryCodeInput = document.getElementById('country_code');
+    const birthdateInput = document.getElementById('birthdate');
+    const birthdateIsoInput = document.getElementById('birthdate_iso');
+    
+    // Initialize date display format
+    if (birthdateIsoInput && birthdateInput && birthdateIsoInput.value) {
+        birthdateInput.value = formatDateForDisplay(birthdateIsoInput.value);
+    }
     
     if (dropdownButton && dropdownMenu) {
         // Toggle dropdown
@@ -444,6 +491,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenCountryCodeInput.value = countryCode;
                 dropdownButton.querySelector('#selected-flag').textContent = flag;
                 dropdownMenu.classList.add('hidden');
+                
+                // Update date format when country changes
+                if (birthdateIsoInput && birthdateInput && birthdateIsoInput.value) {
+                    birthdateInput.value = formatDateForDisplay(birthdateIsoInput.value);
+                    const format = getDateFormat();
+                    birthdateInput.placeholder = format === 'DD.MM.YYYY' ? 'DD.MM.YYYY' : 'YYYY-MM-DD';
+                }
             });
         });
         
@@ -456,16 +510,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Custom Date Picker
-    const birthdateInput = document.getElementById('birthdate');
-    
     if (birthdateInput) {
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth();
         let picker = null;
         
-        // Parse existing date if present
-        if (birthdateInput.value) {
-            const parts = birthdateInput.value.split('-');
+        // Parse existing date if present (from ISO format)
+        if (birthdateIsoInput.value) {
+            const parts = birthdateIsoInput.value.split('-');
             if (parts.length === 3) {
                 currentYear = parseInt(parts[0]);
                 currentMonth = parseInt(parts[1]) - 1;
@@ -548,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Days of month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const isSelected = birthdateInput.value === dateStr;
+                const isSelected = birthdateIsoInput.value === dateStr;
                 const isToday = dateStr === new Date().toISOString().split('T')[0];
                 
                 const dayButton = document.createElement('button');
@@ -562,7 +614,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }`;
                 dayButton.textContent = day;
                 dayButton.addEventListener('click', function() {
-                    birthdateInput.value = dateStr;
+                    birthdateIsoInput.value = dateStr;
+                    birthdateInput.value = formatDateForDisplay(dateStr);
                     picker.classList.add('hidden');
                 });
                 
@@ -605,7 +658,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentYear = today.getFullYear();
                 currentMonth = today.getMonth();
                 const todayStr = today.toISOString().split('T')[0];
-                birthdateInput.value = todayStr;
+                birthdateIsoInput.value = todayStr;
+                birthdateInput.value = formatDateForDisplay(todayStr);
                 picker.classList.add('hidden');
             });
         }
