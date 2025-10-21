@@ -92,6 +92,18 @@ function isInactiveUser()
     return $currentUser && $currentUser->active_member == 0;
 }
 
+function isGuestUser()
+{
+    global $currentUser;
+    return $currentUser && $currentUser->role == 'Guest';
+}
+
+function hasLimitedAccess()
+{
+    global $currentUser;
+    return $currentUser && ($currentUser->active_member == 0 || $currentUser->role == 'Guest');
+}
+
 function isAdmin()
 {
     global $currentUser;
@@ -109,7 +121,7 @@ function checkLoggedIn()
 function checkActiveUser()
 {
     global $currentUser;
-    if (!$currentUser || $currentUser->active_member == 0) {
+    if (!$currentUser || $currentUser->active_member == 0 || $currentUser->role == 'Guest') {
         header("HTTP/1.1 403 Forbidden");
         exit("Access denied - Account not active");
     }
@@ -123,9 +135,9 @@ function checkActiveOrLimitedAccess()
         exit();
     }
 
-    // Allow inactive users limited access to their own data
-    if ($currentUser->active_member == 0) {
-        // Define allowed pages for inactive users
+    // Allow inactive users and Guest users limited access to their own data
+    if ($currentUser->active_member == 0 || $currentUser->role == 'Guest') {
+        // Define allowed pages for inactive/guest users
         $allowedPages = [
             'index.php',
             'profile-edit.php',
@@ -138,8 +150,11 @@ function checkActiveOrLimitedAccess()
 
         $currentPage = basename($_SERVER['SCRIPT_NAME']);
         if (!in_array($currentPage, $allowedPages)) {
+            $message = $currentUser->role == 'Guest' 
+                ? "Access denied - Guest accounts have limited access. Contact administrator for full access."
+                : "Access denied - Limited access for inactive accounts. Contact administrator to reactivate your account.";
             header("HTTP/1.1 403 Forbidden");
-            exit("Access denied - Limited access for inactive accounts. Contact administrator to reactivate your account.");
+            exit($message);
         }
     }
 }

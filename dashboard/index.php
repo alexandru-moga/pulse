@@ -18,13 +18,13 @@ $totalUsers = $db->query("SELECT COUNT(*) FROM users WHERE active_member = 1")->
 $totalApplications = $db->query("SELECT COUNT(*) FROM applications WHERE status = 'waiting'")->fetchColumn();
 $totalMessages = $db->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'waiting'")->fetchColumn();
 
-# For inactive users, only count projects where status is not 'Not_participating'
-if ($currentUser->active_member == 0) {
+# For inactive/guest users, only count projects where status is not 'Not_participating'
+if ($currentUser->active_member == 0 || $currentUser->role == 'Guest') {
     $stmt = $db->prepare("SELECT COUNT(*) FROM project_assignments WHERE user_id = ? AND status != 'Not_participating'");
     $stmt->execute([$currentUser->id]);
     $myProjectsCount = $stmt->fetchColumn();
 
-    # Don't show recent projects for inactive users
+    # Don't show recent projects for inactive/guest users
     $recentProjects = [];
 } else {
     $stmt = $db->prepare("SELECT COUNT(*) FROM project_assignments WHERE user_id = ?");
@@ -40,6 +40,34 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
 ?>
 
 <div class="space-y-6">
+    <?php if ($currentUser->role == 'Guest'): ?>
+        <!-- Guest User Notice -->
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+            <div class="flex">
+                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Guest Account</h3>
+                    <p class="mt-1 text-sm text-yellow-700 dark:text-yellow-300">You have limited access as a guest. Contact an administrator to upgrade your account for full access to all features.</p>
+                </div>
+            </div>
+        </div>
+    <?php elseif ($currentUser->active_member == 0): ?>
+        <!-- Inactive User Notice -->
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+            <div class="flex">
+                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Inactive Account</h3>
+                    <p class="mt-1 text-sm text-red-700 dark:text-red-300">Your account is currently inactive. You have limited access. Contact an administrator to reactivate your account.</p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
@@ -76,16 +104,14 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600">
                     View Projects
                 </a>
-                <?php if ($currentUser->active_member == 1): ?>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        Edit Profile
-                    </a>
-                <?php endif; ?>
+                <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    Edit Profile
+                </a>
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 <?= $currentUser->active_member == 1 ? 'lg:grid-cols-4' : 'lg:grid-cols-2' ?> gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 <?= ($currentUser->active_member == 1 && $currentUser->role != 'Guest') ? 'lg:grid-cols-4' : 'lg:grid-cols-2' ?> gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -120,7 +146,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                 </div>
             </div>
         </div>
-        <?php if ($currentUser->active_member == 1): ?>
+        <?php if ($currentUser->active_member == 1 && $currentUser->role != 'Guest'): ?>
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -225,14 +251,12 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                             </div> <?php endif; ?>
                     </div>
 
-                    <?php if ($currentUser->active_member == 1): ?>
-                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
-                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                                Edit Profile
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            Edit Profile
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,7 +288,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                         </div>
                     </a>
 
-                    <?php if (in_array($currentUser->role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1): ?>
+                    <?php if (in_array($currentUser->role, ['Leader', 'Co-leader'])): ?>
                         <a href="<?= $settings['site_url'] ?>/dashboard/applications.php"
                             class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
                             <svg class="w-5 h-5 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

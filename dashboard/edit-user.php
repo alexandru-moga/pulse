@@ -32,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
     // Use birthdate_iso if available, otherwise fall back to birthdate
     $data['birthdate'] = trim($_POST['birthdate_iso'] ?? $_POST['birthdate'] ?? '');
-    $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
 
     // Check if email already exists for another user
     $exists = $db->prepare("SELECT id FROM users WHERE email=? AND id != ?");
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     } else {
         $stmt = $db->prepare("UPDATE users SET
             first_name=?, last_name=?, email=?, 
-            school=?, birthdate=?, class=?, phone=?, country_code=?, role=?, description=?, active_member=?
+            school=?, birthdate=?, class=?, phone=?, country_code=?, role=?, description=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $userId;
@@ -377,14 +376,9 @@ include __DIR__ . '/components/dashboard-header.php';
                                     <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
                                     <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
                                     <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
+                                    <option value="Guest" <?= $editUser['role'] == 'Guest' ? 'selected' : '' ?>>Guest</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="mt-4 flex items-center">
-                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                         </div>
                     </div>
 
