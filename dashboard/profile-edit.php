@@ -263,11 +263,36 @@ include __DIR__ . '/components/dashboard-header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
-                    <input type="tel"
-                        id="phone"
-                        name="phone"
-                        value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
-                        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                        <select name="country_code" id="country_code" class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm focus:ring-primary focus:border-primary">
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+39">🇮🇹 +39</option>
+                            <option value="+34">🇪🇸 +34</option>
+                            <option value="+7">🇷🇺 +7</option>
+                            <option value="+55">🇧🇷 +55</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+27">🇿🇦 +27</option>
+                            <option value="+82">🇰🇷 +82</option>
+                            <option value="+52">🇲🇽 +52</option>
+                            <option value="+31">🇳🇱 +31</option>
+                            <option value="+46">🇸🇪 +46</option>
+                            <option value="+41">🇨🇭 +41</option>
+                            <option value="+65">🇸🇬 +65</option>
+                            <option value="+971">🇦🇪 +971</option>
+                        </select>
+                        <input type="tel"
+                            id="phone"
+                            name="phone"
+                            value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
+                            placeholder="123-456-7890"
+                            class="flex-1 block w-full rounded-none rounded-r-md border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                    </div>
                 </div>
 
                 <div>
@@ -288,7 +313,7 @@ include __DIR__ . '/components/dashboard-header.php';
             name="description"
             rows="4"
             placeholder="Tell us about yourself, your interests, skills, and what you'd like to achieve..."
-            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
+            class="mt-1 block w-full border-2 border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary focus:border-2 dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
     </div>
 

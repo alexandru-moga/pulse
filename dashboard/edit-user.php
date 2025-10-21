@@ -17,7 +17,7 @@ $userId = intval($_GET['id']);
 $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $fields = [
-        'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
+        'first_name', 'last_name', 'email',
         'school', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
         $editError = "A user with this email already exists.";
     } else {
         $stmt = $db->prepare("UPDATE users SET
-            first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, 
+            first_name=?, last_name=?, email=?, 
             school=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
             WHERE id=?");
         $params = array_values($data);
@@ -193,13 +193,39 @@ include __DIR__ . '/components/dashboard-header.php';
                             </div>
                             <div>
                                 <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                                <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <div class="mt-1 flex rounded-md shadow-sm">
+                                    <select name="country_code" id="country_code" class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm focus:ring-primary focus:border-primary">
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+91">🇮🇳 +91</option>
+                                        <option value="+86">🇨🇳 +86</option>
+                                        <option value="+81">🇯🇵 +81</option>
+                                        <option value="+49">🇩🇪 +49</option>
+                                        <option value="+33">🇫🇷 +33</option>
+                                        <option value="+39">🇮🇹 +39</option>
+                                        <option value="+34">🇪🇸 +34</option>
+                                        <option value="+7">🇷🇺 +7</option>
+                                        <option value="+55">🇧🇷 +55</option>
+                                        <option value="+61">🇦🇺 +61</option>
+                                        <option value="+27">🇿🇦 +27</option>
+                                        <option value="+82">🇰🇷 +82</option>
+                                        <option value="+52">🇲🇽 +52</option>
+                                        <option value="+31">🇳🇱 +31</option>
+                                        <option value="+46">🇸🇪 +46</option>
+                                        <option value="+41">🇨🇭 +41</option>
+                                        <option value="+65">🇸🇬 +65</option>
+                                        <option value="+971">🇦🇪 +971</option>
+                                    </select>
+                                    <input type="tel" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
+                                           placeholder="123-456-7890"
+                                           class="flex-1 block w-full rounded-none rounded-r-md border-gray-300 focus:ring-primary focus:border-primary">
+                                </div>
                             </div>
                             <div>
                                 <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                                <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
+                                       placeholder="YYYY-MM-DD" readonly
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary cursor-pointer">
                             </div>
                         </div>
                     </div>
@@ -216,32 +242,6 @@ include __DIR__ . '/components/dashboard-header.php';
                             <div>
                                 <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
                                 <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Social & Developer Accounts -->
-                    <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-4">Social & Developer Accounts</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
-                                <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                                       <?= $discordLink ? 'readonly' : '' ?>>
-                                <?php if ($discordLink): ?>
-                                    <p class="mt-1 text-xs text-gray-500">Discord ID is managed through Discord OAuth and cannot be changed manually.</p>
-                                <?php endif; ?>
-                            </div>
-                            <div>
-                                <label for="slack_id" class="block text-sm font-medium text-gray-700">Slack ID</label>
-                                <input type="text" name="slack_id" id="slack_id" value="<?= htmlspecialchars($editUser['slack_id'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                            <div>
-                                <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
-                                <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
                         </div>
@@ -273,7 +273,7 @@ include __DIR__ . '/components/dashboard-header.php';
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea name="description" id="description" rows="4"
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
+                                  class="mt-1 block w-full border-2 border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary focus:border-2"
                                   placeholder="Additional information about the user..."><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
                     </div>
 
@@ -345,6 +345,123 @@ function confirmToggleStatus(userId, willEnable) {
         window.location.href = '<?= $settings['site_url'] ?>/dashboard/users.php?toggle_status=' + userId;
     }
 }
+
+// Custom Date Picker
+document.addEventListener('DOMContentLoaded', function() {
+    const birthdateInput = document.getElementById('birthdate');
+    
+    if (birthdateInput) {
+        // Create custom date picker
+        const picker = document.createElement('div');
+        picker.id = 'customDatePicker';
+        picker.className = 'absolute z-50 mt-1 bg-white border-2 border-primary rounded-lg shadow-xl p-4 hidden';
+        picker.style.width = '320px';
+        
+        // Insert picker after input
+        birthdateInput.parentNode.style.position = 'relative';
+        birthdateInput.parentNode.appendChild(picker);
+        
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        
+        // Parse existing date if present
+        if (birthdateInput.value) {
+            const parts = birthdateInput.value.split('-');
+            if (parts.length === 3) {
+                currentYear = parseInt(parts[0]);
+                currentMonth = parseInt(parts[1]) - 1;
+            }
+        }
+        
+        function renderCalendar(year, month) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            let html = `
+                <div class="flex items-center justify-between mb-4">
+                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded" onclick="changeMonth(-1)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="font-semibold text-gray-900">${monthNames[month]} ${year}</div>
+                    <button type="button" class="px-2 py-1 hover:bg-gray-100 rounded" onclick="changeMonth(1)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-sm">
+                    <div class="font-medium text-gray-500">Su</div>
+                    <div class="font-medium text-gray-500">Mo</div>
+                    <div class="font-medium text-gray-500">Tu</div>
+                    <div class="font-medium text-gray-500">We</div>
+                    <div class="font-medium text-gray-500">Th</div>
+                    <div class="font-medium text-gray-500">Fr</div>
+                    <div class="font-medium text-gray-500">Sa</div>
+            `;
+            
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div></div>';
+            }
+            
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isSelected = birthdateInput.value === dateStr;
+                html += `
+                    <button type="button" 
+                            class="p-2 hover:bg-primary hover:text-white rounded transition-colors ${isSelected ? 'bg-primary text-white' : ''}"
+                            onclick="selectDate('${dateStr}')">
+                        ${day}
+                    </button>
+                `;
+            }
+            
+            html += '</div>';
+            picker.innerHTML = html;
+        }
+        
+        window.changeMonth = function(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentYear, currentMonth);
+        };
+        
+        window.selectDate = function(dateStr) {
+            birthdateInput.value = dateStr;
+            picker.classList.add('hidden');
+        };
+        
+        birthdateInput.addEventListener('click', function(e) {
+            e.stopPropagation();
+            picker.classList.toggle('hidden');
+            if (!picker.classList.contains('hidden')) {
+                renderCalendar(currentYear, currentMonth);
+            }
+        });
+        
+        // Close picker when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!picker.contains(e.target) && e.target !== birthdateInput) {
+                picker.classList.add('hidden');
+            }
+        });
+        
+        // Initial render
+        renderCalendar(currentYear, currentMonth);
+    }
+});
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>
