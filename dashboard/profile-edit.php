@@ -608,12 +608,72 @@ include __DIR__ . '/components/dashboard-header.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Phone number formatting patterns by country
+        const phoneFormats = {
+            '+1': 'XXX XXX XXXX',      // US/Canada
+            '+44': 'XXXX XXX XXXX',     // UK
+            '+40': 'XXX XXX XXX',       // Romania
+            '+49': 'XXX XXXXXXX',       // Germany
+            '+33': 'X XX XX XX XX',     // France
+            '+39': 'XXX XXX XXXX',      // Italy
+            '+34': 'XXX XXX XXX',       // Spain
+            '+61': 'XXX XXX XXX',       // Australia
+            '+91': 'XXXXX XXXXX'        // India
+        };
+        
+        // Format phone number based on country code
+        function formatPhoneNumber(value, countryCode) {
+            // Remove all non-digit characters
+            const digits = value.replace(/\D/g, '');
+            
+            // Get format pattern for country
+            const format = phoneFormats[countryCode] || 'XXX XXX XXXX';
+            
+            let formatted = '';
+            let digitIndex = 0;
+            
+            for (let i = 0; i < format.length && digitIndex < digits.length; i++) {
+                if (format[i] === 'X') {
+                    formatted += digits[digitIndex];
+                    digitIndex++;
+                } else {
+                    formatted += format[i];
+                }
+            }
+            
+            return formatted;
+        }
+        
         // Phone Country Code Dropdown
         const dropdownButton = document.getElementById('dropdown-phone-button-profile');
         const dropdownMenu = document.getElementById('dropdown-phone-profile');
         const selectedFlagSpan = document.getElementById('selected-flag-profile');
         const selectedCodeSpan = document.getElementById('selected-country-code-profile');
         const hiddenCountryCodeInput = document.getElementById('country_code_profile');
+        const phoneInput = document.getElementById('phone-input-profile');
+        
+        // Initialize phone number format
+        if (phoneInput && phoneInput.value) {
+            const currentCountryCode = hiddenCountryCodeInput?.value || '+1';
+            phoneInput.value = formatPhoneNumber(phoneInput.value, currentCountryCode);
+        }
+        
+        // Add phone input formatting
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                const countryCode = hiddenCountryCodeInput?.value || '+1';
+                const cursorPos = this.selectionStart;
+                const oldValue = this.value;
+                const oldLength = oldValue.length;
+                
+                this.value = formatPhoneNumber(this.value, countryCode);
+                
+                // Adjust cursor position
+                const newLength = this.value.length;
+                const newCursorPos = cursorPos + (newLength - oldLength);
+                this.setSelectionRange(newCursorPos, newCursorPos);
+            });
+        }
         
         if (dropdownButton && dropdownMenu) {
             // Toggle dropdown
@@ -634,6 +694,11 @@ include __DIR__ . '/components/dashboard-header.php';
                     selectedCodeSpan.textContent = countryCode;
                     hiddenCountryCodeInput.value = countryCode;
                     dropdownMenu.classList.add('hidden');
+                    
+                    // Reformat phone number when country changes
+                    if (phoneInput && phoneInput.value) {
+                        phoneInput.value = formatPhoneNumber(phoneInput.value, countryCode);
+                    }
                 });
             });
             
