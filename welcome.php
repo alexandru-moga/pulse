@@ -5,8 +5,11 @@ checkMaintenanceMode();
 // Check if user came from Discord
 $fromDiscord = isset($_GET['from']) && $_GET['from'] === 'discord';
 
+error_log("welcome.php accessed, from=" . ($fromDiscord ? 'discord' : 'other') . ", logged_in=" . (isLoggedIn() ? 'yes' : 'no'));
+
 // If user is already logged in, redirect to Discord linking immediately
 if (isLoggedIn()) {
+    error_log("User already logged in, redirecting to Discord OAuth with from=welcome");
     header('Location: /auth/discord/?action=link&from=welcome');
     exit();
 }
@@ -14,6 +17,7 @@ if (isLoggedIn()) {
 // If user is not logged in, set redirect and go to login
 $_SESSION['info'] = 'Please login to your Phoenix Club account to link your Discord.';
 $_SESSION['redirect_after_login'] = '/auth/discord/?action=link&from=welcome';
+error_log("User not logged in, setting redirect_after_login and going to login page");
 header('Location: /dashboard/login.php');
 exit();
 ?>

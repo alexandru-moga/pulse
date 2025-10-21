@@ -4,15 +4,38 @@ checkActiveOrLimitedAccess();
 
 global $currentUser, $db;
 
+// Log for debugging
+error_log("discord-linked.php accessed by user: " . ($currentUser ? $currentUser->id : 'none'));
+error_log("Session account_link_success: " . ($_SESSION['account_link_success'] ?? 'not set'));
+
 // Check if there's a success message
 $success = $_SESSION['account_link_success'] ?? null;
-unset($_SESSION['account_link_success']);
 
-// If no success message, redirect to dashboard
+// Don't unset immediately - keep it for the page to use
+// unset($_SESSION['account_link_success']);
+
+// If no success message, it means they accessed this page directly or session expired
+// Instead of redirecting, just show a generic success message
 if (!$success) {
-    header('Location: /dashboard/');
-    exit();
+    error_log("No success message in session, checking if user has Discord linked");
+    // Check if user has Discord linked
+    $stmt = $db->prepare("SELECT discord_id FROM discord_links WHERE user_id = ?");
+    $stmt->execute([$currentUser->id]);
+    $hasDiscord = $stmt->fetch();
+    
+    if (!$hasDiscord) {
+        // Not linked, redirect to dashboard
+        error_log("User doesn't have Discord linked, redirecting to dashboard");
+        header('Location: /dashboard/');
+        exit();
+    }
+    
+    // Has Discord linked, show generic success
+    $success = 'Discord account linked successfully!';
 }
+
+// Clear the session message after we've used it
+unset($_SESSION['account_link_success']);
 
 $pageTitle = 'Discord Linked Successfully';
 ?>

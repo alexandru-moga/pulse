@@ -43,9 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Check for redirect after login
                 if (isset($_SESSION['redirect_after_login'])) {
                     $redirect = $_SESSION['redirect_after_login'];
+                    error_log("Redirect after login found: " . $redirect);
                     unset($_SESSION['redirect_after_login']);
                     header('Location: ' . $redirect);
                 } else {
+                    error_log("No redirect after login, going to dashboard index");
                     header('Location: index.php');
                 }
                 exit();
