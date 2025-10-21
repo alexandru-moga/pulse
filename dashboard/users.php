@@ -151,32 +151,6 @@ include __DIR__ . '/components/dashboard-header.php';
         </div>
     <?php endif; ?>
 
-    <?php if ($resetSuccess): ?>
-        <div class="bg-green-50 border border-green-200 rounded-md p-4">
-            <div class="flex">
-                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <div class="ml-3">
-                    <p class="text-sm text-green-700"><?= htmlspecialchars($resetSuccess) ?></p>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($resetError): ?>
-        <div class="bg-red-50 border border-red-200 rounded-md p-4">
-            <div class="flex">
-                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div class="ml-3">
-                    <p class="text-sm text-red-700"><?= htmlspecialchars($resetError) ?></p>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <?php if (isset($_GET['add'])): ?>
         <!-- Add User Form -->
         <div class="bg-white rounded-lg shadow">
