@@ -2,17 +2,28 @@
 require_once '../core/init.php';
 checkActiveOrLimitedAccess();
 
+// Explicitly access global variables
 global $currentUser, $db;
 
+// Verify database connection
+if (!$db) {
+    error_log("discord-linked.php: Database connection not available");
+    die("Database connection error. Please contact support.");
+}
+
+// Additional safety check for user
+if (!$currentUser || !isset($currentUser->id)) {
+    error_log("discord-linked.php: currentUser is null or invalid, redirecting to login");
+    header('Location: /dashboard/login.php');
+    exit();
+}
+
 // Log for debugging
-error_log("discord-linked.php accessed by user: " . ($currentUser ? $currentUser->id : 'none'));
+error_log("discord-linked.php accessed by user: " . $currentUser->id);
 error_log("Session account_link_success: " . ($_SESSION['account_link_success'] ?? 'not set'));
 
 // Check if there's a success message
 $success = $_SESSION['account_link_success'] ?? null;
-
-// Don't unset immediately - keep it for the page to use
-// unset($_SESSION['account_link_success']);
 
 // If no success message, it means they accessed this page directly or session expired
 // Instead of redirecting, just show a generic success message

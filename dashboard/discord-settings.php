@@ -3,7 +3,19 @@ require_once __DIR__ . '/../core/init.php';
 checkLoggedIn();
 checkRole(['Leader', 'Co-leader']);
 
+// Explicitly access global variables
 global $db, $currentUser, $settings;
+
+// Verify database connection
+if (!$db) {
+    die("Database connection not available");
+}
+
+// Verify user is logged in
+if (!$currentUser || !isset($currentUser->id)) {
+    header('Location: /dashboard/login.php');
+    exit();
+}
 
 $success = $error = null;
 
