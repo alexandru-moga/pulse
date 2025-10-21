@@ -12,8 +12,9 @@ if (isLoggedIn()) {
 
 global $db, $settings;
 
-$error = $_SESSION['discord_error'] ?? $_SESSION['github_error'] ?? $_SESSION['google_error'] ?? $_SESSION['slack_error'] ?? null;
-unset($_SESSION['discord_error'], $_SESSION['github_error'], $_SESSION['google_error'], $_SESSION['slack_error']);
+$error = $_SESSION['discord_error'] ?? $_SESSION['github_error'] ?? $_SESSION['google_error'] ?? $_SESSION['slack_error'] ?? $_SESSION['error'] ?? null;
+$info = $_SESSION['info'] ?? null;
+unset($_SESSION['discord_error'], $_SESSION['github_error'], $_SESSION['google_error'], $_SESSION['slack_error'], $_SESSION['error'], $_SESSION['info']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -110,6 +111,23 @@ $slackConfigured = $slack->isConfigured();
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <?php if ($info): ?>
+                <div class="rounded-md bg-blue-50 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                <?= htmlspecialchars($info) ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
             <?php if ($error): ?>
                 <div class="rounded-md bg-red-50 p-4 mb-6">
                     <div class="flex">

@@ -21,16 +21,18 @@ try {
             if ($result['action'] === 'login') {
                 header('Location: ' . $settings['site_url'] . '/dashboard/');
             } else {
-                // Check if user came from Discord welcome message
+                // Check if user came from Discord welcome message or verification
                 $fromWelcome = isset($_GET['from']) && $_GET['from'] === 'welcome';
+                $fromVerify = isset($_GET['from']) && $_GET['from'] === 'verify';
                 
-                if ($fromWelcome) {
-                    $_SESSION['account_link_success'] = 'Discord account linked successfully! Your roles are being synced automatically. Welcome to Phoenix Club! 🎉';
+                if ($fromWelcome || $fromVerify) {
+                    $_SESSION['account_link_success'] = '✅ Discord account linked successfully! Your roles are being synced automatically. Welcome to Phoenix Club! 🎉';
                 } else {
-                    $_SESSION['account_link_success'] = 'Discord account linked successfully! Your roles have been synced.';
+                    $_SESSION['account_link_success'] = '✅ Discord account linked successfully! Your roles have been synced.';
                 }
                 
-                header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
+                // Redirect to dashboard instead of profile edit for better UX
+                header('Location: ' . $settings['site_url'] . '/dashboard/');
             }
         } else {
             error_log("Discord OAuth: Callback failed: " . $result['error']);

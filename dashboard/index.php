@@ -34,9 +34,9 @@ if ($currentUser->active_member == 0) {
     $recentProjects = $db->query("SELECT title, id FROM projects ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$success = $_SESSION['profile_success'] ?? null;
+$success = $_SESSION['profile_success'] ?? $_SESSION['account_link_success'] ?? null;
 $errors = $_SESSION['profile_errors'] ?? [];
-unset($_SESSION['profile_success'], $_SESSION['profile_errors']);
+unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['account_link_success']);
 ?>
 
 <div class="space-y-6">
