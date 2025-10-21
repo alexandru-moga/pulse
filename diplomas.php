@@ -11,6 +11,14 @@ require_once __DIR__ . '/core/classes/DiplomaGenerator.php';
 $generator = new DiplomaGenerator($db);
 $diplomas = $generator->getAvailableDiplomas($currentUser->id);
 
+// Ensure arrays exist
+if (!isset($diplomas['events'])) {
+    $diplomas['events'] = [];
+}
+if (!isset($diplomas['projects'])) {
+    $diplomas['projects'] = [];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -156,7 +156,10 @@ class DiplomaGenerator {
      * Get available diplomas for user
      */
     public function getAvailableDiplomas($userId) {
-        $diplomas = [];
+        $diplomas = [
+            'events' => [],
+            'projects' => []
+        ];
         
         try {
             // Get event diplomas
@@ -189,6 +192,7 @@ class DiplomaGenerator {
             
         } catch (PDOException $e) {
             error_log("Error fetching diplomas: " . $e->getMessage());
+            // Return empty arrays on error instead of partial data
         }
         
         return $diplomas;
