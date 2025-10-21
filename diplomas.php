@@ -9,7 +9,7 @@ $pageTitle = 'My Diplomas & Certificates';
 // Get available diplomas using DiplomaGenerator
 require_once __DIR__ . '/core/classes/DiplomaGenerator.php';
 $generator = new DiplomaGenerator($db);
-$diplomas = $generator->getAvailableDiplomas($currentUser['id']);
+$diplomas = $generator->getAvailableDiplomas($currentUser->id);
 
 ?>
 <!DOCTYPE html>

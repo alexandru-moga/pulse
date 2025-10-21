@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
-                    $title, $description, $template_type, $related_id, $template_file, $enabled, $currentUser['id']
+                    $title, $description, $template_type, $related_id, $template_file, $enabled, $currentUser->id
                 ]);
                 $success = "Certificate template created successfully!";
             } catch (PDOException $e) {
