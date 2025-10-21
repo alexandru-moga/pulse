@@ -3,19 +3,14 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start();
-require_once 'config/database.php';
-require_once 'core/classes/DiplomaGenerator.php';
+require_once __DIR__ . '/core/init.php';
+checkLoggedIn();
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+global $db, $currentUser;
 
-$userId = $_SESSION['user_id'];
+require_once __DIR__ . '/core/classes/DiplomaGenerator.php';
+
+$userId = $currentUser->id;
 $type = $_GET['type'] ?? null;
 $id = $_GET['id'] ?? null;
 $templateId = $_GET['template_id'] ?? null;
@@ -28,7 +23,7 @@ if (!$type || !$id) {
 }
 
 try {
-    $generator = new DiplomaGenerator($pdo);
+    $generator = new DiplomaGenerator($db);
     
     if ($type === 'event') {
         $pdfContent = $generator->generateEventDiploma($userId, $id, $templateId);

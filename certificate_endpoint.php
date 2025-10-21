@@ -1,16 +1,12 @@
 <?php
-session_start();
-require_once 'config/database.php';
-require_once 'core/classes/CertificateGenerator.php';
+require_once __DIR__ . '/core/init.php';
+checkLoggedIn();
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+global $db, $currentUser;
 
-$userId = $_SESSION['user_id'];
+require_once __DIR__ . '/core/classes/CertificateGenerator.php';
+
+$userId = $currentUser->id;
 $projectId = $_GET['project_id'] ?? null;
 
 if (!$projectId) {
@@ -20,7 +16,7 @@ if (!$projectId) {
 }
 
 try {
-    $generator = new CertificateGenerator($pdo);
+    $generator = new CertificateGenerator($db);
     $pdf = $generator->generateProjectCertificate($userId, $projectId);
     
     $filename = 'certificate_project_' . $projectId . '_' . date('Y-m-d') . '.pdf';
