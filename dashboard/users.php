@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         exit();
     }
 }
-}
 
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $db->prepare("DELETE FROM users WHERE id=?")->execute([$_GET['delete']]);
