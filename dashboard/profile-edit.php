@@ -263,8 +263,8 @@ include __DIR__ . '/components/dashboard-header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
-                    <div class="relative">
-                        <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 absolute z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
+                    <div class="relative flex">
+                        <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
                             <span id="selected-flag-profile" class="text-lg mr-1">🇺🇸</span>
                             <span id="selected-country-code-profile" class="text-xs font-medium dark:text-white">+1</span>
                         </button>
@@ -358,8 +358,8 @@ include __DIR__ . '/components/dashboard-header.php';
                             id="phone-input-profile"
                             name="phone"
                             value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
-                            placeholder="123-456-7890"
-                            class="block p-2.5 w-full pl-20 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            placeholder="123 456 7890"
+                            class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-l-0 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
                     </div>
                 </div>
 

@@ -196,8 +196,8 @@ include __DIR__ . '/components/dashboard-header.php';
                             </div>
                             <div>
                                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                <div class="relative">
-                                    <button id="dropdown-phone-button" type="button" class="flex-shrink-0 absolute z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50 focus:ring-2 focus:outline-none focus:ring-blue-500">
+                                <div class="relative flex">
+                                    <button id="dropdown-phone-button" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50 focus:ring-2 focus:outline-none focus:ring-blue-500">
                                         <span id="selected-flag" class="text-lg mr-1">🇺🇸</span>
                                         <span id="selected-country-code" class="text-xs font-medium">+1</span>
                                     </button>
@@ -287,7 +287,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                         </ul>
                                     </div>
                                     <input type="hidden" name="country_code" id="country_code" value="+1">
-                                    <input type="tel" name="phone" id="phone-input" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>" placeholder="123-456-7890" class="block p-2.5 w-full pl-20 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="tel" name="phone" id="phone-input" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>" placeholder="123 456 7890" class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-l-0 border-gray-300 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                             </div>
                             <div>
@@ -426,6 +426,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Countries using DD.MM.YYYY format
     const ddmmyyyyCountries = ['+40', '+49', '+33', '+39', '+34', '+48', '+31', '+32', '+43', '+41', '+351', '+30', '+45', '+46', '+47', '+358'];
     
+    // Phone number formatting patterns by country
+    const phoneFormats = {
+        '+1': 'XXX XXX XXXX',      // US/Canada
+        '+44': 'XXXX XXX XXXX',     // UK
+        '+40': 'XXX XXX XXX',       // Romania
+        '+49': 'XXX XXXXXXX',       // Germany
+        '+33': 'X XX XX XX XX',     // France
+        '+39': 'XXX XXX XXXX',      // Italy
+        '+34': 'XXX XXX XXX',       // Spain
+        '+61': 'XXX XXX XXX',       // Australia
+        '+91': 'XXXXX XXXXX'        // India
+    };
+    
+    // Format phone number based on country code
+    function formatPhoneNumber(value, countryCode) {
+        // Remove all non-digit characters
+        const digits = value.replace(/\D/g, '');
+        
+        // Get format pattern for country
+        const format = phoneFormats[countryCode] || 'XXX XXX XXXX';
+        
+        let formatted = '';
+        let digitIndex = 0;
+        
+        for (let i = 0; i < format.length && digitIndex < digits.length; i++) {
+            if (format[i] === 'X') {
+                formatted += digits[digitIndex];
+                digitIndex++;
+            } else {
+                formatted += format[i];
+            }
+        }
+        
+        return formatted;
+    }
+    
     // Get user's date format preference based on country code
     function getDateFormat() {
         const countryCode = document.getElementById('country_code')?.value || '+1';
@@ -466,10 +502,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const hiddenCountryCodeInput = document.getElementById('country_code');
     const birthdateInput = document.getElementById('birthdate');
     const birthdateIsoInput = document.getElementById('birthdate_iso');
+    const phoneInput = document.getElementById('phone-input');
     
     // Initialize date display format
     if (birthdateIsoInput && birthdateInput && birthdateIsoInput.value) {
         birthdateInput.value = formatDateForDisplay(birthdateIsoInput.value);
+    }
+    
+    // Initialize phone number format
+    if (phoneInput && phoneInput.value) {
+        const currentCountryCode = hiddenCountryCodeInput?.value || '+1';
+        phoneInput.value = formatPhoneNumber(phoneInput.value, currentCountryCode);
+    }
+    
+    // Add phone input formatting
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            const countryCode = hiddenCountryCodeInput?.value || '+1';
+            const cursorPos = this.selectionStart;
+            const oldValue = this.value;
+            const oldLength = oldValue.length;
+            
+            this.value = formatPhoneNumber(this.value, countryCode);
+            
+            // Adjust cursor position
+            const newLength = this.value.length;
+            const newCursorPos = cursorPos + (newLength - oldLength);
+            this.setSelectionRange(newCursorPos, newCursorPos);
+        });
     }
     
     if (dropdownButton && dropdownMenu) {
@@ -491,6 +551,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenCountryCodeInput.value = countryCode;
                 dropdownButton.querySelector('#selected-flag').textContent = flag;
                 dropdownMenu.classList.add('hidden');
+                
+                // Reformat phone number when country changes
+                if (phoneInput && phoneInput.value) {
+                    phoneInput.value = formatPhoneNumber(phoneInput.value, countryCode);
+                }
                 
                 // Update date format when country changes
                 if (birthdateIsoInput && birthdateInput && birthdateIsoInput.value) {
