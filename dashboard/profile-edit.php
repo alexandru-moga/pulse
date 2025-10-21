@@ -242,23 +242,23 @@ include __DIR__ . '/components/dashboard-header.php';
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name *</label>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name *</label>
                     <input type="text"
                         id="first_name"
                         name="first_name"
                         value="<?= htmlspecialchars($currentUser->first_name ?? '') ?>"
                         required
-                        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                        class="block w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-white">
                 </div>
 
                 <div>
-                    <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name *</label>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name *</label>
                     <input type="text"
                         id="last_name"
                         name="last_name"
                         value="<?= htmlspecialchars($currentUser->last_name ?? '') ?>"
                         required
-                        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                        class="block w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-white">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -373,11 +373,11 @@ include __DIR__ . '/components/dashboard-header.php';
                             }
                         }
                         ?>
-                        <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
+                        <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-primary">
                             <span id="selected-flag-profile" class="text-lg mr-1"><?= $userFlag ?></span>
                             <span id="selected-country-code-profile" class="text-xs font-medium dark:text-white"><?= htmlspecialchars($userCountryCode) ?></span>
                         </button>
-                        <div id="dropdown-phone-profile" class="absolute top-full left-0 z-20 mt-2 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600">
+                        <div id="dropdown-phone-profile" class="absolute top-full left-0 z-20 mt-2 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border-2 border-gray-200 dark:border-gray-600">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-phone-button-profile">
                                 <?php foreach ($countries as list($code, $flag, $name)): ?>
                                 <li>
@@ -398,29 +398,29 @@ include __DIR__ . '/components/dashboard-header.php';
                             name="phone"
                             value="<?= htmlspecialchars($currentUser->phone ?? '') ?>"
                             placeholder="123 456 7890"
-                            class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-l-0 border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+                            class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-2 border-l-0 border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-primary">
                     </div>
                 </div>
 
                 <div>
-                    <label for="school" class="block text-sm font-medium text-gray-700 dark:text-gray-300">School</label>
+                    <label for="school" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">School</label>
                     <input type="text"
                         id="school"
                         name="school"
                         value="<?= htmlspecialchars($currentUser->school ?? '') ?>"
-                        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white">
+                        class="block w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-white">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             </div>
     </div>
     <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">About Me</label>
+        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">About Me</label>
         <textarea id="description"
             name="description"
             rows="4"
             placeholder="Tell us about yourself, your interests, skills, and what you'd like to achieve..."
-            class="mt-1 block w-full border-2 border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary focus:border-2 dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
+            class="block w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->description ?? '') ?></textarea>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">This information will be visible to other members and can help with project matching.</p>
     </div>
 
@@ -441,13 +441,13 @@ include __DIR__ . '/components/dashboard-header.php';
         </div>
 
         <div>
-            <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Public Bio / Member Card Message</label>
+            <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Public Bio / Member Card Message</label>
             <textarea id="bio"
                 name="bio"
                 rows="3"
                 maxlength="200"
                 placeholder="A short message that will appear on your member card (max 200 characters)..."
-                class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>
+                class="block w-full border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm dark:bg-gray-700 dark:text-white"><?= htmlspecialchars($currentUser->bio ?? '') ?></textarea>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 <span id="bioCharCount"><?= strlen($currentUser->bio ?? '') ?></span>/200 characters
             </p>

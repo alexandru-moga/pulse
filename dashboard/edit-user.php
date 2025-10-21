@@ -178,28 +178,34 @@ include __DIR__ . '/components/dashboard-header.php';
                 <h3 class="text-lg font-medium text-gray-900">User Information</h3>
             </div>
             <div class="p-6">
-                <form method="post" class="space-y-6">
+                <form method="post" class="space-y-8">
                     <input type="hidden" name="user_id" value="<?= $editUser['id'] ?>">
 
                     <!-- Personal Information -->
-                    <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-4">Personal Information</h4>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div class="flex items-center mb-5">
+                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <h4 class="text-lg font-semibold text-gray-900">Personal Information</h4>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="first_name" class="block text-sm font-medium text-gray-700">First Name *</label>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
                                 <input type="text" name="first_name" id="first_name" value="<?= htmlspecialchars($editUser['first_name']) ?>" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name *</label>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
                                 <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($editUser['last_name']) ?>" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                                 <input type="email" name="email" id="email" value="<?= htmlspecialchars($editUser['email']) ?>" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                             </div>
+                            <div>
                                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                                 <div class="relative flex">
                                     <?php 
@@ -310,11 +316,11 @@ include __DIR__ . '/components/dashboard-header.php';
                                         }
                                     }
                                     ?>
-                                    <button id="dropdown-phone-button" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50 focus:ring-2 focus:outline-none focus:ring-blue-500">
+                                    <button id="dropdown-phone-button" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white border-2 border-gray-300 rounded-l-lg hover:bg-gray-50 focus:ring-2 focus:outline-none focus:ring-primary">
                                         <span id="selected-flag" class="text-lg mr-1"><?= $userFlag ?></span>
                                         <span id="selected-country-code" class="text-xs font-medium"><?= htmlspecialchars($userCountryCode) ?></span>
                                     </button>
-                                    <div id="dropdown-phone" class="absolute top-full left-0 z-20 mt-2 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border border-gray-200">
+                                    <div id="dropdown-phone" class="absolute top-full left-0 z-20 mt-2 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border-2 border-gray-200">
                                         <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
                                             <?php foreach ($countries as list($code, $flag, $name)): ?>
                                             <li>
@@ -330,9 +336,15 @@ include __DIR__ . '/components/dashboard-header.php';
                                         </ul>
                                     </div>
                                     <input type="hidden" name="country_code" id="country_code" value="<?= htmlspecialchars($userCountryCode) ?>">
-                                    <input type="tel" name="phone" id="phone-input" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>" placeholder="123 456 7890" class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border border-l-0 border-gray-300 focus:ring-blue-500 focus:border-blue-500" />
+                                    <input type="tel" name="phone" id="phone-input" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>" placeholder="123 456 7890" class="flex-1 p-2.5 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-2 border-l-0 border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary" />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Birth Date & School Information Grid -->
+                    <div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-2">Birth Date</label>
                                 <div class="relative">
@@ -341,38 +353,49 @@ include __DIR__ . '/components/dashboard-header.php';
                                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                                         </svg>
                                     </div>
-                                    <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>" placeholder="Select date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5" readonly>
+                                    <input type="text" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>" placeholder="Select date" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-primary focus:border-primary block w-full pl-10 py-2.5 pr-3" readonly>
                                     <input type="hidden" name="birthdate_iso" id="birthdate_iso" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>">
                                 </div>
                             </div>
+                            <div></div>
                         </div>
                     </div>
 
                     <!-- School Information -->
-                    <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-4">School Information</h4>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div class="flex items-center mb-5">
+                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <h4 class="text-lg font-semibold text-gray-900">School Information</h4>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="school" class="block text-sm font-medium text-gray-700">School</label>
+                                <label for="school" class="block text-sm font-medium text-gray-700 mb-2">School</label>
                                 <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                             </div>
                             <div>
-                                <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                                <label for="class" class="block text-sm font-medium text-gray-700 mb-2">Class</label>
                                 <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                             </div>
                         </div>
                     </div>
 
                     <!-- Role & Status -->
-                    <div>
-                        <h4 class="text-md font-medium text-gray-900 mb-4">Role & Status</h4>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div class="flex items-center mb-5">
+                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                            </svg>
+                            <h4 class="text-lg font-semibold text-gray-900">Role & Status</h4>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                                 <select name="role" id="role"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
                                     <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
                                     <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
                                     <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
@@ -383,10 +406,16 @@ include __DIR__ . '/components/dashboard-header.php';
                     </div>
 
                     <!-- Description -->
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div class="flex items-center mb-5">
+                            <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
+                            <h4 class="text-lg font-semibold text-gray-900">Additional Information</h4>
+                        </div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <textarea name="description" id="description" rows="4"
-                            class="mt-1 block w-full border-2 border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary focus:border-2"
+                            class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm"
                             placeholder="Additional information about the user..."><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
                     </div>
 
