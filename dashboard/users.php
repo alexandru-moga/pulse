@@ -8,14 +8,25 @@ global $db, $currentUser, $settings;
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 $createSuccess = $createError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $fields = [
-        'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
-        'school', 'birthdate', 'class', 'phone', 'role', 'description'
+        'first_name',
+        'last_name',
+        'email',
+        'discord_id',
+        'slack_id',
+        'github_username',
+        'school',
+        'birthdate',
+        'class',
+        'phone',
+        'role',
+        'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
@@ -30,10 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
             (first_name, last_name, email, discord_id, slack_id, github_username, school, birthdate, class, phone, role, description, active_member)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            $data['first_name'], $data['last_name'], $data['email'],
-            $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
-            $data['birthdate'], $data['class'],
-            $data['phone'], $data['role'], $data['description'], $data['active_member']
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['discord_id'],
+            $data['slack_id'],
+            $data['github_username'],
+            $data['school'],
+            $data['birthdate'],
+            $data['class'],
+            $data['phone'],
+            $data['role'],
+            $data['description'],
+            $data['active_member']
         ]);
         header("Location: users.php?created=1");
         exit();
@@ -46,7 +66,7 @@ if (isset($_GET['toggle_status']) && is_numeric($_GET['toggle_status'])) {
     $user = $db->prepare("SELECT active_member FROM users WHERE id=?");
     $user->execute([$userId]);
     $userData = $user->fetch();
-    
+
     if ($userData) {
         $newStatus = $userData['active_member'] ? 0 : 1;
         $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$newStatus, $userId]);
@@ -60,8 +80,18 @@ $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $id = intval($_POST['user_id']);
     $fields = [
-        'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
-        'school', 'birthdate', 'class', 'phone', 'role', 'description'
+        'first_name',
+        'last_name',
+        'email',
+        'discord_id',
+        'slack_id',
+        'github_username',
+        'school',
+        'birthdate',
+        'class',
+        'phone',
+        'role',
+        'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
@@ -164,8 +194,8 @@ include __DIR__ . '/components/dashboard-header.php';
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">Add New User</h3>
-                <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
-                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     ← Back to Users
                 </a>
             </div>
@@ -175,74 +205,74 @@ include __DIR__ . '/components/dashboard-header.php';
                         <div>
                             <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
                             <input type="text" name="first_name" id="first_name" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
                             <input type="text" name="last_name" id="last_name" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                             <input type="email" name="email" id="email" required
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
                             <input type="text" name="discord_id" id="discord_id"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
                             <input type="text" name="github_username" id="github_username"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="school" class="block text-sm font-medium text-gray-700">School</label>
                             <input type="text" name="school" id="school"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
                             <input type="date" name="birthdate" id="birthdate"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
                             <input type="text" name="class" id="class"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
                             <input type="text" name="phone" id="phone"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                         </div>
                         <div>
                             <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                             <select name="role" id="role"
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                                 <option value="Member">Member</option>
                                 <option value="Co-leader">Co-leader</option>
                                 <option value="Leader">Leader</option>
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center">
                         <input type="checkbox" name="active_member" value="1" id="active_member" checked
-                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
                         <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                     </div>
-                    
+
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                         <textarea name="description" id="description" rows="3"
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"></textarea>
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"></textarea>
                     </div>
-                    
+
                     <div class="flex justify-end">
                         <button type="submit" name="create_user"
-                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                             Create User
                         </button>
                     </div>
@@ -250,7 +280,7 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
         </div>
 
-    <?php elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
+        <?php elseif (isset($_GET['edit']) && is_numeric($_GET['edit'])):
         $editId = intval($_GET['edit']);
         $editUser = null;
         foreach ($users as $u) {
@@ -264,8 +294,8 @@ include __DIR__ . '/components/dashboard-header.php';
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
-                    <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
-                       class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <a href="<?= $settings['site_url'] ?>/dashboard/users.php"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                         ← Back to Users
                     </a>
                 </div>
@@ -276,80 +306,80 @@ include __DIR__ . '/components/dashboard-header.php';
                             <div>
                                 <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
                                 <input type="text" name="first_name" id="first_name" value="<?= htmlspecialchars($editUser['first_name']) ?>" required
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
                             <div>
                                 <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
                                 <input type="text" name="last_name" id="last_name" value="<?= htmlspecialchars($editUser['last_name']) ?>" required
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
                             </div>
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                                 <input type="email" name="email" id="email" value="<?= htmlspecialchars($editUser['email']) ?>" required
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                            </div>
-                        <div>
-                            <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
-                            <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
-                            <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="school" class="block text-sm font-medium text-gray-700">School</label>
-                            <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
-                            <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
-                            <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-                            <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
-                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
-                            <select name="role" id="role"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
-                                <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
-                                <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
-                                <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
-                            </select>
+                            </div>
+                            <div>
+                                <label for="discord_id" class="block text-sm font-medium text-gray-700">Discord ID</label>
+                                <input type="text" name="discord_id" id="discord_id" value="<?= htmlspecialchars($editUser['discord_id'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="github_username" class="block text-sm font-medium text-gray-700">GitHub Username</label>
+                                <input type="text" name="github_username" id="github_username" value="<?= htmlspecialchars($editUser['github_username'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="school" class="block text-sm font-medium text-gray-700">School</label>
+                                <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="birthdate" class="block text-sm font-medium text-gray-700">Birth Date</label>
+                                <input type="date" name="birthdate" id="birthdate" value="<?= htmlspecialchars($editUser['birthdate'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                                <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                                <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($editUser['phone'] ?? '') ?>"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                            </div>
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                                <select name="role" id="role"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary">
+                                    <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
+                                    <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
+                                    <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                        <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
-                    </div>
-                    
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea name="description" id="description" rows="3"
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" name="edit_user"
+
+                        <div class="flex items-center">
+                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
+                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea name="description" id="description" rows="3"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"><?= htmlspecialchars($editUser['description'] ?? '') ?></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" name="edit_user"
                                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                                 Save Changes
-                        </button>
-                    </div>
-                </form>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
         <?php else: ?>
             <div class="bg-red-50 border border-red-200 rounded-md p-4">
                 <div class="flex">
@@ -362,8 +392,8 @@ include __DIR__ . '/components/dashboard-header.php';
                 </div>
             </div>
             <div class="mt-4">
-                <a href="<?= $settings['site_url'] ?>/dashboard/users.php" 
-                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php"
+                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     ← Back to Users
                 </a>
             </div>
@@ -374,12 +404,12 @@ include __DIR__ . '/components/dashboard-header.php';
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-medium text-gray-900">All Users</h3>
-                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     Add User
                 </a>
             </div>
-            
+
             <?php if (empty($users)): ?>
                 <div class="p-6 text-center">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,8 +418,8 @@ include __DIR__ . '/components/dashboard-header.php';
                     <h3 class="mt-2 text-sm font-medium text-gray-900">No users</h3>
                     <p class="mt-1 text-sm text-gray-500">Get started by creating a new user.</p>
                     <div class="mt-6">
-                        <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <a href="<?= $settings['site_url'] ?>/dashboard/users.php?add=1"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                             Add User
                         </a>
                     </div>
@@ -407,7 +437,7 @@ include __DIR__ . '/components/dashboard-header.php';
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <?php foreach ($users as $u): 
+                            <?php foreach ($users as $u):
                                 // Check Discord link status
                                 $stmt = $db->prepare("SELECT discord_username FROM discord_links WHERE user_id = ?");
                                 $stmt->execute([$u['id']]);
@@ -443,10 +473,16 @@ include __DIR__ . '/components/dashboard-header.php';
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php
                                         $roleColor = '';
-                                        switch($u['role']) {
-                                            case 'Leader': $roleColor = 'bg-purple-100 text-purple-800'; break;
-                                            case 'Co-leader': $roleColor = 'bg-blue-100 text-blue-800'; break;
-                                            default: $roleColor = 'bg-gray-100 text-gray-800'; break;
+                                        switch ($u['role']) {
+                                            case 'Leader':
+                                                $roleColor = 'bg-purple-100 text-purple-800';
+                                                break;
+                                            case 'Co-leader':
+                                                $roleColor = 'bg-blue-100 text-blue-800';
+                                                break;
+                                            default:
+                                                $roleColor = 'bg-gray-100 text-gray-800';
+                                                break;
                                         }
                                         ?>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $roleColor ?>">
@@ -457,22 +493,22 @@ include __DIR__ . '/components/dashboard-header.php';
                                         <?php if ($discordLink): ?>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                                 </svg>
                                                 Linked
                                             </span>
                                         <?php else: ?>
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                                                 </svg>
                                                 Not Linked
                                             </span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="<?= $settings['site_url'] ?>/dashboard/edit-user.php?id=<?= $u['id'] ?>" 
-                                           class="text-primary hover:text-red-600">Edit</a>
+                                        <a href="<?= $settings['site_url'] ?>/dashboard/edit-user.php?id=<?= $u['id'] ?>"
+                                            class="text-primary hover:text-red-600">Edit</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -485,13 +521,16 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-function toggleActive(checkbox, userId) {
-    var formData = new FormData();
-    formData.append('toggle_active', 1);
-    formData.append('user_id', userId);
-    if (checkbox.checked) formData.append('active_member', 1);
-    fetch(window.location.href, { method: 'POST', body: formData });
-}
+    function toggleActive(checkbox, userId) {
+        var formData = new FormData();
+        formData.append('toggle_active', 1);
+        formData.append('user_id', userId);
+        if (checkbox.checked) formData.append('active_member', 1);
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        });
+    }
 </script>
 
 <?php include __DIR__ . '/components/dashboard-footer.php'; ?>

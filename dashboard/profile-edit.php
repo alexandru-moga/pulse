@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newDesc = trim($_POST['description'] ?? '');
         $newSchool = trim($_POST['school'] ?? '');
         $newPhone = trim($_POST['phone'] ?? '');
+        $newCountryCode = trim($_POST['country_code'] ?? '+40');
         $newBio = trim($_POST['bio'] ?? '');
         $profilePublic = isset($_POST['profile_public']) ? 1 : 0;
 
@@ -132,8 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($updateErrors)) {
-            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?, bio = ?, profile_image = ?, profile_public = ? WHERE id = ?");
-            $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $newBio, $profileImageFilename, $profilePublic, $currentUser->id]);
+            $stmt = $db->prepare("UPDATE users SET first_name = ?, last_name = ?, description = ?, school = ?, phone = ?, country_code = ?, bio = ?, profile_image = ?, profile_public = ? WHERE id = ?");
+            $result = $stmt->execute([$newFirst, $newLast, $newDesc, $newSchool, $newPhone, $newCountryCode, $newBio, $profileImageFilename, $profilePublic, $currentUser->id]);
 
             if ($result) {
                 // Reload user data from database
@@ -264,9 +265,18 @@ include __DIR__ . '/components/dashboard-header.php';
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
                     <div class="relative flex">
+                        <?php 
+                        $userCountryCode = $currentUser->country_code ?? '+40';
+                        $countryFlags = [
+                            '+1' => '🇺🇸', '+44' => '🇬🇧', '+40' => '🇷🇴', '+49' => '🇩🇪', 
+                            '+33' => '🇫🇷', '+39' => '🇮🇹', '+34' => '🇪🇸', '+61' => '🇦🇺', '+91' => '🇮🇳',
+                            '+48' => '🇵🇱'
+                        ];
+                        $userFlag = $countryFlags[$userCountryCode] ?? '🇷🇴';
+                        ?>
                         <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
-                            <span id="selected-flag-profile" class="text-lg mr-1">🇺🇸</span>
-                            <span id="selected-country-code-profile" class="text-xs font-medium dark:text-white">+1</span>
+                            <span id="selected-flag-profile" class="text-lg mr-1"><?= $userFlag ?></span>
+                            <span id="selected-country-code-profile" class="text-xs font-medium dark:text-white"><?= htmlspecialchars($userCountryCode) ?></span>
                         </button>
                         <div id="dropdown-phone-profile" class="absolute top-full left-0 z-20 mt-2 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-phone-button-profile">
@@ -353,7 +363,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                 </li>
                             </ul>
                         </div>
-                        <input type="hidden" name="country_code" id="country_code_profile" value="+1">
+                        <input type="hidden" name="country_code" id="country_code_profile" value="<?= htmlspecialchars($userCountryCode) ?>">
                         <input type="tel"
                             id="phone-input-profile"
                             name="phone"
@@ -539,7 +549,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                    </form>
+                                </form>
                             <?php else: ?>
                                 <a href="<?= $settings['site_url'] ?>/auth/google/?action=link" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Link Google">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -610,28 +620,28 @@ include __DIR__ . '/components/dashboard-header.php';
     document.addEventListener('DOMContentLoaded', function() {
         // Phone number formatting patterns by country
         const phoneFormats = {
-            '+1': 'XXX XXX XXXX',      // US/Canada
-            '+44': 'XXXX XXX XXXX',     // UK
-            '+40': 'XXX XXX XXX',       // Romania
-            '+49': 'XXX XXXXXXX',       // Germany
-            '+33': 'X XX XX XX XX',     // France
-            '+39': 'XXX XXX XXXX',      // Italy
-            '+34': 'XXX XXX XXX',       // Spain
-            '+61': 'XXX XXX XXX',       // Australia
-            '+91': 'XXXXX XXXXX'        // India
+            '+1': 'XXX XXX XXXX', // US/Canada
+            '+44': 'XXXX XXX XXXX', // UK
+            '+40': 'XXX XXX XXX', // Romania
+            '+49': 'XXX XXXXXXX', // Germany
+            '+33': 'X XX XX XX XX', // France
+            '+39': 'XXX XXX XXXX', // Italy
+            '+34': 'XXX XXX XXX', // Spain
+            '+61': 'XXX XXX XXX', // Australia
+            '+91': 'XXXXX XXXXX' // India
         };
-        
+
         // Format phone number based on country code
         function formatPhoneNumber(value, countryCode) {
             // Remove all non-digit characters
             const digits = value.replace(/\D/g, '');
-            
+
             // Get format pattern for country
             const format = phoneFormats[countryCode] || 'XXX XXX XXXX';
-            
+
             let formatted = '';
             let digitIndex = 0;
-            
+
             for (let i = 0; i < format.length && digitIndex < digits.length; i++) {
                 if (format[i] === 'X') {
                     formatted += digits[digitIndex];
@@ -640,10 +650,10 @@ include __DIR__ . '/components/dashboard-header.php';
                     formatted += format[i];
                 }
             }
-            
+
             return formatted;
         }
-        
+
         // Phone Country Code Dropdown
         const dropdownButton = document.getElementById('dropdown-phone-button-profile');
         const dropdownMenu = document.getElementById('dropdown-phone-profile');
@@ -651,13 +661,13 @@ include __DIR__ . '/components/dashboard-header.php';
         const selectedCodeSpan = document.getElementById('selected-country-code-profile');
         const hiddenCountryCodeInput = document.getElementById('country_code_profile');
         const phoneInput = document.getElementById('phone-input-profile');
-        
+
         // Initialize phone number format
         if (phoneInput && phoneInput.value) {
             const currentCountryCode = hiddenCountryCodeInput?.value || '+1';
             phoneInput.value = formatPhoneNumber(phoneInput.value, currentCountryCode);
         }
-        
+
         // Add phone input formatting
         if (phoneInput) {
             phoneInput.addEventListener('input', function(e) {
@@ -665,16 +675,16 @@ include __DIR__ . '/components/dashboard-header.php';
                 const cursorPos = this.selectionStart;
                 const oldValue = this.value;
                 const oldLength = oldValue.length;
-                
+
                 this.value = formatPhoneNumber(this.value, countryCode);
-                
+
                 // Adjust cursor position
                 const newLength = this.value.length;
                 const newCursorPos = cursorPos + (newLength - oldLength);
                 this.setSelectionRange(newCursorPos, newCursorPos);
             });
         }
-        
+
         if (dropdownButton && dropdownMenu) {
             // Toggle dropdown
             dropdownButton.addEventListener('click', function(e) {
@@ -682,7 +692,7 @@ include __DIR__ . '/components/dashboard-header.php';
                 e.stopPropagation();
                 dropdownMenu.classList.toggle('hidden');
             });
-            
+
             // Handle country selection
             const countryButtons = dropdownMenu.querySelectorAll('button[data-country-code]');
             countryButtons.forEach(button => {
@@ -694,14 +704,14 @@ include __DIR__ . '/components/dashboard-header.php';
                     selectedCodeSpan.textContent = countryCode;
                     hiddenCountryCodeInput.value = countryCode;
                     dropdownMenu.classList.add('hidden');
-                    
+
                     // Reformat phone number when country changes
                     if (phoneInput && phoneInput.value) {
                         phoneInput.value = formatPhoneNumber(phoneInput.value, countryCode);
                     }
                 });
             });
-            
+
             // Close dropdown when clicking outside
             document.addEventListener('click', function(e) {
                 if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
@@ -709,7 +719,7 @@ include __DIR__ . '/components/dashboard-header.php';
                 }
             });
         }
-        
+
         const mainForm = document.querySelector('form.p-6.space-y-6');
         const saveButton = mainForm ? mainForm.querySelector('button[type="submit"]') : null;
 

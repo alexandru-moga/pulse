@@ -34,7 +34,7 @@ if (!$user) {
     // For security, don't reveal if email exists or not
     // But still send success message
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'If an account exists with this email, a login link has been sent.'
     ]);
     exit();
@@ -259,17 +259,16 @@ try {
     $mail->AltBody = "Hi {$user['first_name']},\n\nClick this link to log in to your {$settings['site_title']} account:\n\n{$loginLink}\n\nThis link will expire in 15 minutes.\n\nIf you didn't request this, you can safely ignore this email.";
 
     $mail->send();
-    
+
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'A login link has been sent to your email. Please check your inbox.'
     ]);
-    
 } catch (Exception $e) {
     error_log("Email sending failed: " . $mail->ErrorInfo);
     http_response_code(500);
     echo json_encode([
-        'success' => false, 
+        'success' => false,
         'error' => 'Failed to send login link. Please try again later.'
     ]);
 }

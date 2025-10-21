@@ -180,37 +180,37 @@ $discordConfigured = $discord->isConfigured();
     <script>
         document.getElementById('emailLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const button = document.getElementById('emailLoginButton');
             const buttonText = document.getElementById('emailLoginButtonText');
             const email = document.getElementById('email').value;
             const successMessage = document.getElementById('successMessage');
             const successMessageText = document.getElementById('successMessageText');
-            
+
             // Disable button and show loading state
             button.disabled = true;
             buttonText.textContent = 'Sending...';
             button.classList.add('opacity-75', 'cursor-not-allowed');
-            
+
             // Hide previous messages
             successMessage.classList.add('hidden');
-            
+
             try {
                 const formData = new FormData();
                 formData.append('email', email);
-                
+
                 const response = await fetch('send-login-link.php', {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Show success message
                     successMessageText.textContent = data.message;
                     successMessage.classList.remove('hidden');
-                    
+
                     // Clear the email field
                     document.getElementById('email').value = '';
                 } else {

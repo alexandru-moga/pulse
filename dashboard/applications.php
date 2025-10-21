@@ -8,6 +8,7 @@ global $db, $currentUser, $settings;
 require_once __DIR__ . '/../lib/PHPMailer/src/Exception.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/../lib/PHPMailer/src/SMTP.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
             $mail->addAddress($app['email'], $app['first_name'] . ' ' . $app['last_name']);
             $mail->isHTML(true);
             $mail->Subject = 'Your Application Has Been Accepted!';
-            
+
             // Modern HTML email template matching the reset page design
             $emailBody = '
             <!DOCTYPE html>
@@ -205,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_accept_id'])) {
                 </div>
             </body>
             </html>';
-            
+
             $mail->Body = $emailBody;
             $mail->send();
             $success = "Accepted email sent to " . htmlspecialchars($app['email']);
@@ -243,9 +244,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
                 (first_name, last_name, email, password, school, birthdate, class, phone, role, description, active_member)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
-                $fields['first_name'], $fields['last_name'], $fields['email'], $fields['password'],
-                $fields['school'], $fields['birthdate'], $fields['class'],
-                $fields['phone'], $fields['role'], $fields['description'], $fields['active_member']
+                $fields['first_name'],
+                $fields['last_name'],
+                $fields['email'],
+                $fields['password'],
+                $fields['school'],
+                $fields['birthdate'],
+                $fields['class'],
+                $fields['phone'],
+                $fields['role'],
+                $fields['description'],
+                $fields['active_member']
             ]);
             $success = "User added as member!";
         }
@@ -298,7 +307,7 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Applications List</h3>
         </div>
-        
+
         <?php if (empty($applications)): ?>
             <div class="p-6 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,15 +346,15 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         <form method="post" class="inline">
                                             <input type="hidden" name="status_update_id" value="<?= $app['id'] ?>">
-                                            <select name="status" onchange="this.form.submit()" 
-                                                    class="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary <?php
-                                                        if ($app['status'] === 'waiting') echo 'bg-yellow-50 text-yellow-800';
-                                                        elseif ($app['status'] === 'accepted') echo 'bg-green-50 text-green-800';
-                                                        elseif ($app['status'] === 'rejected') echo 'bg-red-50 text-red-800';
-                                                    ?>">
-                                                <option value="waiting" <?= $app['status']=='waiting'?'selected':'' ?>>Waiting</option>
-                                                <option value="accepted" <?= $app['status']=='accepted'?'selected':'' ?>>Accepted</option>
-                                                <option value="rejected" <?= $app['status']=='rejected'?'selected':'' ?>>Rejected</option>
+                                            <select name="status" onchange="this.form.submit()"
+                                                class="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary <?php
+                                                                                                                                            if ($app['status'] === 'waiting') echo 'bg-yellow-50 text-yellow-800';
+                                                                                                                                            elseif ($app['status'] === 'accepted') echo 'bg-green-50 text-green-800';
+                                                                                                                                            elseif ($app['status'] === 'rejected') echo 'bg-red-50 text-red-800';
+                                                                                                                                            ?>">
+                                                <option value="waiting" <?= $app['status'] == 'waiting' ? 'selected' : '' ?>>Waiting</option>
+                                                <option value="accepted" <?= $app['status'] == 'accepted' ? 'selected' : '' ?>>Accepted</option>
+                                                <option value="rejected" <?= $app['status'] == 'rejected' ? 'selected' : '' ?>>Rejected</option>
                                             </select>
                                         </form>
                                     </td>
@@ -354,15 +363,15 @@ $applications = $db->query("SELECT * FROM applications ORDER BY id DESC")->fetch
                                             <div class="flex space-x-2">
                                                 <form method="post" class="inline">
                                                     <input type="hidden" name="send_accept_id" value="<?= $app['id'] ?>">
-                                                    <button type="submit" 
-                                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                    <button type="submit"
+                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                                         Send Email
                                                     </button>
                                                 </form>
                                                 <form method="post" class="inline">
                                                     <input type="hidden" name="add_member_id" value="<?= $app['id'] ?>">
-                                                    <button type="submit" 
-                                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                                    <button type="submit"
+                                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                                         Add Member
                                                     </button>
                                                 </form>
