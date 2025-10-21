@@ -5,7 +5,7 @@ checkRole(['Leader', 'Co-leader']);
 
 global $db, $currentUser;
 
-$pageTitle = 'Diploma Templates';
+$pageTitle = 'Certificate/Diploma Templates';
 include __DIR__ . '/components/dashboard-header.php';
 
 $success = $error = null;
@@ -17,41 +17,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $template_type = $_POST['template_type'];
         $related_id = $_POST['related_id'] ?: null;
-        $certificate_text = $_POST['certificate_text'];
-        $signature_name = $_POST['signature_name'];
-        $signature_title = $_POST['signature_title'];
         $enabled = isset($_POST['enabled']) ? 1 : 0;
         
-        // Handle background image upload
-        $background_image = null;
-        if (isset($_FILES['background_image']) && $_FILES['background_image']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../uploads/diploma-templates/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
-            }
+        // Handle PDF template upload
+        $template_file = null;
+        if (isset($_FILES['template_file']) && $_FILES['template_file']['error'] === UPLOAD_ERR_OK) {
+            $file_extension = strtolower(pathinfo($_FILES['template_file']['name'], PATHINFO_EXTENSION));
             
-            $file_extension = pathinfo($_FILES['background_image']['name'], PATHINFO_EXTENSION);
-            $filename = 'template_' . time() . '_' . uniqid() . '.' . $file_extension;
-            $file_path = $upload_dir . $filename;
-            
-            if (move_uploaded_file($_FILES['background_image']['tmp_name'], $file_path)) {
-                $background_image = 'uploads/diploma-templates/' . $filename;
+            if ($file_extension !== 'pdf') {
+                $error = "Only PDF files are allowed for templates.";
+            } else {
+                $upload_dir = __DIR__ . '/../uploads/diploma-templates/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
+                }
+                
+                $filename = 'template_' . time() . '_' . uniqid() . '.pdf';
+                $file_path = $upload_dir . $filename;
+                
+                if (move_uploaded_file($_FILES['template_file']['tmp_name'], $file_path)) {
+                    $template_file = 'uploads/diploma-templates/' . $filename;
+                }
             }
+        } else {
+            $error = "PDF template file is required.";
         }
         
-        try {
-            $stmt = $db->prepare("
-                INSERT INTO diploma_templates 
-                (title, description, template_type, related_id, background_image, certificate_text, signature_name, signature_title, enabled, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([
-                $title, $description, $template_type, $related_id, $background_image, 
-                $certificate_text, $signature_name, $signature_title, $enabled, $currentUser['id']
-            ]);
-            $success = "Diploma template created successfully!";
-        } catch (PDOException $e) {
-            $error = "Error creating template: " . $e->getMessage();
+        if (!$error && $template_file) {
+            try {
+                $stmt = $db->prepare("
+                    INSERT INTO diploma_templates 
+                    (title, description, template_type, related_id, template_file, enabled, created_by)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $title, $description, $template_type, $related_id, $template_file, $enabled, $currentUser['id']
+                ]);
+                $success = "Certificate template created successfully!";
+            } catch (PDOException $e) {
+                $error = "Error creating template: " . $e->getMessage();
+            }
         }
     } elseif (isset($_POST['update_template'])) {
         $id = $_POST['template_id'];
@@ -59,53 +64,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $template_type = $_POST['template_type'];
         $related_id = $_POST['related_id'] ?: null;
-        $certificate_text = $_POST['certificate_text'];
-        $signature_name = $_POST['signature_name'];
-        $signature_title = $_POST['signature_title'];
         $enabled = isset($_POST['enabled']) ? 1 : 0;
         
-        // Handle background image upload
-        $background_image = $_POST['current_background_image'];
-        if (isset($_FILES['background_image']) && $_FILES['background_image']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../uploads/diploma-templates/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0755, true);
-            }
+        // Handle PDF template upload
+        $template_file = $_POST['current_template_file'];
+        if (isset($_FILES['template_file']) && $_FILES['template_file']['error'] === UPLOAD_ERR_OK) {
+            $file_extension = strtolower(pathinfo($_FILES['template_file']['name'], PATHINFO_EXTENSION));
             
-            $file_extension = pathinfo($_FILES['background_image']['name'], PATHINFO_EXTENSION);
-            $filename = 'template_' . time() . '_' . uniqid() . '.' . $file_extension;
-            $file_path = $upload_dir . $filename;
-            
-            if (move_uploaded_file($_FILES['background_image']['tmp_name'], $file_path)) {
-                // Delete old background if exists
-                if ($background_image && file_exists(__DIR__ . '/../' . $background_image)) {
-                    unlink(__DIR__ . '/../' . $background_image);
+            if ($file_extension !== 'pdf') {
+                $error = "Only PDF files are allowed for templates.";
+            } else {
+                $upload_dir = __DIR__ . '/../uploads/diploma-templates/';
+                if (!file_exists($upload_dir)) {
+                    mkdir($upload_dir, 0755, true);
                 }
-                $background_image = 'uploads/diploma-templates/' . $filename;
+                
+                $filename = 'template_' . time() . '_' . uniqid() . '.pdf';
+                $file_path = $upload_dir . $filename;
+                
+                if (move_uploaded_file($_FILES['template_file']['tmp_name'], $file_path)) {
+                    // Delete old template if exists
+                    if ($template_file && file_exists(__DIR__ . '/../' . $template_file)) {
+                        unlink(__DIR__ . '/../' . $template_file);
+                    }
+                    $template_file = 'uploads/diploma-templates/' . $filename;
+                }
             }
         }
         
-        try {
-            $stmt = $db->prepare("
-                UPDATE diploma_templates 
-                SET title = ?, description = ?, template_type = ?, related_id = ?, background_image = ?, 
-                    certificate_text = ?, signature_name = ?, signature_title = ?, enabled = ?
-                WHERE id = ?
-            ");
-            $stmt->execute([
-                $title, $description, $template_type, $related_id, $background_image,
-                $certificate_text, $signature_name, $signature_title, $enabled, $id
-            ]);
-            $success = "Diploma template updated successfully!";
-        } catch (PDOException $e) {
-            $error = "Error updating template: " . $e->getMessage();
+        if (!$error) {
+            try {
+                $stmt = $db->prepare("
+                    UPDATE diploma_templates 
+                    SET title = ?, description = ?, template_type = ?, related_id = ?, template_file = ?, enabled = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([
+                    $title, $description, $template_type, $related_id, $template_file, $enabled, $id
+                ]);
+                $success = "Certificate template updated successfully!";
+            } catch (PDOException $e) {
+                $error = "Error updating template: " . $e->getMessage();
+            }
         }
     } elseif (isset($_POST['delete_template'])) {
         $id = $_POST['template_id'];
         
         try {
-            // Get background image path
-            $stmt = $db->prepare("SELECT background_image FROM diploma_templates WHERE id = ?");
+            // Get template file path
+            $stmt = $db->prepare("SELECT template_file FROM diploma_templates WHERE id = ?");
             $stmt->execute([$id]);
             $template = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -113,15 +120,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("DELETE FROM diploma_templates WHERE id = ?");
             $stmt->execute([$id]);
             
-            // Delete background image file
-            if ($template && $template['background_image']) {
-                $file_path = __DIR__ . '/../' . $template['background_image'];
+            // Delete template file
+            if ($template && $template['template_file']) {
+                $file_path = __DIR__ . '/../' . $template['template_file'];
                 if (file_exists($file_path)) {
                     unlink($file_path);
                 }
             }
             
-            $success = "Diploma template deleted successfully!";
+            $success = "Certificate template deleted successfully!";
         } catch (PDOException $e) {
             $error = "Error deleting template: " . $e->getMessage();
         }
@@ -154,15 +161,15 @@ $events = $db->query("SELECT id, title FROM events ORDER BY title")->fetchAll(PD
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold text-gray-900">Diploma Templates</h2>
-                <p class="text-gray-600 mt-1">Manage diploma templates for projects and events</p>
+                <h2 class="text-xl font-semibold text-gray-900">Certificate/Diploma Templates</h2>
+                <p class="text-gray-600 mt-1">Upload PDF templates with "First Name" and "Last Name" placeholders that will be replaced with actual user data</p>
             </div>
             <button onclick="showCreateModal()" 
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Create Template
+                Upload Template
             </button>
         </div>
     </div>
@@ -263,27 +270,47 @@ $events = $db->query("SELECT id, title FROM events ORDER BY title")->fetchAll(PD
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" id="template_id" name="template_id">
-                <input type="hidden" id="current_background_image" name="current_background_image">
+                <input type="hidden" id="current_template_file" name="current_template_file">
                 
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modalTitle">Create Diploma Template</h3>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modalTitle">Upload Certificate Template</h3>
+                    
+                    <!-- Instructions -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+                        <div class="flex">
+                            <svg class="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm text-blue-700">
+                                <p class="font-semibold mb-1">Important Instructions:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Upload a PDF file with your certificate/diploma design</li>
+                                    <li>Include the text "First Name" and "Last Name" exactly where the user's name should appear</li>
+                                    <li>These placeholders will be automatically replaced with actual user names</li>
+                                    <li>All signatures and other content should already be in the PDF</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Title</label>
+                            <label class="block text-sm font-medium text-gray-700">Title *</label>
                             <input type="text" name="title" id="title" required 
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="e.g., Daydream Timisoara Certificate">
                         </div>
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Description</label>
                             <textarea name="description" id="description" rows="2"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="Optional description of this template"></textarea>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Template Type</label>
+                                <label class="block text-sm font-medium text-gray-700">Template Type *</label>
                                 <select name="template_type" id="template_type" required onchange="updateRelatedOptions()"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                                     <option value="project">Project</option>
@@ -295,44 +322,24 @@ $events = $db->query("SELECT id, title FROM events ORDER BY title")->fetchAll(PD
                                 <label class="block text-sm font-medium text-gray-700">Related (Optional)</label>
                                 <select name="related_id" id="related_id"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">All</option>
+                                    <option value="">All (use for any)</option>
                                     <!-- Options populated by JS -->
                                 </select>
                             </div>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Background Image (Optional)</label>
-                            <input type="file" name="background_image" id="background_image" accept="image/*"
+                            <label class="block text-sm font-medium text-gray-700">PDF Template *</label>
+                            <input type="file" name="template_file" id="template_file" accept="application/pdf" <span id="fileRequired">required</span>
                                 class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                            <p class="text-xs text-gray-500 mt-1">Upload a background image for the diploma</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Certificate Text</label>
-                            <textarea name="certificate_text" id="certificate_text" rows="3" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="For participating in..."></textarea>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Signature Name</label>
-                                <input type="text" name="signature_name" id="signature_name"
-                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Signature Title</label>
-                                <input type="text" name="signature_title" id="signature_title"
-                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Upload a PDF file containing "First Name" and "Last Name" text to be replaced</p>
+                            <p class="text-xs text-indigo-600 mt-1" id="currentFileInfo"></p>
                         </div>
                         
                         <div class="flex items-center">
                             <input type="checkbox" name="enabled" id="enabled" checked
                                 class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <label for="enabled" class="ml-2 block text-sm text-gray-900">Enabled</label>
+                            <label for="enabled" class="ml-2 block text-sm text-gray-900">Enabled (users can download)</label>
                         </div>
                     </div>
                 </div>
@@ -340,7 +347,7 @@ $events = $db->query("SELECT id, title FROM events ORDER BY title")->fetchAll(PD
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button type="submit" id="submitBtn" name="create_template"
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Create Template
+                        Upload Template
                     </button>
                     <button type="button" onclick="hideModal()"
                         class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
@@ -357,35 +364,35 @@ const projects = <?= json_encode($projects) ?>;
 const events = <?= json_encode($events) ?>;
 
 function showCreateModal() {
-    document.getElementById('modalTitle').textContent = 'Create Diploma Template';
+    document.getElementById('modalTitle').textContent = 'Upload Certificate Template';
     document.getElementById('submitBtn').name = 'create_template';
-    document.getElementById('submitBtn').textContent = 'Create Template';
+    document.getElementById('submitBtn').textContent = 'Upload Template';
     document.getElementById('template_id').value = '';
     document.getElementById('title').value = '';
     document.getElementById('description').value = '';
-    document.getElementById('template_type').value = 'project';
-    document.getElementById('certificate_text').value = '';
-    document.getElementById('signature_name').value = '';
-    document.getElementById('signature_title').value = '';
+    document.getElementById('template_type').value = 'event';
     document.getElementById('enabled').checked = true;
-    document.getElementById('current_background_image').value = '';
+    document.getElementById('current_template_file').value = '';
+    document.getElementById('currentFileInfo').textContent = '';
+    document.getElementById('fileRequired').style.display = 'inline';
+    document.getElementById('template_file').required = true;
     updateRelatedOptions();
     document.getElementById('templateModal').classList.remove('hidden');
 }
 
 function editTemplate(template) {
-    document.getElementById('modalTitle').textContent = 'Edit Diploma Template';
+    document.getElementById('modalTitle').textContent = 'Edit Certificate Template';
     document.getElementById('submitBtn').name = 'update_template';
     document.getElementById('submitBtn').textContent = 'Update Template';
     document.getElementById('template_id').value = template.id;
     document.getElementById('title').value = template.title;
     document.getElementById('description').value = template.description || '';
     document.getElementById('template_type').value = template.template_type;
-    document.getElementById('certificate_text').value = template.certificate_text || '';
-    document.getElementById('signature_name').value = template.signature_name || '';
-    document.getElementById('signature_title').value = template.signature_title || '';
     document.getElementById('enabled').checked = template.enabled == 1;
-    document.getElementById('current_background_image').value = template.background_image || '';
+    document.getElementById('current_template_file').value = template.template_file || '';
+    document.getElementById('currentFileInfo').textContent = 'Current file: ' + (template.template_file ? template.template_file.split('/').pop() : 'None');
+    document.getElementById('fileRequired').style.display = 'none';
+    document.getElementById('template_file').required = false;
     updateRelatedOptions();
     document.getElementById('related_id').value = template.related_id || '';
     document.getElementById('templateModal').classList.remove('hidden');
@@ -400,7 +407,7 @@ function updateRelatedOptions() {
     const relatedSelect = document.getElementById('related_id');
     const items = type === 'project' ? projects : events;
     
-    relatedSelect.innerHTML = '<option value="">All</option>';
+    relatedSelect.innerHTML = '<option value="">All (use for any)</option>';
     items.forEach(item => {
         const option = document.createElement('option');
         option.value = item.id;

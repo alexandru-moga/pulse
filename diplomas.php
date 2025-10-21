@@ -6,9 +6,9 @@ global $db, $currentUser;
 
 $pageTitle = 'My Diplomas & Certificates';
 
-// Get available diplomas using CertificateGenerator
-require_once __DIR__ . '/core/classes/CertificateGenerator.php';
-$generator = new CertificateGenerator($db);
+// Get available diplomas using DiplomaGenerator
+require_once __DIR__ . '/core/classes/DiplomaGenerator.php';
+$generator = new DiplomaGenerator($db);
 $diplomas = $generator->getAvailableDiplomas($currentUser['id']);
 
 ?>
