@@ -38,7 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($passwordMatch) {
                 $_SESSION['user_id'] = $user['id'];
                 error_log("Login successful for user " . $user['id'] . " (active: " . $user['active_member'] . ")");
-                header('Location: index.php');
+                
+                // Check for redirect after login
+                if (isset($_SESSION['redirect_after_login'])) {
+                    $redirect = $_SESSION['redirect_after_login'];
+                    unset($_SESSION['redirect_after_login']);
+                    header('Location: ' . $redirect);
+                } else {
+                    header('Location: index.php');
+                }
                 exit();
             } else {
                 $error = "Invalid email or password.";

@@ -198,6 +198,21 @@ class DiscordOAuth
         ]);
         $this->addUserToGuild($discordUser['id'], $tokenData['access_token']);
 
+        // Mark verification token as used if present
+        if (isset($_SESSION['discord_verification'])) {
+            $stmt = $this->db->prepare("
+                UPDATE discord_verification_tokens 
+                SET used = 1, user_id = ? 
+                WHERE token = ? AND discord_id = ?
+            ");
+            $stmt->execute([
+                $currentUser->id,
+                $_SESSION['discord_verification']['token'],
+                $discordUser['id']
+            ]);
+            unset($_SESSION['discord_verification']);
+        }
+
         return ['success' => true, 'user' => $discordUser, 'action' => 'link'];
     }
 
