@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
         'last_name',
         'email',
         'school',
-        'class',
+        'school_type',
         'phone',
         'country_code',
         'role',
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     } else {
         $stmt = $db->prepare("UPDATE users SET
             first_name=?, last_name=?, email=?, 
-            school=?, birthdate=?, class=?, phone=?, country_code=?, role=?, description=?
+            school=?, school_type=?, birthdate=?, phone=?, country_code=?, role=?, description=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $userId;
@@ -367,18 +367,32 @@ include __DIR__ . '/components/dashboard-header.php';
                             <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
-                            <h4 class="text-lg font-semibold text-gray-900">School Information</h4>
+                            <h4 class="text-lg font-semibold text-gray-900">Education Information</h4>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="school" class="block text-sm font-medium text-gray-700 mb-2">School</label>
-                                <input type="text" name="school" id="school" value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
+                                <label for="school_type" class="block text-sm font-medium text-gray-700 mb-2">Education Level</label>
+                                <select name="school_type" id="school_type"
                                     class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
+                                    <option value="">Select Level...</option>
+                                    <option value="Elementary School" <?= ($editUser['school_type'] ?? '') == 'Elementary School' ? 'selected' : '' ?>>Elementary School</option>
+                                    <option value="High School" <?= ($editUser['school_type'] ?? '') == 'High School' ? 'selected' : '' ?>>High School</option>
+                                    <option value="University" <?= ($editUser['school_type'] ?? '') == 'University' ? 'selected' : '' ?>>University</option>
+                                    <option value="Other" <?= ($editUser['school_type'] ?? '') == 'Other' ? 'selected' : '' ?>>Other</option>
+                                </select>
                             </div>
                             <div>
-                                <label for="class" class="block text-sm font-medium text-gray-700 mb-2">Class</label>
-                                <input type="text" name="class" id="class" value="<?= htmlspecialchars($editUser['class'] ?? '') ?>"
-                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm">
+                                <label for="school" class="block text-sm font-medium text-gray-700 mb-2">School Name</label>
+                                <input type="text" 
+                                    name="school" 
+                                    id="school" 
+                                    list="schools-list"
+                                    value="<?= htmlspecialchars($editUser['school'] ?? '') ?>"
+                                    placeholder="Start typing to search..."
+                                    class="block w-full border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary px-4 py-2.5 text-sm"
+                                    autocomplete="off">
+                                <datalist id="schools-list"></datalist>
+                                <p class="mt-1 text-xs text-gray-500">Type to search or enter your own school name</p>
                             </div>
                         </div>
                     </div>
@@ -813,6 +827,45 @@ include __DIR__ . '/components/dashboard-header.php';
                     picker.classList.add('hidden');
                 }
             });
+        }
+
+        // Load schools data and populate datalist based on school type
+        let schoolsData = {};
+        fetch('<?= $settings['site_url'] ?>/data/schools.json')
+            .then(response => response.json())
+            .then(data => {
+                schoolsData = data;
+                updateSchoolsList();
+            })
+            .catch(error => console.error('Error loading schools:', error));
+
+        const schoolTypeSelect = document.getElementById('school_type');
+        const schoolsList = document.getElementById('schools-list');
+
+        function updateSchoolsList() {
+            const schoolType = schoolTypeSelect.value;
+            schoolsList.innerHTML = '';
+
+            let schools = [];
+            if (schoolType === 'Elementary School') {
+                schools = schoolsData.elementarySchools || [];
+            } else if (schoolType === 'High School') {
+                schools = schoolsData.highSchools || [];
+            } else if (schoolType === 'University') {
+                schools = schoolsData.universities || [];
+            } else if (schoolType === 'Other') {
+                schools = schoolsData.other || [];
+            }
+
+            schools.forEach(school => {
+                const option = document.createElement('option');
+                option.value = school;
+                schoolsList.appendChild(option);
+            });
+        }
+
+        if (schoolTypeSelect) {
+            schoolTypeSelect.addEventListener('change', updateSchoolsList);
         }
     });
 </script>
