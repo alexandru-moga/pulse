@@ -27,12 +27,13 @@ try {
                 
                 if ($fromWelcome || $fromVerify) {
                     $_SESSION['account_link_success'] = '✅ Discord account linked successfully! Your roles are being synced automatically. Welcome to Phoenix Club! 🎉';
+                    // Redirect to special success page that can be closed
+                    header('Location: ' . $settings['site_url'] . '/dashboard/discord-linked.php');
                 } else {
                     $_SESSION['account_link_success'] = '✅ Discord account linked successfully! Your roles have been synced.';
+                    // Regular linking redirects to dashboard
+                    header('Location: ' . $settings['site_url'] . '/dashboard/');
                 }
-                
-                // Redirect to dashboard instead of profile edit for better UX
-                header('Location: ' . $settings['site_url'] . '/dashboard/');
             }
         } else {
             error_log("Discord OAuth: Callback failed: " . $result['error']);
