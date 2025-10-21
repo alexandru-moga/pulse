@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../lib/tcpdf/tcpdf.php';
-require_once __DIR__ . '/../../lib/tcpdf/tcpdf_parser.php';
+// Note: We don't actually use TCPDF for generation, just for type hinting if needed
+// The diploma generation works by direct PDF text replacement
 
 class DiplomaGenerator {
     private $db;
