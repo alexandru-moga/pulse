@@ -114,7 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
 }
 
 
-$users = $db->query("SELECT * FROM users ORDER BY id DESC")->fetchAll();
+$users = $db->query("SELECT * FROM users ORDER BY 
+    CASE role 
+        WHEN 'Leader' THEN 1 
+        WHEN 'Co-leader' THEN 2 
+        WHEN 'Member' THEN 3 
+        WHEN 'Guest' THEN 4 
+        ELSE 5 
+    END, 
+    first_name ASC, 
+    last_name ASC")->fetchAll();
 
 $pageTitle = "Manage Users";
 include __DIR__ . '/components/dashboard-header.php';
