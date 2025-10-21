@@ -12,7 +12,6 @@ class User
     public $github_username;
     public $school;
     public $ysws_projects;
-    public $hcb_member;
     public $birthdate;
     public $class;
     public $phone;

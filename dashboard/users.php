@@ -15,12 +15,11 @@ $createSuccess = $createError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     $fields = [
         'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
-        'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
+        'school', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
-    $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
     $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
     $exists->execute([$data['email']]);
@@ -28,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         $createError = "A user with this email already exists.";
     } else {
         $stmt = $db->prepare("INSERT INTO users
-            (first_name, last_name, email, discord_id, slack_id, github_username, school, hcb_member, birthdate, class, phone, role, description, active_member)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (first_name, last_name, email, discord_id, slack_id, github_username, school, birthdate, class, phone, role, description, active_member)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['first_name'], $data['last_name'], $data['email'],
             $data['discord_id'], $data['slack_id'], $data['github_username'], $data['school'],
-            $data['hcb_member'], $data['birthdate'], $data['class'],
+            $data['birthdate'], $data['class'],
             $data['phone'], $data['role'], $data['description'], $data['active_member']
         ]);
         header("Location: users.php?created=1");
@@ -41,10 +40,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     }
 }
 
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $db->prepare("DELETE FROM users WHERE id=?")->execute([$_GET['delete']]);
-    header("Location: users.php?deleted=1");
-    exit();
+// Toggle account status (enable/disable)
+if (isset($_GET['toggle_status']) && is_numeric($_GET['toggle_status'])) {
+    $userId = intval($_GET['toggle_status']);
+    $user = $db->prepare("SELECT active_member FROM users WHERE id=?");
+    $user->execute([$userId]);
+    $userData = $user->fetch();
+    
+    if ($userData) {
+        $newStatus = $userData['active_member'] ? 0 : 1;
+        $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$newStatus, $userId]);
+        $statusMessage = $newStatus ? 'enabled' : 'disabled';
+        header("Location: users.php?status_changed={$statusMessage}");
+        exit();
+    }
 }
 
 $editSuccess = $editError = null;
@@ -52,15 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $id = intval($_POST['user_id']);
     $fields = [
         'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
-        'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
+        'school', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
-    $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
     $stmt = $db->prepare("UPDATE users SET
-        first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+        first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
         WHERE id=?");
     $params = array_values($data);
     $params[] = $id;
@@ -125,14 +133,14 @@ include __DIR__ . '/components/dashboard-header.php';
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['deleted'])): ?>
+    <?php if (isset($_GET['status_changed'])): ?>
         <div class="bg-green-50 border border-green-200 rounded-md p-4">
             <div class="flex">
                 <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 <div class="ml-3">
-                    <p class="text-sm text-green-700">User deleted successfully!</p>
+                    <p class="text-sm text-green-700">User account <?= htmlspecialchars($_GET['status_changed']) ?> successfully!</p>
                 </div>
             </div>
         </div>
@@ -220,17 +228,10 @@ include __DIR__ . '/components/dashboard-header.php';
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-6">
-                        <div class="flex items-center">
-                            <input type="checkbox" name="hcb_member" value="1" id="hcb_member"
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="active_member" value="1" id="active_member" checked
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
-                        </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="active_member" value="1" id="active_member" checked
+                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                        <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                     </div>
                     
                     <div>
@@ -328,17 +329,10 @@ include __DIR__ . '/components/dashboard-header.php';
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-6">
-                        <div class="flex items-center">
-                            <input type="checkbox" name="hcb_member" value="1" id="hcb_member" <?= $editUser['hcb_member'] ? 'checked' : '' ?>
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
-                        </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
+                               class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                        <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                     </div>
                     
                     <div>

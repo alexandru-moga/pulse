@@ -234,19 +234,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member_id'])) {
         $fields['password'] = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
         $fields['role'] = 'Member';
         $fields['active_member'] = 1;
-        $fields['hcb_member'] = 0;
         $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
         $exists->execute([$fields['email']]);
         if ($exists->fetch()) {
             $error = "A user with this email already exists.";
         } else {
             $stmt = $db->prepare("INSERT INTO users
-                (first_name, last_name, email, password, school, birthdate, class, phone, role, description, active_member, hcb_member)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (first_name, last_name, email, password, school, birthdate, class, phone, role, description, active_member)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $fields['first_name'], $fields['last_name'], $fields['email'], $fields['password'],
                 $fields['school'], $fields['birthdate'], $fields['class'],
-                $fields['phone'], $fields['role'], $fields['description'], $fields['active_member'], $fields['hcb_member']
+                $fields['phone'], $fields['role'], $fields['description'], $fields['active_member']
             ]);
             $success = "User added as member!";
         }

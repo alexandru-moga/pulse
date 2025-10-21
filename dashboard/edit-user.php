@@ -18,12 +18,11 @@ $editSuccess = $editError = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     $fields = [
         'first_name', 'last_name', 'email', 'discord_id', 'slack_id', 'github_username',
-        'school', 'hcb_member', 'birthdate', 'class', 'phone', 'role', 'description'
+        'school', 'birthdate', 'class', 'phone', 'role', 'description'
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
     $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
-    $data['hcb_member'] = isset($_POST['hcb_member']) ? 1 : 0;
 
     // Check if email already exists for another user
     $exists = $db->prepare("SELECT id FROM users WHERE email=? AND id != ?");
@@ -33,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     } else {
         $stmt = $db->prepare("UPDATE users SET
             first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, 
-            school=?, hcb_member=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+            school=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
             WHERE id=?");
         $params = array_values($data);
         $params[] = $userId;
@@ -263,17 +262,10 @@ include __DIR__ . '/components/dashboard-header.php';
                             </div>
                         </div>
                         
-                        <div class="mt-4 flex items-center space-x-6">
-                            <div class="flex items-center">
-                                <input type="checkbox" name="hcb_member" value="1" id="hcb_member" <?= $editUser['hcb_member'] ? 'checked' : '' ?>
-                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                                <label for="hcb_member" class="ml-2 block text-sm text-gray-900">HCB Member</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                                <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
-                            </div>
+                        <div class="mt-4 flex items-center">
+                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
+                                   class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                         </div>
                     </div>
 
@@ -303,23 +295,38 @@ include __DIR__ . '/components/dashboard-header.php';
             </div>
         </div>
 
-        <!-- Danger Zone -->
-        <div class="bg-white rounded-lg shadow border-2 border-red-200">
-            <div class="px-6 py-4 bg-red-50 border-b border-red-200">
-                <h3 class="text-lg font-medium text-red-900">Danger Zone</h3>
+        <!-- Account Status Toggle -->
+        <div class="bg-white rounded-lg shadow border-2 border-yellow-200">
+            <div class="px-6 py-4 bg-yellow-50 border-b border-yellow-200">
+                <h3 class="text-lg font-medium text-yellow-900">Account Status</h3>
             </div>
             <div class="p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h4 class="text-sm font-medium text-gray-900">Delete User</h4>
-                        <p class="text-sm text-gray-600 mt-1">Permanently delete this user and all associated data. This action cannot be undone.</p>
+                        <h4 class="text-sm font-medium text-gray-900">
+                            <?= $editUser['active_member'] ? 'Disable Account' : 'Enable Account' ?>
+                        </h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            <?php if ($editUser['active_member']): ?>
+                                Disabling this account will prevent the user from accessing most features. They will have limited access to view their profile and projects.
+                            <?php else: ?>
+                                Enable this account to restore full access to all features and functionality.
+                            <?php endif; ?>
+                        </p>
                     </div>
-                    <button type="button" onclick="confirmDelete(<?= $editUser['id'] ?>)"
-                            class="inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Delete User
+                    <button type="button" onclick="confirmToggleStatus(<?= $editUser['id'] ?>, <?= $editUser['active_member'] ? 'false' : 'true' ?>)"
+                            class="inline-flex items-center px-4 py-2 border <?= $editUser['active_member'] ? 'border-red-300 text-red-700 hover:bg-red-50' : 'border-green-300 text-green-700 hover:bg-green-50' ?> shadow-sm text-sm font-medium rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 <?= $editUser['active_member'] ? 'focus:ring-red-500' : 'focus:ring-green-500' ?>">
+                        <?php if ($editUser['active_member']): ?>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                            </svg>
+                            Disable Account
+                        <?php else: ?>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Enable Account
+                        <?php endif; ?>
                     </button>
                 </div>
             </div>
@@ -328,9 +335,14 @@ include __DIR__ . '/components/dashboard-header.php';
 </div>
 
 <script>
-function confirmDelete(userId) {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-        window.location.href = '<?= $settings['site_url'] ?>/dashboard/users.php?delete=' + userId;
+function confirmToggleStatus(userId, willEnable) {
+    const action = willEnable ? 'enable' : 'disable';
+    const message = willEnable 
+        ? 'Are you sure you want to enable this user account? The user will regain full access.'
+        : 'Are you sure you want to disable this user account? The user will have limited access.';
+    
+    if (confirm(message)) {
+        window.location.href = '<?= $settings['site_url'] ?>/dashboard/users.php?toggle_status=' + userId;
     }
 }
 </script>
