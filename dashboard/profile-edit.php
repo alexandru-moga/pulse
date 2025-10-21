@@ -267,12 +267,111 @@ include __DIR__ . '/components/dashboard-header.php';
                     <div class="relative flex">
                         <?php 
                         $userCountryCode = $currentUser->country_code ?? '+40';
-                        $countryFlags = [
-                            '+1' => '🇺🇸', '+44' => '🇬🇧', '+40' => '🇷🇴', '+49' => '🇩🇪', 
-                            '+33' => '🇫🇷', '+39' => '🇮🇹', '+34' => '🇪🇸', '+61' => '🇦🇺', '+91' => '🇮🇳',
-                            '+48' => '🇵🇱'
+                        $countries = [
+                            ['+1', '🇺🇸', 'United States'],
+                            ['+1', '🇨🇦', 'Canada'],
+                            ['+7', '🇷🇺', 'Russia'],
+                            ['+20', '🇪🇬', 'Egypt'],
+                            ['+27', '🇿🇦', 'South Africa'],
+                            ['+30', '🇬🇷', 'Greece'],
+                            ['+31', '🇳🇱', 'Netherlands'],
+                            ['+32', '🇧🇪', 'Belgium'],
+                            ['+33', '🇫🇷', 'France'],
+                            ['+34', '🇪🇸', 'Spain'],
+                            ['+36', '🇭🇺', 'Hungary'],
+                            ['+39', '🇮🇹', 'Italy'],
+                            ['+40', '🇷�', 'Romania'],
+                            ['+41', '🇨🇭', 'Switzerland'],
+                            ['+43', '🇦🇹', 'Austria'],
+                            ['+44', '🇬🇧', 'United Kingdom'],
+                            ['+45', '🇩🇰', 'Denmark'],
+                            ['+46', '🇸🇪', 'Sweden'],
+                            ['+47', '�🇴', 'Norway'],
+                            ['+48', '🇵🇱', 'Poland'],
+                            ['+49', '🇩🇪', 'Germany'],
+                            ['+51', '�🇪', 'Peru'],
+                            ['+52', '🇲🇽', 'Mexico'],
+                            ['+53', '🇨🇺', 'Cuba'],
+                            ['+54', '🇦🇷', 'Argentina'],
+                            ['+55', '🇧🇷', 'Brazil'],
+                            ['+56', '🇨🇱', 'Chile'],
+                            ['+57', '🇨🇴', 'Colombia'],
+                            ['+58', '🇻🇪', 'Venezuela'],
+                            ['+60', '🇲🇾', 'Malaysia'],
+                            ['+61', '🇦🇺', 'Australia'],
+                            ['+62', '🇮🇩', 'Indonesia'],
+                            ['+63', '🇵🇭', 'Philippines'],
+                            ['+64', '🇳🇿', 'New Zealand'],
+                            ['+65', '🇸🇬', 'Singapore'],
+                            ['+66', '🇹🇭', 'Thailand'],
+                            ['+81', '🇯🇵', 'Japan'],
+                            ['+82', '�🇷', 'South Korea'],
+                            ['+84', '🇻🇳', 'Vietnam'],
+                            ['+86', '🇨🇳', 'China'],
+                            ['+90', '🇹🇷', 'Turkey'],
+                            ['+91', '🇮🇳', 'India'],
+                            ['+92', '🇵🇰', 'Pakistan'],
+                            ['+93', '🇦🇫', 'Afghanistan'],
+                            ['+94', '🇱🇰', 'Sri Lanka'],
+                            ['+95', '🇲🇲', 'Myanmar'],
+                            ['+98', '🇮🇷', 'Iran'],
+                            ['+212', '�🇦', 'Morocco'],
+                            ['+213', '🇩🇿', 'Algeria'],
+                            ['+216', '�🇹🇳', 'Tunisia'],
+                            ['+218', '🇱🇾', 'Libya'],
+                            ['+220', '🇬🇲', 'Gambia'],
+                            ['+221', '🇸🇳', 'Senegal'],
+                            ['+234', '🇳🇬', 'Nigeria'],
+                            ['+254', '🇰🇪', 'Kenya'],
+                            ['+351', '�🇹', 'Portugal'],
+                            ['+352', '🇱🇺', 'Luxembourg'],
+                            ['+353', '🇮�🇪', 'Ireland'],
+                            ['+354', '��🇸', 'Iceland'],
+                            ['+355', '🇦🇱', 'Albania'],
+                            ['+356', '🇲🇹', 'Malta'],
+                            ['+357', '🇨🇾', 'Cyprus'],
+                            ['+358', '🇫🇮', 'Finland'],
+                            ['+359', '🇧🇬', 'Bulgaria'],
+                            ['+370', '🇱🇹', 'Lithuania'],
+                            ['+371', '🇱🇻', 'Latvia'],
+                            ['+372', '🇪🇪', 'Estonia'],
+                            ['+373', '🇲🇩', 'Moldova'],
+                            ['+374', '🇦🇲', 'Armenia'],
+                            ['+375', '🇧🇾', 'Belarus'],
+                            ['+376', '🇦�', 'Andorra'],
+                            ['+377', '🇲🇨', 'Monaco'],
+                            ['+380', '�🇺🇦', 'Ukraine'],
+                            ['+381', '🇷🇸', 'Serbia'],
+                            ['+382', '🇲🇪', 'Montenegro'],
+                            ['+383', '🇽🇰', 'Kosovo'],
+                            ['+385', '🇭🇷', 'Croatia'],
+                            ['+386', '🇸🇮', 'Slovenia'],
+                            ['+387', '🇧🇦', 'Bosnia and Herzegovina'],
+                            ['+389', '🇲🇰', 'North Macedonia'],
+                            ['+420', '🇨🇿', 'Czech Republic'],
+                            ['+421', '🇸🇰', 'Slovakia'],
+                            ['+423', '��🇮', 'Liechtenstein'],
+                            ['+971', '�🇪', 'United Arab Emirates'],
+                            ['+972', '🇮🇱', 'Israel'],
+                            ['+973', '🇧🇭', 'Bahrain'],
+                            ['+974', '🇶🇦', 'Qatar'],
+                            ['+975', '🇧🇹', 'Bhutan'],
+                            ['+976', '🇲�🇳', 'Mongolia'],
+                            ['+977', '🇳🇵', 'Nepal'],
+                            ['+992', '🇹🇯', 'Tajikistan'],
+                            ['+993', '🇹🇲', 'Turkmenistan'],
+                            ['+994', '🇦🇿', 'Azerbaijan'],
+                            ['+995', '🇬🇪', 'Georgia'],
+                            ['+996', '🇰🇬', 'Kyrgyzstan'],
+                            ['+998', '��', 'Uzbekistan']
                         ];
-                        $userFlag = $countryFlags[$userCountryCode] ?? '🇷🇴';
+                        $userFlag = '🇷🇴';
+                        foreach ($countries as $c) {
+                            if ($c[0] == $userCountryCode) {
+                                $userFlag = $c[1];
+                                break;
+                            }
+                        }
                         ?>
                         <button id="dropdown-phone-button-profile" type="button" class="flex-shrink-0 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-500 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-blue-500">
                             <span id="selected-flag-profile" class="text-lg mr-1"><?= $userFlag ?></span>
@@ -280,87 +379,17 @@ include __DIR__ . '/components/dashboard-header.php';
                         </button>
                         <div id="dropdown-phone-profile" class="absolute top-full left-0 z-20 mt-2 hidden bg-white dark:bg-gray-700 divide-y divide-gray-100 dark:divide-gray-600 rounded-lg shadow-lg w-72 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-600">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-phone-button-profile">
+                                <?php foreach ($countries as list($code, $flag, $name)): ?>
                                 <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+1" data-flag="🇺🇸">
+                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="<?= htmlspecialchars($code) ?>" data-flag="<?= htmlspecialchars($flag) ?>">
                                         <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇺🇸</span>
-                                            <span class="flex-1 text-left font-medium">United States</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+1</span>
+                                            <span class="text-xl mr-3"><?= $flag ?></span>
+                                            <span class="flex-1 text-left font-medium"><?= htmlspecialchars($name) ?></span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-xs"><?= htmlspecialchars($code) ?></span>
                                         </span>
                                     </button>
                                 </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+44" data-flag="🇬🇧">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇬🇧</span>
-                                            <span class="flex-1 text-left font-medium">United Kingdom</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+44</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+40" data-flag="🇷🇴">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇷🇴</span>
-                                            <span class="flex-1 text-left font-medium">Romania</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+40</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+49" data-flag="🇩🇪">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇩🇪</span>
-                                            <span class="flex-1 text-left font-medium">Germany</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+49</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+33" data-flag="🇫🇷">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇫🇷</span>
-                                            <span class="flex-1 text-left font-medium">France</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+33</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+39" data-flag="🇮🇹">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇮🇹</span>
-                                            <span class="flex-1 text-left font-medium">Italy</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+39</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+34" data-flag="🇪🇸">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇪🇸</span>
-                                            <span class="flex-1 text-left font-medium">Spain</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+34</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+61" data-flag="🇦🇺">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇦🇺</span>
-                                            <span class="flex-1 text-left font-medium">Australia</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+61</span>
-                                        </span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="inline-flex w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-600" data-country-code="+91" data-flag="🇮🇳">
-                                        <span class="inline-flex items-center w-full">
-                                            <span class="text-xl mr-3">🇮🇳</span>
-                                            <span class="flex-1 text-left font-medium">India</span>
-                                            <span class="text-gray-500 dark:text-gray-400 text-xs">+91</span>
-                                        </span>
-                                    </button>
-                                </li>
+                                <?php endforeach; ?>
                             </ul>
                         </div>
                         <input type="hidden" name="country_code" id="country_code_profile" value="<?= htmlspecialchars($userCountryCode) ?>">
