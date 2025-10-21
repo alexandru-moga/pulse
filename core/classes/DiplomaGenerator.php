@@ -125,14 +125,23 @@ class DiplomaGenerator {
         $fullPath = __DIR__ . '/../../' . $templatePath;
         
         if (!file_exists($fullPath)) {
-            throw new Exception('Template file not found: ' . $templatePath);
+            throw new Exception('Template file not found at path: ' . $fullPath . ' (relative: ' . $templatePath . ')');
+        }
+        
+        // Check if file is readable
+        if (!is_readable($fullPath)) {
+            throw new Exception('Template file is not readable: ' . $fullPath);
         }
         
         // Read the PDF content as binary
         $pdfContent = file_get_contents($fullPath);
         
         if ($pdfContent === false) {
-            throw new Exception('Could not read template file');
+            throw new Exception('Could not read template file: ' . $fullPath);
+        }
+        
+        if (strlen($pdfContent) === 0) {
+            throw new Exception('Template file is empty: ' . $fullPath);
         }
         
         // Replace text placeholders in PDF
