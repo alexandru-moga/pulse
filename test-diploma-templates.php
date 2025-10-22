@@ -146,21 +146,40 @@ if (empty($templates)) {
                 
                 // Check for placeholders
                 $content = file_get_contents($fullPath);
-                $hasFirstName = strpos($content, 'First Name') !== false || strpos($content, 'FirstName') !== false || strpos($content, 'FIRST NAME') !== false;
-                $hasLastName = strpos($content, 'Last Name') !== false || strpos($content, 'LastName') !== false || strpos($content, 'LAST NAME') !== false;
+                
+                // Also check in decompressed streams if PDF is compressed
+                $decompressedText = '';
+                $hasCompression = strpos($content, '/FlateDecode') !== false;
+                
+                if ($hasCompression) {
+                    // Try to decompress streams and extract text
+                    preg_match_all('/stream\s+(.*?)\s+endstream/s', $content, $streamMatches);
+                    foreach ($streamMatches[1] as $stream) {
+                        $decompressed = @gzuncompress($stream);
+                        if ($decompressed !== false) {
+                            $decompressedText .= $decompressed;
+                        }
+                    }
+                }
+                
+                // Combine both raw and decompressed content for searching
+                $searchContent = $content . ' ' . $decompressedText;
+                
+                $hasFirstName = strpos($searchContent, 'First Name') !== false || strpos($searchContent, 'FirstName') !== false || strpos($searchContent, 'FIRST NAME') !== false;
+                $hasLastName = strpos($searchContent, 'Last Name') !== false || strpos($searchContent, 'LastName') !== false || strpos($searchContent, 'LAST NAME') !== false;
                 
                 // Detailed placeholder analysis
                 $placeholders = [
-                    'First Name' => strpos($content, 'First Name') !== false,
-                    'Last Name' => strpos($content, 'Last Name') !== false,
-                    'FirstName' => strpos($content, 'FirstName') !== false,
-                    'LastName' => strpos($content, 'LastName') !== false,
-                    'FIRST NAME' => strpos($content, 'FIRST NAME') !== false,
-                    'LAST NAME' => strpos($content, 'LAST NAME') !== false,
-                    'First_Name' => strpos($content, 'First_Name') !== false,
-                    'Last_Name' => strpos($content, 'Last_Name') !== false,
-                    '[First Name]' => strpos($content, '[First Name]') !== false,
-                    '[Last Name]' => strpos($content, '[Last Name]') !== false,
+                    'First Name' => strpos($searchContent, 'First Name') !== false,
+                    'Last Name' => strpos($searchContent, 'Last Name') !== false,
+                    'FirstName' => strpos($searchContent, 'FirstName') !== false,
+                    'LastName' => strpos($searchContent, 'LastName') !== false,
+                    'FIRST NAME' => strpos($searchContent, 'FIRST NAME') !== false,
+                    'LAST NAME' => strpos($searchContent, 'LAST NAME') !== false,
+                    'First_Name' => strpos($searchContent, 'First_Name') !== false,
+                    'Last_Name' => strpos($searchContent, 'Last_Name') !== false,
+                    '[First Name]' => strpos($searchContent, '[First Name]') !== false,
+                    '[Last Name]' => strpos($searchContent, '[Last Name]') !== false,
                 ];
                 
                 echo "<tr><td colspan='2' style='background:#f0f0f0; font-weight:bold; padding:10px;'>Placeholder Detection</td></tr>";
@@ -205,26 +224,41 @@ if (empty($templates)) {
                 echo "<tr><td>Text Objects:</td><td>{$textObjects}</td></tr>";
                 
                 // Try to extract some visible text for preview
-                echo "<tr><td colspan='2' style='background:#f0f0f0; font-weight:bold; padding:10px;'>Sample Text (first 500 chars of raw content)</td></tr>";
+                echo "<tr><td colspan='2' style='background:#f0f0f0; font-weight:bold; padding:10px;'>Sample Text Extract</td></tr>";
                 
                 // Extract readable text (very basic)
                 $sampleText = '';
-                preg_match_all('/\((.*?)\)/', substr($content, 0, 5000), $textMatches);
-                if (!empty($textMatches[1])) {
-                    $sampleText = implode(' ', array_slice($textMatches[1], 0, 10));
+                
+                // Try from decompressed content first
+                if (!empty($decompressedText)) {
+                    preg_match_all('/\((.*?)\)/', substr($decompressedText, 0, 10000), $textMatches);
+                    if (!empty($textMatches[1])) {
+                        $sampleText = implode(' ', array_slice($textMatches[1], 0, 15));
+                    }
+                }
+                
+                // Fallback to raw content
+                if (empty($sampleText)) {
+                    preg_match_all('/\((.*?)\)/', substr($content, 0, 5000), $textMatches);
+                    if (!empty($textMatches[1])) {
+                        $sampleText = implode(' ', array_slice($textMatches[1], 0, 10));
+                    }
+                }
+                
+                if (!empty($sampleText)) {
                     $sampleText = substr($sampleText, 0, 500);
                     echo "<tr><td colspan='2'><pre style='white-space:pre-wrap; font-size:0.85em; background:#fff; padding:10px; border:1px solid #ddd;'>" . htmlspecialchars($sampleText) . "</pre></td></tr>";
                 } else {
-                    echo "<tr><td colspan='2'><span class='warning'>⚠ Could not extract readable text (likely compressed)</span></td></tr>";
+                    echo "<tr><td colspan='2'><span class='warning'>⚠ Could not extract readable text</span></td></tr>";
                 }
                 
                 // Recommendation
                 echo "<tr><td colspan='2' style='background:#ffffcc; padding:10px;'>";
-                if ($foundAny && !$hasFlate) {
+                if ($foundAny && !$hasCompression) {
                     echo "<strong style='color:green;'>✓ This template should work with text replacement!</strong>";
-                } elseif ($foundAny && $hasFlate) {
-                    echo "<strong style='color:orange;'>⚠ Template has placeholders but uses compression. Text replacement may be unreliable.</strong><br>";
-                    echo "Consider re-exporting PDF without compression or using form fields.";
+                } elseif ($foundAny && $hasCompression) {
+                    echo "<strong style='color:green;'>✓ Template has placeholders in compressed streams!</strong><br>";
+                    echo "The system will automatically decompress, replace text, and recompress. This should work!";
                 } elseif ($hasAcroForm) {
                     echo "<strong style='color:orange;'>⚠ This PDF uses form fields instead of text.</strong><br>";
                     echo "The system needs to be updated to fill form fields, or re-create the template with plain text.";

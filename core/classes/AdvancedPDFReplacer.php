@@ -37,18 +37,42 @@ class AdvancedPDFReplacer {
      * Process compressed streams in PDF
      */
     private static function processCompressedStreams($content, $replacements) {
-        // Pattern to find stream objects
-        $pattern = '/stream\s+(.*?)\s+endstream/s';
+        $replacementCount = 0;
         
-        $modified = preg_replace_callback($pattern, function($matches) use ($replacements) {
-            $streamData = $matches[1];
+        // Pattern to find stream objects with their object numbers
+        $pattern = '/(\d+\s+\d+\s+obj.*?)stream\r?\n(.*?)\r?\nendstream/s';
+        
+        $modified = preg_replace_callback($pattern, function($matches) use ($replacements, &$replacementCount) {
+            $objectHeader = $matches[1];
+            $streamData = $matches[2];
             
-            // Try to decompress if it's FlateDecode
+            // Try multiple decompression methods
+            $decompressed = false;
+            
+            // Method 1: gzuncompress (zlib format)
             $decompressed = @gzuncompress($streamData);
             
+            // Method 2: gzinflate (raw deflate - most common in PDFs)
+            if ($decompressed === false) {
+                $decompressed = @gzinflate($streamData);
+            }
+            
+            // Method 3: Try with different zlib/deflate headers
+            if ($decompressed === false) {
+                // Add zlib header if missing
+                $decompressed = @gzinflate(substr($streamData, 2));
+            }
+            
             if ($decompressed !== false) {
+                $modified = false;
+                
                 // Successfully decompressed, now replace text
                 foreach ($replacements as $search => $replace) {
+                    // Check if this stream contains the search text
+                    if (strpos($decompressed, $search) === false) {
+                        continue;
+                    }
+                    
                     // Ensure same length to prevent PDF corruption
                     $searchLen = strlen($search);
                     $replaceLen = strlen($replace);
@@ -60,20 +84,32 @@ class AdvancedPDFReplacer {
                     }
                     
                     // Replace in various PDF text formats
+                    $before = $decompressed;
                     $decompressed = str_replace("($search)", "($replace)", $decompressed);
                     $decompressed = str_replace("<" . bin2hex($search) . ">", "<" . bin2hex($replace) . ">", $decompressed);
                     $decompressed = str_replace($search, $replace, $decompressed);
+                    
+                    if ($before !== $decompressed) {
+                        $modified = true;
+                        $replacementCount++;
+                    }
                 }
                 
-                // Recompress
-                $recompressed = gzcompress($decompressed);
-                
-                return 'stream' . "\n" . $recompressed . "\n" . 'endstream';
+                if ($modified) {
+                    // Recompress using deflate (matching PDF FlateDecode format)
+                    $recompressed = gzcompress($decompressed, 9);
+                    // Remove zlib header (first 2 bytes) and trailer (last 4 bytes)
+                    $recompressed = substr($recompressed, 2, -4);
+                    
+                    return $objectHeader . 'stream' . "\n" . $recompressed . "\n" . 'endstream';
+                }
             }
             
-            // Could not decompress, return original
+            // Could not decompress or no modifications needed, return original
             return $matches[0];
         }, $content);
+        
+        error_log("AdvancedPDFReplacer: Made $replacementCount replacements in compressed streams");
         
         return $modified;
     }
