@@ -145,11 +145,28 @@ class DiplomaGenerator {
             throw new Exception('Template file is empty: ' . $fullPath);
         }
         
-        // Try TCPDF-based method first (more reliable)
-        try {
-            return $this->generateWithTCPDF($fullPath, $firstName, $lastName);
-        } catch (Exception $e) {
-            error_log("TCPDF generation failed, falling back to binary replacement: " . $e->getMessage());
+        // Check if PDF has compressed streams
+        $hasCompression = strpos($pdfContent, '/FlateDecode') !== false;
+        
+        if ($hasCompression) {
+            // Try advanced PDF replacement with decompression
+            try {
+                require_once __DIR__ . '/AdvancedPDFReplacer.php';
+                
+                $replacements = [
+                    'First Name' => $firstName,
+                    'Last Name' => $lastName,
+                    'FIRST NAME' => strtoupper($firstName),
+                    'LAST NAME' => strtoupper($lastName),
+                    'FirstName' => $firstName,
+                    'LastName' => $lastName,
+                ];
+                
+                return AdvancedPDFReplacer::replaceText($fullPath, $replacements);
+            } catch (Exception $e) {
+                error_log("Advanced PDF replacement failed: " . $e->getMessage());
+                // Fall through to basic replacement
+            }
         }
         
         // Fallback: Try direct binary replacement (works for simple PDFs)
@@ -226,40 +243,14 @@ class DiplomaGenerator {
     /**
      * Generate PDF using TCPDF with template as background
      * This is more reliable than binary replacement
+     * NOTE: This method is currently not fully implemented
+     * It will throw an exception to fall back to binary replacement
      */
     private function generateWithTCPDF($templatePath, $firstName, $lastName) {
-        require_once __DIR__ . '/../../lib/tcpdf/tcpdf.php';
-        
-        // Create new PDF document
-        $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
-        
-        // Set document information
-        $pdf->SetCreator('Daydream Timisoara');
-        $pdf->SetAuthor('Daydream Timisoara');
-        $pdf->SetTitle('Certificate');
-        
-        // Remove default header/footer
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        
-        // Set margins to 0 for full page background
-        $pdf->SetMargins(0, 0, 0);
-        $pdf->SetAutoPageBreak(false, 0);
-        
-        // Add a page
-        $pdf->AddPage();
-        
-        // Get page dimensions
-        $pageWidth = $pdf->getPageWidth();
-        $pageHeight = $pdf->getPageHeight();
-        
-        // Import the template PDF as background
-        // Note: TCPDF doesn't support importing PDFs directly
-        // So we'll use setImageScale and Image if template is converted to image
-        
-        // For now, we need to parse the template to find text positions
-        // This is complex, so we'll throw an exception to fall back to binary method
-        throw new Exception('TCPDF method requires template position mapping');
+        // TCPDF doesn't natively support importing PDF pages as templates
+        // Would need FPDI extension or similar
+        // For now, fall back to binary replacement method
+        throw new Exception('TCPDF method requires FPDI extension for PDF import');
     }
     
     /**

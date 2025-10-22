@@ -265,7 +265,7 @@ if (empty($templates)) {
 
 // Check upload directory
 echo "<h2>Upload Directory Check</h2>";
-$uploadDir = __DIR__ . '/uploads/templates';
+$uploadDir = __DIR__ . '/uploads/diploma-templates';
 echo "<div class='template'>";
 echo "<table>";
 echo "<tr><td>Upload Directory:</td><td>{$uploadDir}</td></tr>";
