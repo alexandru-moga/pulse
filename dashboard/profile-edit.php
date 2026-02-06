@@ -681,7 +681,7 @@ include __DIR__ . '/components/dashboard-header.php';
                                     </button>
                                 </form>
                             <?php else: ?>
-                                <a href="<?= htmlspecialchars($hackclub->generateAuthUrl(false)) ?>" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Link Hack Club">
+                                <a href="<?= $settings['site_url'] ?>/auth/hackclub/?action=link" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Link Hack Club">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>

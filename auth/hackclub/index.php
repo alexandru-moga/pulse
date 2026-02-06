@@ -27,9 +27,12 @@ if (isset($_GET['error'])) {
 $code = $_GET['code'] ?? '';
 $state = $_GET['state'] ?? '';
 
+// If no code/state, this is an initial OAuth request (not a callback)
 if (empty($code) || empty($state)) {
-    $_SESSION['hackclub_error'] = 'Missing authorization code or state';
-    header('Location: /dashboard/login.php');
+    $isLogin = ($_GET['action'] ?? 'link') === 'login';
+    error_log("Hack Club OAuth: Starting flow, isLogin: " . ($isLogin ? 'true' : 'false'));
+    $authUrl = $hackclub->generateAuthUrl($isLogin);
+    header('Location: ' . $authUrl);
     exit();
 }
 
