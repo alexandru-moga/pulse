@@ -280,6 +280,7 @@ class HackClubOAuth
     {
         $stmt = $this->db->prepare("SELECT * FROM hackclub_links WHERE user_id = ?");
         $stmt->execute([$userId]);
-        return $stmt->fetch();
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 }

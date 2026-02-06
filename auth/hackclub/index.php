@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../core/init.php';
 require_once __DIR__ . '/../../core/classes/HackClubOAuth.php';
 
-global $db;
+global $db, $settings;
 
 $hackclub = new HackClubOAuth($db);
 

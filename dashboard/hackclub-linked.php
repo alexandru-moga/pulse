@@ -9,7 +9,7 @@ $hackclub = new HackClubOAuth($db);
 $hackclubLink = $hackclub->getLinkedAccount($currentUser->id);
 
 if (!$hackclubLink) {
-    header('Location: /dashboard/index.php');
+    header('Location: ' . $settings['site_url'] . '/dashboard/index.php');
     exit();
 }
 
