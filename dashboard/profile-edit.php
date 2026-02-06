@@ -4,6 +4,7 @@ require_once __DIR__ . '/../core/classes/DiscordOAuth.php';
 require_once __DIR__ . '/../core/classes/GitHubOAuth.php';
 require_once __DIR__ . '/../core/classes/GoogleOAuth.php';
 require_once __DIR__ . '/../core/classes/SlackOAuth.php';
+require_once __DIR__ . '/../core/classes/HackClubOAuth.php';
 checkActiveOrLimitedAccess();
 
 global $db, $currentUser, $settings;
@@ -29,12 +30,14 @@ $discord = new DiscordOAuth($db);
 $github = new GitHubOAuth($db);
 $google = new GoogleOAuth($db);
 $slack = new SlackOAuth($db);
+$hackclub = new HackClubOAuth($db);
 
 // Check if integrations are configured
 $discordConfigured = $discord->isConfigured();
 $githubConfigured = $github->isConfigured();
 $googleConfigured = $google->isConfigured();
 $slackConfigured = $slack->isConfigured();
+$hackclubConfigured = $hackclub->isConfigured();
 
 // Count enabled integrations for responsive grid
 $enabledIntegrations = 0;
@@ -42,6 +45,7 @@ if ($discordConfigured) $enabledIntegrations++;
 if ($githubConfigured) $enabledIntegrations++;
 if ($googleConfigured) $enabledIntegrations++;
 if ($slackConfigured) $enabledIntegrations++;
+if ($hackclubConfigured) $enabledIntegrations++;
 
 // Set grid classes based on number of enabled integrations
 $gridClasses = match ($enabledIntegrations) {
@@ -49,6 +53,7 @@ $gridClasses = match ($enabledIntegrations) {
     2 => 'grid grid-cols-1 sm:grid-cols-2',
     3 => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
     4 => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+    5 => 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5',
     default => 'grid grid-cols-1'
 };
 
@@ -56,6 +61,7 @@ $discordLink = $discord->getUserDiscordLink($currentUser->id);
 $githubLink = $github->getUserGitHubLink($currentUser->id);
 $googleLink = $google->getUserGoogleLink($currentUser->id);
 $slackLink = $slack->getUserSlackLink($currentUser->id);
+$hackclubLink = $hackclub->getLinkedAccount($currentUser->id);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['unlink_discord'])) {
@@ -74,6 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slack->unlinkSlackAccount($currentUser->id);
         $success = "Slack account unlinked successfully!";
         $slackLink = null;
+    } elseif (isset($_POST['unlink_hackclub'])) {
+        $hackclub->unlinkAccount($currentUser->id);
+        $success = "Hack Club account unlinked successfully!";
+        $hackclubLink = null;
     } else {
         $newFirst = trim($_POST['first_name'] ?? '');
         $newLast = trim($_POST['last_name'] ?? '');
@@ -631,6 +641,47 @@ include __DIR__ . '/components/dashboard-header.php';
                                 </form>
                             <?php else: ?>
                                 <a href="<?= $settings['site_url'] ?>/auth/slack/?action=link" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300" title="Link Slack">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($hackclubConfigured): ?>
+                    <div class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                            </svg>
+                            <div>
+                                <p class="text-xs font-medium text-gray-900 dark:text-white">Hack Club</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <?php if ($hackclubLink): ?>
+                                        <?= htmlspecialchars($hackclubLink['first_name'] . ' ' . $hackclubLink['last_name']) ?>
+                                        <?php if ($hackclubLink['ysws_eligible']): ?>
+                                            <span class="inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 ml-1">YSWS</span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        Not linked
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-1">
+                            <?php if ($hackclubLink): ?>
+                                <form method="POST" class="inline">
+                                    <input type="hidden" name="unlink_hackclub" value="1">
+                                    <button type="submit" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Unlink Hack Club">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <a href="<?= htmlspecialchars($hackclub->generateAuthUrl(false)) ?>" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Link Hack Club">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>

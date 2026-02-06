@@ -45,8 +45,8 @@ try {
     // Check if this was a login or account linking
     if (isset($result['success']) && $result['success']) {
         // Account linking successful
-        $_SESSION['success'] = 'Hack Club account linked successfully!';
-        header('Location: /dashboard/hackclub-linked.php');
+        $_SESSION['account_link_success'] = 'Hack Club account linked successfully!';
+        header('Location: /dashboard/profile-edit.php');
     } else {
         // Login successful
         header('Location: /dashboard/index.php');
