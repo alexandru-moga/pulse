@@ -18,7 +18,6 @@ class User
     public $role;
     public $join_date;
     public $description;
-    public $active_member;
     public $profile_image;
     public $bio;
     public $profile_public;

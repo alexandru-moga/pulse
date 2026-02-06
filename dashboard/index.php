@@ -14,12 +14,12 @@ $pageTitle = 'Dashboard';
 include __DIR__ . '/components/dashboard-header.php';
 
 $totalProjects = $db->query("SELECT COUNT(*) FROM projects")->fetchColumn();
-$totalUsers = $db->query("SELECT COUNT(*) FROM users WHERE active_member = 1")->fetchColumn();
+$totalUsers = $db->query("SELECT COUNT(*) FROM users WHERE role != 'Guest'")->fetchColumn();
 $totalApplications = $db->query("SELECT COUNT(*) FROM applications WHERE status = 'waiting'")->fetchColumn();
 $totalMessages = $db->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'waiting'")->fetchColumn();
 
 # For inactive/guest users, only count projects where status is not 'Not_participating'
-if ($currentUser->active_member == 0 || $currentUser->role == 'Guest') {
+if ($currentUser->role == 'Guest') {
     $stmt = $db->prepare("SELECT COUNT(*) FROM project_assignments WHERE user_id = ? AND status != 'Not_participating'");
     $stmt->execute([$currentUser->id]);
     $myProjectsCount = $stmt->fetchColumn();
@@ -53,7 +53,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                 </div>
             </div>
         </div>
-    <?php elseif ($currentUser->active_member == 0): ?>
+    <?php elseif ($currentUser->role == 'Guest'): ?>
         <!-- Inactive User Notice -->
         <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
             <div class="flex">
@@ -111,7 +111,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
             </div>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 <?= ($currentUser->active_member == 1 && $currentUser->role != 'Guest') ? 'lg:grid-cols-4' : 'lg:grid-cols-2' ?> gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 <?= $currentUser->role != 'Guest' ? 'lg:grid-cols-4' : 'lg:grid-cols-2' ?> gap-6">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -146,7 +146,7 @@ unset($_SESSION['profile_success'], $_SESSION['profile_errors'], $_SESSION['acco
                 </div>
             </div>
         </div>
-        <?php if ($currentUser->active_member == 1 && $currentUser->role != 'Guest'): ?>
+        <?php if ($currentUser->role != 'Guest'): ?>
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">

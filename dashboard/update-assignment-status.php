@@ -24,7 +24,7 @@ if (!$userId || !$projectId || !$status) {
 }
 
 // Validate that user exists and is active
-$stmt = $db->prepare("SELECT id, first_name, last_name FROM users WHERE id = ? AND active_member = 1");
+$stmt = $db->prepare("SELECT id, first_name, last_name FROM users WHERE id = ? AND role != 'Guest'");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 

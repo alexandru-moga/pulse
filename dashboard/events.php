@@ -16,7 +16,7 @@ include __DIR__ . '/components/dashboard-header.php';
 $today = date('Y-m-d');
 
 // For inactive users, show only events they applied for or participated in
-if ($currentUser->active_member == 0) {
+if ($currentUser->role == 'Guest') {
     $stmt = $db->prepare("
         SELECT DISTINCT e.* 
         FROM events e
@@ -74,7 +74,7 @@ function getAssignedYsws($db, $event_id)
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No events</h3>
-                <?php if (in_array($currentUser->role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1): ?>
+                <?php if (in_array($currentUser->role, ['Leader', 'Co-leader'])): ?>
                     <p class="mt-1 text-sm text-gray-500">Get started by creating a new event.</p>
                     <div class="mt-6">
                         <a href="<?= $settings['site_url'] ?>/dashboard/manage-events.php"
@@ -85,7 +85,7 @@ function getAssignedYsws($db, $event_id)
                             New Event
                         </a>
                     </div>
-                <?php elseif ($currentUser->active_member == 0): ?>
+                <?php elseif ($currentUser->role == 'Guest'): ?>
                     <p class="mt-1 text-sm text-gray-500">You did not participate in any events yet.</p>
                 <?php else: ?>
                     <p class="mt-1 text-sm text-gray-500">No events have been scheduled yet.</p>

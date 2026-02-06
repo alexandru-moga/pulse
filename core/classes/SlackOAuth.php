@@ -158,7 +158,7 @@ class SlackOAuth
             return ['success' => false, 'error' => 'No email found in Slack account'];
         }
 
-        $stmt = $this->db->prepare("SELECT u.* FROM users u INNER JOIN slack_links sl ON u.id = sl.user_id WHERE sl.slack_id = ? AND u.active_member = 1");
+        $stmt = $this->db->prepare("SELECT u.* FROM users u INNER JOIN slack_links sl ON u.id = sl.user_id WHERE sl.slack_id = ? AND u.role != 'Guest'");
         $stmt->execute([$userData['user']['id']]);
         $user = $stmt->fetch();
 

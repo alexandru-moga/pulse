@@ -40,7 +40,7 @@ try {
     if ($certificate['user_id'] == $currentUser->id) {
         // User is the certificate owner (active or inactive users can download their own)
         $isAuthorized = true;
-    } elseif (in_array($currentUser->role, ['Leader', 'Co-leader']) && $currentUser->active_member == 1) {
+    } elseif (in_array($currentUser->role, ['Leader', 'Co-leader'])) {
         // User is an active admin
         $isAuthorized = true;
     }

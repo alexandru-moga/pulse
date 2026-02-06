@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
-    $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
 
     $exists = $db->prepare("SELECT 1 FROM users WHERE email=?");
     $exists->execute([$data['email']]);
@@ -38,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         $createError = "A user with this email already exists.";
     } else {
         $stmt = $db->prepare("INSERT INTO users
-            (first_name, last_name, email, discord_id, slack_id, github_username, school, birthdate, class, phone, role, description, active_member)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            (first_name, last_name, email, discord_id, slack_id, github_username, school, birthdate, class, phone, role, description)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['first_name'],
             $data['last_name'],
@@ -52,8 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
             $data['class'],
             $data['phone'],
             $data['role'],
-            $data['description'],
-            $data['active_member']
+            $data['description']
         ]);
         header("Location: users.php?created=1");
         exit();
@@ -63,19 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
 // Toggle account status (enable/disable)
 if (isset($_GET['toggle_status']) && is_numeric($_GET['toggle_status'])) {
     $userId = intval($_GET['toggle_status']);
-    $user = $db->prepare("SELECT active_member FROM users WHERE id=?");
+    $user = $db->prepare("SELECT role FROM users WHERE id=?");
     $user->execute([$userId]);
     $userData = $user->fetch();
 
     if ($userData) {
-        $newStatus = $userData['active_member'] ? 0 : 1;
-        // When deactivating (newStatus = 0), set role to Guest
-        if ($newStatus === 0) {
-            $db->prepare("UPDATE users SET active_member=?, role='Guest' WHERE id=?")->execute([$newStatus, $userId]);
-        } else {
-            $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$newStatus, $userId]);
-        }
-        $statusMessage = $newStatus ? 'enabled' : 'disabled';
+        // Toggle between Guest (inactive) and Member (active)
+        $isGuest = $userData['role'] === 'Guest';
+        $newRole = $isGuest ? 'Member' : 'Guest';
+        $db->prepare("UPDATE users SET role=? WHERE id=?")->execute([$newRole, $userId]);
+        $statusMessage = $isGuest ? 'enabled' : 'disabled';
         header("Location: users.php?status_changed={$statusMessage}");
         exit();
     }
@@ -100,10 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
     ];
     $data = [];
     foreach ($fields as $f) $data[$f] = trim($_POST[$f] ?? '');
-    $data['active_member'] = isset($_POST['active_member']) ? 1 : 0;
 
     $stmt = $db->prepare("UPDATE users SET
-        first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, birthdate=?, class=?, phone=?, role=?, description=?, active_member=?
+        first_name=?, last_name=?, email=?, discord_id=?, slack_id=?, github_username=?, school=?, birthdate=?, class=?, phone=?, role=?, description=?
         WHERE id=?");
     $params = array_values($data);
     $params[] = $id;
@@ -113,12 +107,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     $id = intval($_POST['user_id']);
-    $active = isset($_POST['active_member']) ? 1 : 0;
-    // When deactivating (active = 0), set role to Guest
-    if ($active === 0) {
-        $db->prepare("UPDATE users SET active_member=?, role='Guest' WHERE id=?")->execute([$active, $id]);
+    $role = trim($_POST['role'] ?? '');
+    // Toggle between Guest (inactive) and Member (active) based on submitted role
+    // If no role specified, treat checkbox state as active/inactive toggle
+    if ($role) {
+        $db->prepare("UPDATE users SET role=? WHERE id=?")->execute([$role, $id]);
     } else {
-        $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$active, $id]);
+        $currentRole = $db->prepare("SELECT role FROM users WHERE id=?");
+        $currentRole->execute([$id]);
+        $userData = $currentRole->fetch();
+        $newRole = ($userData && $userData['role'] === 'Guest') ? 'Member' : 'Guest';
+        $db->prepare("UPDATE users SET role=? WHERE id=?")->execute([$newRole, $id]);
     }
     exit();
 }
@@ -128,8 +127,8 @@ $users = $db->query("SELECT * FROM users ORDER BY
     CASE 
         WHEN role = 'Leader' THEN 1 
         WHEN role = 'Co-leader' THEN 2 
-        WHEN role IN ('Member', 'Guest') AND active_member = 1 THEN 3 
-        WHEN role IN ('Member', 'Guest') AND active_member = 0 THEN 4 
+        WHEN role = 'Member' THEN 3 
+        WHEN role = 'Guest' THEN 4 
         ELSE 5 
     END, 
     first_name ASC, 
@@ -273,14 +272,9 @@ include __DIR__ . '/components/dashboard-header.php';
                                 <option value="Member">Member</option>
                                 <option value="Co-leader">Co-leader</option>
                                 <option value="Leader">Leader</option>
+                                <option value="Guest">Guest</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input type="checkbox" name="active_member" value="1" id="active_member" checked
-                            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                        <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                     </div>
 
                     <div>
@@ -374,14 +368,9 @@ include __DIR__ . '/components/dashboard-header.php';
                                     <option value="Member" <?= $editUser['role'] == 'Member' ? 'selected' : '' ?>>Member</option>
                                     <option value="Co-leader" <?= $editUser['role'] == 'Co-leader' ? 'selected' : '' ?>>Co-leader</option>
                                     <option value="Leader" <?= $editUser['role'] == 'Leader' ? 'selected' : '' ?>>Leader</option>
+                                    <option value="Guest" <?= $editUser['role'] == 'Guest' ? 'selected' : '' ?>>Guest</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="flex items-center">
-                            <input type="checkbox" name="active_member" value="1" id="active_member" <?= $editUser['active_member'] ? 'checked' : '' ?>
-                                class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                            <label for="active_member" class="ml-2 block text-sm text-gray-900">Active Member</label>
                         </div>
 
                         <div>
@@ -544,7 +533,8 @@ include __DIR__ . '/components/dashboard-header.php';
         var formData = new FormData();
         formData.append('toggle_active', 1);
         formData.append('user_id', userId);
-        if (checkbox.checked) formData.append('active_member', 1);
+        // Toggle between Guest (inactive) and Member (active)
+        formData.append('role', checkbox.checked ? 'Member' : 'Guest');
         fetch(window.location.href, {
             method: 'POST',
             body: formData

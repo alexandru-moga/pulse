@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_project'])) {
 $projects = $db->query("SELECT * FROM projects ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 // Get all users for member statistics
-$users = $db->query("SELECT * FROM users WHERE active_member = 1 ORDER BY first_name, last_name")->fetchAll(PDO::FETCH_ASSOC);
+$users = $db->query("SELECT * FROM users WHERE role != 'Guest' ORDER BY first_name, last_name")->fetchAll(PDO::FETCH_ASSOC);
 
 // Get project statistics
 $totalProjects = count($projects);

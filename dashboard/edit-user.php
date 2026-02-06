@@ -446,19 +446,19 @@ include __DIR__ . '/components/dashboard-header.php';
                 <div class="flex items-center justify-between">
                     <div>
                         <h4 class="text-sm font-medium text-gray-900">
-                            <?= $editUser['active_member'] ? 'Disable Account' : 'Enable Account' ?>
+                            <?= $editUser['role'] != 'Guest' ? 'Set as Guest' : 'Activate Account' ?>
                         </h4>
                         <p class="text-sm text-gray-600 mt-1">
-                            <?php if ($editUser['active_member']): ?>
+                            <?php if ($editUser['role'] != 'Guest'): ?>
                                 Disabling this account will prevent the user from accessing most features. They will have limited access to view their profile and projects.
                             <?php else: ?>
                                 Enable this account to restore full access to all features and functionality.
                             <?php endif; ?>
                         </p>
                     </div>
-                    <button type="button" onclick="confirmToggleStatus(<?= $editUser['id'] ?>, <?= $editUser['active_member'] ? 'false' : 'true' ?>)"
-                        class="inline-flex items-center px-4 py-2 border <?= $editUser['active_member'] ? 'border-red-300 text-red-700 hover:bg-red-50' : 'border-green-300 text-green-700 hover:bg-green-50' ?> shadow-sm text-sm font-medium rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 <?= $editUser['active_member'] ? 'focus:ring-red-500' : 'focus:ring-green-500' ?>">
-                        <?php if ($editUser['active_member']): ?>
+                    <button type="button" onclick="confirmToggleStatus(<?= $editUser['id'] ?>, <?= $editUser['role'] != 'Guest' ? 'false' : 'true' ?>)"
+                        class="inline-flex items-center px-4 py-2 border <?= $editUser['role'] != 'Guest' ? 'border-red-300 text-red-700 hover:bg-red-50' : 'border-green-300 text-green-700 hover:bg-green-50' ?> shadow-sm text-sm font-medium rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 <?= $editUser['role'] != 'Guest' ? 'focus:ring-red-500' : 'focus:ring-green-500' ?>">
+                        <?php if ($editUser['role'] != 'Guest'): ?>
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                             </svg>

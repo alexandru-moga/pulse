@@ -22,17 +22,17 @@ $membersPerRow = $members_per_row ?? '3';
         if (isset($db)) {
             try {
                 // Fetch leaders separately
-                $leaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Leader' AND active_member = 1 ORDER BY first_name ASC");
+                $leaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Leader' ORDER BY first_name ASC");
                 $leaderStmt->execute();
                 $leaders = $leaderStmt->fetchAll();
                 
                 // Fetch co-leaders separately
-                $coLeaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Co-leader' AND active_member = 1 ORDER BY first_name ASC");
+                $coLeaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Co-leader' ORDER BY first_name ASC");
                 $coLeaderStmt->execute();
                 $coLeaders = $coLeaderStmt->fetchAll();
                 
                 // Fetch regular members
-                $memberQuery = "SELECT * FROM users WHERE role = 'Member' AND active_member = 1 ORDER BY first_name ASC";
+                $memberQuery = "SELECT * FROM users WHERE role = 'Member' ORDER BY first_name ASC";
                 if (!$showAllMembers) {
                     $memberQuery .= " LIMIT 6";
                 }

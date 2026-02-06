@@ -331,7 +331,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
 
-                    <?php if ($currentUser && $currentUser->active_member == 1): ?>
+                    <?php if ($currentUser && $currentUser->role != 'Guest'): ?>
                         <li>
                             <a href="<?= $settings['site_url'] ?>/dashboard/profile-edit.php"
                                 class="flex items-center px-4 py-2 text-sm font-medium rounded-lg <?= ($currentFile === 'profile-edit.php') ? 'bg-primary text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?>">
@@ -343,7 +343,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                         </li>
                     <?php endif; ?>
 
-                    <?php if (in_array($role, ['Leader', 'Co-leader']) && $currentUser && $currentUser->active_member == 1): ?>
+                    <?php if (in_array($role, ['Leader', 'Co-leader']) && $currentUser && $currentUser->role != 'Guest'): ?>
                         <li class="pt-4">
                             <div class="px-4 py-2">
                                 <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Administration</h3>
@@ -533,7 +533,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
                 </div>
             <?php endif; ?>
 
-            <?php if ($currentUser && $currentUser->active_member == 0): ?>
+            <?php if ($currentUser && $currentUser->role == 'Guest'): ?>
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
                     <div class="flex">
                         <div class="flex-shrink-0">

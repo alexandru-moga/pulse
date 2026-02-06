@@ -169,7 +169,7 @@ class GitHubOAuth
             return ['success' => false, 'error' => 'No GitHub username found'];
         }
 
-        $stmt = $this->db->prepare("SELECT u.* FROM users u JOIN github_links gl ON u.id = gl.user_id WHERE gl.github_username = ? AND u.active_member = 1");
+        $stmt = $this->db->prepare("SELECT u.* FROM users u JOIN github_links gl ON u.id = gl.user_id WHERE gl.github_username = ? AND u.role != 'Guest'");
         $stmt->execute([$userData['login']]);
         $user = $stmt->fetch();
 

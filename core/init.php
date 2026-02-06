@@ -86,13 +86,13 @@ function isLoggedIn()
 function isActiveUser()
 {
     global $currentUser;
-    return $currentUser && $currentUser->active_member == 1;
+    return $currentUser && $currentUser->role != 'Guest';
 }
 
 function isInactiveUser()
 {
     global $currentUser;
-    return $currentUser && $currentUser->active_member == 0;
+    return $currentUser && $currentUser->role == 'Guest';
 }
 
 function isGuestUser()
@@ -104,7 +104,7 @@ function isGuestUser()
 function hasLimitedAccess()
 {
     global $currentUser;
-    return $currentUser && ($currentUser->active_member == 0 || $currentUser->role == 'Guest');
+    return $currentUser && $currentUser->role == 'Guest';
 }
 
 function isAdmin()
@@ -124,7 +124,7 @@ function checkLoggedIn()
 function checkActiveUser()
 {
     global $currentUser;
-    if (!$currentUser || $currentUser->active_member == 0 || $currentUser->role == 'Guest') {
+    if (!$currentUser || $currentUser->role == 'Guest') {
         header("HTTP/1.1 403 Forbidden");
         exit("Access denied - Account not active");
     }
@@ -138,9 +138,9 @@ function checkActiveOrLimitedAccess()
         exit();
     }
 
-    // Allow inactive users and Guest users limited access to their own data
-    if ($currentUser->active_member == 0 || $currentUser->role == 'Guest') {
-        // Define allowed pages for inactive/guest users
+    // Allow Guest users limited access to their own data
+    if ($currentUser->role == 'Guest') {
+        // Define allowed pages for guest users
         $allowedPages = [
             'index.php',
             'profile-edit.php',
@@ -153,9 +153,7 @@ function checkActiveOrLimitedAccess()
 
         $currentPage = basename($_SERVER['SCRIPT_NAME']);
         if (!in_array($currentPage, $allowedPages)) {
-            $message = $currentUser->role == 'Guest' 
-                ? "Access denied - Guest accounts have limited access. Contact administrator for full access."
-                : "Access denied - Limited access for inactive accounts. Contact administrator to reactivate your account.";
+            $message = "Access denied - Guest accounts have limited access. Contact administrator for full access.";
             header("HTTP/1.1 403 Forbidden");
             exit($message);
         }

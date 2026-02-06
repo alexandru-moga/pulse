@@ -144,7 +144,7 @@ class GoogleOAuth
         }
 
         $stmt = $this->db->prepare(
-            "SELECT u.* FROM users u INNER JOIN google_links gl ON u.id = gl.user_id WHERE gl.google_email = ? AND u.active_member = 1"
+            "SELECT u.* FROM users u INNER JOIN google_links gl ON u.id = gl.user_id WHERE gl.google_email = ? AND u.role != 'Guest'"
         );
         $stmt->execute([$userData['email']]);
         $user = $stmt->fetch();

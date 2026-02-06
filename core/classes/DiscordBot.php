@@ -159,7 +159,7 @@ class DiscordBot {
     
     public function syncUserRole($userId) {
         // Get user role from database
-        $stmt = $this->db->prepare("SELECT role FROM users WHERE id = ? AND active_member = 1");
+        $stmt = $this->db->prepare("SELECT role FROM users WHERE id = ? AND role != 'Guest'");
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
         

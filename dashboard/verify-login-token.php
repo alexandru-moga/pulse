@@ -44,7 +44,7 @@ $db->prepare("DELETE FROM email_login_tokens WHERE user_id = ? AND (expires_at <
 
 // Log the user in
 $_SESSION['user_id'] = $user['id'];
-error_log("Email login successful for user " . $user['id'] . " (active: " . $user['active_member'] . ")");
+error_log("Email login successful for user " . $user['id'] . " (role: " . $user['role'] . ")");
 
 // Check for redirect after login
 if (isset($_SESSION['redirect_after_login'])) {

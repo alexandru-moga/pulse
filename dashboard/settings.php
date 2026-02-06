@@ -14,8 +14,8 @@ $success = $error = null;
 
 // Get statistics for display
 $stats = [
-    'total_users' => $db->query("SELECT COUNT(*) FROM users WHERE active_member = 1")->fetchColumn(),
-    'discord_linked_users' => $db->query("SELECT COUNT(DISTINCT dl.user_id) FROM discord_links dl JOIN users u ON dl.user_id = u.id WHERE u.active_member = 1")->fetchColumn(),
+    'total_users' => $db->query("SELECT COUNT(*) FROM users WHERE role != 'Guest'")->fetchColumn(),
+    'discord_linked_users' => $db->query("SELECT COUNT(DISTINCT dl.user_id) FROM discord_links dl JOIN users u ON dl.user_id = u.id WHERE u.role != 'Guest'")->fetchColumn(),
     'projects_with_roles' => $db->query("SELECT COUNT(*) FROM projects WHERE discord_accepted_role_id IS NOT NULL OR discord_pizza_role_id IS NOT NULL")->fetchColumn(),
     'events_with_roles' => $db->query("SELECT COUNT(*) FROM events WHERE discord_participated_role_id IS NOT NULL")->fetchColumn()
 ];

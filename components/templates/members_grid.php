@@ -20,17 +20,17 @@ $gridSubtitle = $block_content['subtitle'] ?? 'Meet the PULSE community';
         if (isset($db)) {
             try {
                 // Fetch leaders separately
-                $leaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Leader' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $leaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Leader' AND profile_public = 1 ORDER BY first_name ASC");
                 $leaderStmt->execute();
                 $leaders = $leaderStmt->fetchAll();
                 
                 // Fetch co-leaders separately  
-                $coLeaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Co-leader' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $coLeaderStmt = $db->prepare("SELECT * FROM users WHERE role = 'Co-leader' AND profile_public = 1 ORDER BY first_name ASC");
                 $coLeaderStmt->execute();
                 $coLeaders = $coLeaderStmt->fetchAll();
                 
                 // Fetch regular members
-                $memberStmt = $db->prepare("SELECT * FROM users WHERE role = 'Member' AND active_member = 1 AND profile_public = 1 ORDER BY first_name ASC");
+                $memberStmt = $db->prepare("SELECT * FROM users WHERE role = 'Member' AND profile_public = 1 ORDER BY first_name ASC");
                 $memberStmt->execute();
                 $members = $memberStmt->fetchAll();
 
