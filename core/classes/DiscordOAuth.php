@@ -68,7 +68,7 @@ class DiscordOAuth
 
         error_log("Discord OAuth: Handling callback with state: $state");
 
-        $stmt = $this->db->prepare("SELECT csrf_token, used FROM discord_login_sessions WHERE state_token = ? AND expires_at > NOW()");
+        $stmt = $this->db->prepare("SELECT csrf_token, used FROM discord_login_sessions WHERE state_token = ? AND expires_at > UTC_TIMESTAMP()");
         $stmt->execute([$state]);
         $session = $stmt->fetch();
 

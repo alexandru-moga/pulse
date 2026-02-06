@@ -7,6 +7,9 @@ require_once __DIR__ . '../../lib/phpdotenv/src/Dotenv.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Set timezone to UTC to match MySQL NOW() function
+date_default_timezone_set('UTC');
+
 spl_autoload_register(function ($class) {
     $dotenvPrefix = 'Dotenv\\';
     $dotenvDir = __DIR__ . '/../lib/phpdotenv/src/';

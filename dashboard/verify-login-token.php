@@ -12,7 +12,8 @@ if (!$token) {
 }
 
 // Check if token exists and is valid
-$stmt = $db->prepare("SELECT * FROM email_login_tokens WHERE token = ? AND expires_at > NOW() AND used = 0");
+// Use UTC_TIMESTAMP() to match PHP's UTC timezone
+$stmt = $db->prepare("SELECT * FROM email_login_tokens WHERE token = ? AND expires_at > UTC_TIMESTAMP() AND used = 0");
 $stmt->execute([$token]);
 $tokenData = $stmt->fetch();
 
@@ -38,7 +39,7 @@ $db->prepare("UPDATE email_login_tokens SET used = 1 WHERE id = ?")
     ->execute([$tokenData['id']]);
 
 // Delete old/expired tokens for this user
-$db->prepare("DELETE FROM email_login_tokens WHERE user_id = ? AND (expires_at < NOW() OR used = 1)")
+$db->prepare("DELETE FROM email_login_tokens WHERE user_id = ? AND (expires_at < UTC_TIMESTAMP() OR used = 1)")
     ->execute([$user['id']]);
 
 // Log the user in
