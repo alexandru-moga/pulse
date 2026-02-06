@@ -69,7 +69,12 @@ if (isset($_GET['toggle_status']) && is_numeric($_GET['toggle_status'])) {
 
     if ($userData) {
         $newStatus = $userData['active_member'] ? 0 : 1;
-        $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$newStatus, $userId]);
+        // When deactivating (newStatus = 0), set role to Guest
+        if ($newStatus === 0) {
+            $db->prepare("UPDATE users SET active_member=?, role='Guest' WHERE id=?")->execute([$newStatus, $userId]);
+        } else {
+            $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$newStatus, $userId]);
+        }
         $statusMessage = $newStatus ? 'enabled' : 'disabled';
         header("Location: users.php?status_changed={$statusMessage}");
         exit();
@@ -109,17 +114,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_active'])) {
     $id = intval($_POST['user_id']);
     $active = isset($_POST['active_member']) ? 1 : 0;
-    $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$active, $id]);
+    // When deactivating (active = 0), set role to Guest
+    if ($active === 0) {
+        $db->prepare("UPDATE users SET active_member=?, role='Guest' WHERE id=?")->execute([$active, $id]);
+    } else {
+        $db->prepare("UPDATE users SET active_member=? WHERE id=?")->execute([$active, $id]);
+    }
     exit();
 }
 
 
 $users = $db->query("SELECT * FROM users ORDER BY 
-    CASE role 
-        WHEN 'Leader' THEN 1 
-        WHEN 'Co-leader' THEN 2 
-        WHEN 'Member' THEN 3 
-        WHEN 'Guest' THEN 4 
+    CASE 
+        WHEN role = 'Leader' THEN 1 
+        WHEN role = 'Co-leader' THEN 2 
+        WHEN role IN ('Member', 'Guest') AND active_member = 1 THEN 3 
+        WHEN role IN ('Member', 'Guest') AND active_member = 0 THEN 4 
         ELSE 5 
     END, 
     first_name ASC, 
