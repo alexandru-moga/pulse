@@ -37,10 +37,13 @@ if (empty($code) || empty($state)) {
 }
 
 try {
+    error_log("Hack Club OAuth: Before handleCallback, session hackclub_is_login: " . ($_SESSION['hackclub_is_login'] ?? 'not set'));
     $result = $hackclub->handleCallback($code, $state);
+    error_log("Hack Club OAuth: handleCallback result: " . json_encode($result));
     
     if ($result === null) {
         // Login failed, error message already set in session
+        error_log("Hack Club OAuth: Result is null, redirecting to login");
         header('Location: /dashboard/login.php');
         exit();
     }
@@ -48,10 +51,12 @@ try {
     // Check if this was a login or account linking
     if (isset($result['success']) && $result['success']) {
         // Account linking successful
+        error_log("Hack Club OAuth: Account linking successful");
         $_SESSION['account_link_success'] = 'Hack Club account linked successfully!';
         header('Location: /dashboard/profile-edit.php');
     } else {
         // Login successful
+        error_log("Hack Club OAuth: Login successful, redirecting to dashboard");
         header('Location: /dashboard/index.php');
     }
     exit();
