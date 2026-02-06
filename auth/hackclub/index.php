@@ -41,23 +41,24 @@ try {
     $result = $hackclub->handleCallback($code, $state);
     error_log("Hack Club OAuth: handleCallback result: " . json_encode($result));
     
-    if ($result === null) {
-        // Login failed, error message already set in session
-        error_log("Hack Club OAuth: Result is null, redirecting to login");
-        header('Location: /dashboard/login.php');
-        exit();
-    }
-    
-    // Check if this was a login or account linking
-    if (isset($result['success']) && $result['success']) {
-        // Account linking successful
-        error_log("Hack Club OAuth: Account linking successful");
-        $_SESSION['account_link_success'] = 'Hack Club account linked successfully!';
-        header('Location: /dashboard/profile-edit.php');
+    if ($result['success']) {
+        error_log("Hack Club OAuth: Callback successful, action: " . $result['action']);
+        if ($result['action'] === 'login') {
+            header('Location: ' . $settings['site_url'] . '/dashboard/');
+        } else {
+            $_SESSION['account_link_success'] = '✅ Hack Club account linked successfully!';
+            error_log("Hack Club OAuth: Redirecting to profile-edit.php");
+            header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
+        }
     } else {
-        // Login successful
-        error_log("Hack Club OAuth: Login successful, redirecting to dashboard");
-        header('Location: /dashboard/index.php');
+        error_log("Hack Club OAuth: Callback failed: " . ($result['error'] ?? 'Unknown error'));
+        if ($result['action'] === 'login') {
+            $_SESSION['hackclub_error'] = $result['error'] ?? 'Authentication failed';
+            header('Location: ' . $settings['site_url'] . '/dashboard/login.php');
+        } else {
+            $_SESSION['account_error'] = $result['error'] ?? 'Failed to link account';
+            header('Location: ' . $settings['site_url'] . '/dashboard/profile-edit.php');
+        }
     }
     exit();
     

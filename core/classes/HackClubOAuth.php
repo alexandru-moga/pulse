@@ -168,7 +168,7 @@ class HackClubOAuth
         if (!$user) {
             error_log("Hack Club OAuth: No linked user found for Hack Club ID: " . $hackclubUser['id']);
             $_SESSION['hackclub_error'] = 'No account linked to this Hack Club account. Please link your account from the dashboard first.';
-            return null;
+            return ['success' => false, 'error' => 'No account linked to this Hack Club account', 'action' => 'login'];
         }
 
         error_log("Hack Club OAuth: Login successful for user: " . $user['id']);
@@ -178,7 +178,7 @@ class HackClubOAuth
 
         // Log the user in
         $_SESSION['user_id'] = $user['id'];
-        return $user;
+        return ['success' => true, 'user' => $user, 'action' => 'login'];
     }
 
     private function linkHackClubAccount($hackclubUser, $tokenData)
@@ -204,8 +204,8 @@ class HackClubOAuth
 
         return [
             'success' => true,
-            'hackclub_name' => ($hackclubUser['first_name'] ?? '') . ' ' . ($hackclubUser['last_name'] ?? ''),
-            'hackclub_id' => $hackclubUser['id']
+            'user' => $hackclubUser,
+            'action' => 'link'
         ];
     }
 
