@@ -188,7 +188,7 @@ $unlinked_users = $stats['total_users'] - $stats['discord_linked_users'];
                 </svg>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Integrations</h3>
             </div>
-            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">Configure GitHub, Google, Slack and other integrations</p>
+            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">Configure GitHub, Google, Slack, Hack Club and other integrations</p>
             <div class="space-y-2">
                 <a href="<?= $settings['site_url'] ?>/dashboard/github-settings.php"
                     class="block w-full text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
@@ -201,6 +201,10 @@ $unlinked_users = $stats['total_users'] - $stats['discord_linked_users'];
                 <a href="<?= $settings['site_url'] ?>/dashboard/slack-settings.php"
                     class="block w-full text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     Slack
+                </a>
+                <a href="<?= $settings['site_url'] ?>/dashboard/hackclub-settings.php"
+                    class="block w-full text-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    Hack Club
                 </a>
             </div>
         </div>

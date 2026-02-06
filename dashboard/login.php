@@ -163,6 +163,23 @@ $discordConfigured = $discord->isConfigured();
                         Login with Discord
                     </a>
                 <?php endif; ?>
+
+                <?php
+                // Check if Hack Club is configured
+                require_once __DIR__ . '/../core/classes/HackClubOAuth.php';
+                $hackclub = new HackClubOAuth($db);
+                $hackclubConfigured = $hackclub->isConfigured();
+                ?>
+                <?php if ($hackclubConfigured): ?>
+                    <!-- Hack Club Login Button -->
+                    <a href="<?= htmlspecialchars($hackclub->generateAuthUrl(true)) ?>"
+                        class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                        </svg>
+                        Login with Hack Club
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
