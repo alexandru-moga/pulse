@@ -29,9 +29,12 @@ $state = $_GET['state'] ?? '';
 
 // If no code/state, this is an initial OAuth request (not a callback)
 if (empty($code) || empty($state)) {
-    $isLogin = ($_GET['action'] ?? 'link') === 'login';
-    error_log("Hack Club OAuth: Starting flow, isLogin: " . ($isLogin ? 'true' : 'false'));
+    $action = $_GET['action'] ?? 'link';
+    $isLogin = $action === 'login';
+    error_log("Hack Club OAuth: Starting flow, action='$action', isLogin: " . ($isLogin ? 'true' : 'false'));
+    error_log("Hack Club OAuth: Current session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
     $authUrl = $hackclub->generateAuthUrl($isLogin);
+    error_log("Hack Club OAuth: Generated auth URL, redirecting to Hack Club");
     header('Location: ' . $authUrl);
     exit();
 }
@@ -40,6 +43,17 @@ try {
     error_log("Hack Club OAuth: Before handleCallback, session hackclub_is_login: " . ($_SESSION['hackclub_is_login'] ?? 'not set'));
     $result = $hackclub->handleCallback($code, $state);
     error_log("Hack Club OAuth: handleCallback result: " . json_encode($result));
+    
+    // DEBUG: Show result instead of redirecting
+    if (isset($_GET['debug'])) {
+        header('Content-Type: text/plain');
+        echo "=== Hack Club OAuth Debug ===\n\n";
+        echo "Result:\n";
+        print_r($result);
+        echo "\n\nSession user_id: " . ($_SESSION['user_id'] ?? 'NOT SET') . "\n";
+        echo "Logged in: " . (isLoggedIn() ? 'YES' : 'NO') . "\n";
+        exit();
+    }
     
     if ($result['success']) {
         error_log("Hack Club OAuth: Callback successful, action: " . $result['action']);

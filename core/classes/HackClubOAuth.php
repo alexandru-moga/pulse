@@ -44,6 +44,9 @@ class HackClubOAuth
 
         $_SESSION['hackclub_csrf_token'] = $csrf;
         $_SESSION['hackclub_is_login'] = $isLogin;
+        
+        error_log("Hack Club OAuth: Set session hackclub_is_login to: " . ($isLogin ? 'true' : 'false'));
+        error_log("Hack Club OAuth: Set session hackclub_csrf_token to: $csrf");
 
         $params = [
             'client_id' => $this->clientId,
@@ -81,11 +84,16 @@ class HackClubOAuth
         $hackclubUser = $this->getHackClubUser($tokenData['access_token']);
 
         $isLogin = $_SESSION['hackclub_is_login'] ?? false;
+        error_log("Hack Club OAuth: In handleCallback, isLogin from session: " . ($isLogin ? 'true' : 'false'));
+        error_log("Hack Club OAuth: Hack Club user: " . $hackclubUser['id'] . ' (' . ($hackclubUser['first_name'] ?? '') . ' ' . ($hackclubUser['last_name'] ?? '') . ')');
+        
         unset($_SESSION['hackclub_csrf_token'], $_SESSION['hackclub_is_login']);
 
         if ($isLogin) {
+            error_log("Hack Club OAuth: Calling handleHackClubLogin");
             return $this->handleHackClubLogin($hackclubUser, $tokenData);
         } else {
+            error_log("Hack Club OAuth: Calling linkHackClubAccount");
             return $this->linkHackClubAccount($hackclubUser, $tokenData);
         }
     }
@@ -183,7 +191,11 @@ class HackClubOAuth
 
     private function linkHackClubAccount($hackclubUser, $tokenData)
     {
+        error_log("Hack Club OAuth: linkHackClubAccount called");
+        error_log("Hack Club OAuth: Session user_id: " . ($_SESSION['user_id'] ?? 'NOT SET'));
+        
         if (!isset($_SESSION['user_id'])) {
+            error_log("Hack Club OAuth: ERROR - No user_id in session!");
             throw new Exception('Must be logged in to link Hack Club account');
         }
 
@@ -200,7 +212,9 @@ class HackClubOAuth
         }
 
         // Create or update the link
+        error_log("Hack Club OAuth: Calling updateHackClubLink");
         $this->updateHackClubLink($userId, $hackclubUser, $tokenData);
+        error_log("Hack Club OAuth: Link created/updated successfully");
 
         return [
             'success' => true,
